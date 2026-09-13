@@ -22,14 +22,10 @@ type BookFileItem struct {
 	ID        int    `json:"id"`
 	ProjectID int    `json:"book_project_id"`
 	Filename  string `json:"filename"`
-	Format    string `json:"format"`
+	Format    string `json:"file_type"`
 	FileSize  int64  `json:"file_size"`
-	Downloads int    `json:"download_count"`
+	Downloads int    `json:"downloads_count"`
 	CreatedAt string `json:"created_at"`
-}
-
-type FileDownloadURLResponse struct {
-	DownloadURL string `json:"download_url"`
 }
 
 var filesCmd = &cobra.Command{
@@ -53,10 +49,13 @@ var filesListCmd = &cobra.Command{
 			return printer.PrintRawJSON(raw)
 		}
 
-		var files []BookFileItem
-		if err := json.Unmarshal(raw, &files); err != nil {
+		var response struct {
+			Data []BookFileItem `json:"data"`
+		}
+		if err := json.Unmarshal(raw, &response); err != nil {
 			return err
 		}
+		files := response.Data
 
 		if len(files) == 0 {
 			printer.PrintInfo("No files attached to this project.")
@@ -110,8 +109,13 @@ var filesUploadCmd = &cobra.Command{
 			return printer.PrintRawJSON(raw)
 		}
 
-		var created BookFileItem
-		_ = json.Unmarshal(raw, &created)
+		var response struct {
+			Data BookFileItem `json:"data"`
+		}
+		if err := json.Unmarshal(raw, &response); err != nil {
+			return err
+		}
+		created := response.Data
 		printer.PrintInfo(fmt.Sprintf("✓ Uploaded file #%d (%s) successfully.", created.ID, created.Filename))
 		return nil
 	},
@@ -125,15 +129,11 @@ var filesDownloadCmd = &cobra.Command{
 		projectID := args[0]
 		fileID := args[1]
 
-		raw, err := apiCli.Get(fmt.Sprintf("/api/v1/projects/%s/files/%s/download", projectID, fileID), nil)
+		resp, err := apiCli.Request(http.MethodGet, fmt.Sprintf("/api/v1/projects/%s/files/%s/download", projectID, fileID), nil, "")
 		if err != nil {
 			return err
 		}
-
-		var urlResp FileDownloadURLResponse
-		if err := json.Unmarshal(raw, &urlResp); err != nil || urlResp.DownloadURL == "" {
-			return fmt.Errorf("failed to retrieve download URL: %s", string(raw))
-		}
+		defer resp.Body.Close()
 
 		destPath := flagFileOutput
 		if destPath == "" {
@@ -141,12 +141,6 @@ var filesDownloadCmd = &cobra.Command{
 		}
 
 		printer.PrintInfo(fmt.Sprintf("Downloading file to %s...", destPath))
-
-		resp, err := http.Get(urlResp.DownloadURL)
-		if err != nil {
-			return fmt.Errorf("failed to download file from stream: %w", err)
-		}
-		defer resp.Body.Close()
 
 		outFile, err := os.Create(destPath)
 		if err != nil {

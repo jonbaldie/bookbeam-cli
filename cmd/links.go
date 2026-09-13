@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	flagLinkTitle   string
-	flagLinkOptIn   string
-	flagLinkForce   bool
+	flagLinkTitle string
+	flagLinkOptIn string
+	flagLinkForce bool
 )
 
 type SignupLinkItem struct {
@@ -45,10 +45,13 @@ var linksListCmd = &cobra.Command{
 			return printer.PrintRawJSON(raw)
 		}
 
-		var links []SignupLinkItem
-		if err := json.Unmarshal(raw, &links); err != nil {
+		var response struct {
+			Data []SignupLinkItem `json:"data"`
+		}
+		if err := json.Unmarshal(raw, &response); err != nil {
 			return err
 		}
+		links := response.Data
 
 		if len(links) == 0 {
 			printer.PrintInfo("No signup links found for this project.")
@@ -96,8 +99,13 @@ var linksCreateCmd = &cobra.Command{
 			return printer.PrintRawJSON(raw)
 		}
 
-		var created SignupLinkItem
-		_ = json.Unmarshal(raw, &created)
+		var response struct {
+			Data SignupLinkItem `json:"data"`
+		}
+		if err := json.Unmarshal(raw, &response); err != nil {
+			return err
+		}
+		created := response.Data
 		publicURL := fmt.Sprintf("%s/download/%s", strings.TrimRight(cfg.Host, "/"), created.Slug)
 		printer.PrintInfo(fmt.Sprintf("✓ Created signup link #%d: %s", created.ID, publicURL))
 		return nil

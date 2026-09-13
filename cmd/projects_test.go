@@ -38,10 +38,10 @@ func TestProjectsListAndCreate(t *testing.T) {
 		if r.URL.Path == "/api/v1/projects" && r.Method == http.MethodPost {
 			var body map[string]string
 			_ = json.NewDecoder(r.Body).Decode(&body)
-			_ = json.NewEncoder(w).Encode(map[string]any{
+			_ = json.NewEncoder(w).Encode(map[string]any{"data": map[string]any{
 				"id":    102,
 				"title": body["title"],
-			})
+			}})
 			return
 		}
 

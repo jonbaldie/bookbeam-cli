@@ -24,13 +24,13 @@ var (
 )
 
 type ProjectItem struct {
-	ID             int    `json:"id"`
-	Title          string `json:"title"`
-	Description    string `json:"description"`
-	CoverImageURL  string `json:"cover_image_url"`
-	FilesCount     int    `json:"files_count"`
-	SignupLinksCount int  `json:"signup_links_count"`
-	CreatedAt      string `json:"created_at"`
+	ID               int    `json:"id"`
+	Title            string `json:"title"`
+	Description      string `json:"description"`
+	CoverImageURL    string `json:"cover_image_url"`
+	FilesCount       int    `json:"files_count"`
+	SignupLinksCount int    `json:"signup_links_count"`
+	CreatedAt        string `json:"created_at"`
 }
 
 type ProjectListResponse struct {
@@ -107,10 +107,13 @@ var projectsGetCmd = &cobra.Command{
 			return printer.PrintRawJSON(raw)
 		}
 
-		var p ProjectItem
-		if err := json.Unmarshal(raw, &p); err != nil {
+		var response struct {
+			Data ProjectItem `json:"data"`
+		}
+		if err := json.Unmarshal(raw, &response); err != nil {
 			return err
 		}
+		p := response.Data
 
 		rows := [][]string{
 			{"ID", strconv.Itoa(p.ID)},
@@ -164,8 +167,13 @@ var projectsCreateCmd = &cobra.Command{
 			return printer.PrintRawJSON(raw)
 		}
 
-		var created ProjectItem
-		_ = json.Unmarshal(raw, &created)
+		var response struct {
+			Data ProjectItem `json:"data"`
+		}
+		if err := json.Unmarshal(raw, &response); err != nil {
+			return err
+		}
+		created := response.Data
 		printer.PrintInfo(fmt.Sprintf("✓ Created book project #%d: %s", created.ID, created.Title))
 		return nil
 	},
@@ -228,12 +236,14 @@ var projectsDeleteCmd = &cobra.Command{
 		if !flagProjectForce && !printer.JSON {
 			fmt.Printf("Are you sure you want to delete project #%s? (y/N): ", projectID)
 			scanner := bufio.NewScanner(os.Stdin)
-			if scanner.Scan() {
-				ans := strings.ToLower(strings.TrimSpace(scanner.Text()))
-				if ans != "y" && ans != "yes" {
-					printer.PrintInfo("Cancelled.")
-					return nil
-				}
+			if !scanner.Scan() {
+				printer.PrintInfo("Cancelled.")
+				return nil
+			}
+			ans := strings.ToLower(strings.TrimSpace(scanner.Text()))
+			if ans != "y" && ans != "yes" {
+				printer.PrintInfo("Cancelled.")
+				return nil
 			}
 		}
 

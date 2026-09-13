@@ -18,8 +18,8 @@ var (
 type DownloaderItem struct {
 	ID        int    `json:"id"`
 	Email     string `json:"email"`
-	LinkName  string `json:"link_name"`
-	CreatedAt string `json:"created_at"`
+	LinkName  string `json:"signup_link_title"`
+	CreatedAt string `json:"signed_up_at"`
 }
 
 type DownloaderListResponse struct {
