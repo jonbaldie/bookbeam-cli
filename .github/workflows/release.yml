@@ -1,0 +1,50 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache: true
+
+      - name: Build and Package Binaries
+        run: |
+          mkdir -p dist
+          platforms=("darwin/amd64" "darwin/arm64" "linux/amd64" "linux/arm64" "windows/amd64")
+          for p in "${platforms[@]}"; do
+            os="${p%/*}"
+            arch="${p#*/}"
+            output="dist/bookbeam-${os}-${arch}"
+            if [ "$os" = "windows" ]; then
+              output+=".exe"
+            fi
+            echo "Building for $os/$arch..."
+            GOOS=$os GOARCH=$arch go build -ldflags="-s -w" -o "$output" .
+            tar -czf "${output}.tar.gz" -C dist "$(basename "$output")"
+          done
+          cd dist
+          sha256sum *.tar.gz > checksums.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.tar.gz
+            dist/checksums.txt
+          generate_release_notes: true
