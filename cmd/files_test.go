@@ -20,26 +20,26 @@ func TestFilesListAndUpload(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 
 		if r.URL.Path == "/api/v1/projects/10/files" && r.Method == http.MethodGet {
-			_ = json.NewEncoder(w).Encode([]map[string]any{
+			_ = json.NewEncoder(w).Encode(map[string]any{"data": []map[string]any{
 				{
 					"id":              55,
 					"book_project_id": 10,
 					"filename":        "novel.epub",
-					"format":          "epub",
+					"file_type":       "epub",
 					"file_size":       1024,
-					"download_count":  12,
+					"downloads_count": 12,
 					"created_at":      "2026-09-13T10:00:00Z",
 				},
-			})
+			}})
 			return
 		}
 
 		if r.URL.Path == "/api/v1/projects/10/files" && r.Method == http.MethodPost {
-			_ = json.NewEncoder(w).Encode(map[string]any{
-				"id":       56,
-				"filename": "sample.epub",
-				"format":   "epub",
-			})
+			_ = json.NewEncoder(w).Encode(map[string]any{"data": map[string]any{
+				"id":        56,
+				"filename":  "sample.epub",
+				"file_type": "epub",
+			}})
 			return
 		}
 

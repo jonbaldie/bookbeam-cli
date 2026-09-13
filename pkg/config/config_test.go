@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 )
 
@@ -37,7 +38,8 @@ func TestSaveAndLoadConfig(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to stat config file: %v", err)
 	}
-	if perm := info.Mode().Perm(); perm != 0600 {
+	// Windows does not expose POSIX file permissions through os.FileMode.
+	if perm := info.Mode().Perm(); runtime.GOOS != "windows" && perm != 0600 {
 		t.Fatalf("expected 0600 permissions, got %o", perm)
 	}
 

@@ -20,7 +20,7 @@ func TestLinksAndDownloadersCommands(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 
 		if r.URL.Path == "/api/v1/projects/5/links" && r.Method == http.MethodGet {
-			_ = json.NewEncoder(w).Encode([]map[string]any{
+			_ = json.NewEncoder(w).Encode(map[string]any{"data": []map[string]any{
 				{
 					"id":              201,
 					"book_project_id": 5,
@@ -28,7 +28,7 @@ func TestLinksAndDownloadersCommands(t *testing.T) {
 					"title":           "Free Sample",
 					"created_at":      "2026-09-13T10:00:00Z",
 				},
-			})
+			}})
 			return
 		}
 
@@ -36,10 +36,10 @@ func TestLinksAndDownloadersCommands(t *testing.T) {
 			_ = json.NewEncoder(w).Encode(map[string]any{
 				"data": []map[string]any{
 					{
-						"id":         1,
-						"email":      "reader@example.com",
-						"link_name":  "Free Sample",
-						"created_at": "2026-09-13T11:00:00Z",
+						"id":                1,
+						"email":             "reader@example.com",
+						"signup_link_title": "Free Sample",
+						"signed_up_at":      "2026-09-13T11:00:00Z",
 					},
 				},
 				"current_page": 1,

@@ -6,6 +6,14 @@ Built in Go as a standalone binary with zero dependencies. The CLI orchestrates 
 
 ## Installation
 
+### Homebrew (macOS and Linux)
+
+```bash
+brew install jonbaldie/tap/bookbeam
+```
+
+This uses the [jonbaldie Homebrew tap](https://github.com/jonbaldie/homebrew-tap), alongside ProSie, and installs the `bookbeam` command on Apple Silicon, Intel Macs, and ARM64 or AMD64 Linux.
+
 ### Binary Download
 
 Download pre-compiled binaries for Linux, macOS, and Windows from the [Releases](https://github.com/jonbaldie/bookbeam-cli/releases) page.
@@ -22,14 +30,16 @@ sudo mv bookbeam-darwin-arm64 /usr/local/bin/bookbeam
 go install github.com/jonbaldie/bookbeam-cli@latest
 ```
 
+Go names the installed binary `bookbeam-cli`. Rename it to `bookbeam` (or `bookbeam.exe` on Windows) and add your Go bin directory to `PATH` to use the examples below.
+
 ## Authentication
 
 ### Browser Login (OAuth 2.0 Device Flow)
 
-Run `bookbeam login` to authenticate securely via browser without manual token copying:
+Run `bookbeam auth login` to authenticate securely via browser without manual token copying:
 
 ```bash
-bookbeam login
+bookbeam auth login
 ```
 
 The CLI requests a one-time user code, opens `https://bookbeam.app/device`, and automatically completes authentication once approved.
@@ -40,7 +50,7 @@ For CI/CD or headless servers, provide your Personal Access Token directly:
 
 ```bash
 # Save to ~/.config/bookbeam/config.json
-bookbeam login --token bb_pat_1234567890
+bookbeam auth login --token bb_pat_1234567890
 
 # Or via environment variable
 export BOOKBEAM_TOKEN="bb_pat_1234567890"
@@ -55,7 +65,7 @@ bookbeam whoami
 To log out:
 
 ```bash
-bookbeam logout
+bookbeam auth logout
 ```
 
 ## Command Reference
