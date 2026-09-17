@@ -4,18 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"mime"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
-)
-
-var (
-	flagFileOutput string
-	flagFileForce  bool
 )
 
 type BookFileItem struct {
@@ -128,6 +125,7 @@ var filesDownloadCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		projectID := args[0]
 		fileID := args[1]
+		outputFlag, _ := cmd.Flags().GetString("output")
 
 		resp, err := apiCli.Request(http.MethodGet, fmt.Sprintf("/api/v1/projects/%s/files/%s/download", projectID, fileID), nil, "")
 		if err != nil {
@@ -135,10 +133,7 @@ var filesDownloadCmd = &cobra.Command{
 		}
 		defer resp.Body.Close()
 
-		destPath := flagFileOutput
-		if destPath == "" {
-			destPath = fmt.Sprintf("project-%s-file-%s", projectID, fileID)
-		}
+		destPath := resolveDownloadDestination(outputFlag, resp.Header.Get("Content-Disposition"), projectID, fileID)
 
 		printer.PrintInfo(fmt.Sprintf("Downloading file to %s...", destPath))
 
@@ -158,6 +153,46 @@ var filesDownloadCmd = &cobra.Command{
 	},
 }
 
+func resolveDownloadDestination(outputFlag, dispositionHeader, projectID, fileID string) string {
+	if outputFlag != "" {
+		return outputFlag
+	}
+
+	if dispositionHeader != "" {
+		if filename := extractDispositionFilename(dispositionHeader); filename != "" {
+			return filename
+		}
+	}
+
+	return fmt.Sprintf("project-%s-file-%s", projectID, fileID)
+}
+
+func extractDispositionFilename(header string) string {
+	_, params, err := mime.ParseMediaType(header)
+	if err != nil {
+		return ""
+	}
+
+	rawName, ok := params["filename"]
+	if !ok {
+		return ""
+	}
+
+	return sanitizeFilename(rawName)
+}
+
+func sanitizeFilename(raw string) string {
+	cleaned := strings.TrimSpace(raw)
+	cleaned = strings.ReplaceAll(cleaned, "\\", "/")
+	base := strings.TrimSpace(path.Base(cleaned))
+
+	if base == "." || base == ".." || base == "/" || base == "" {
+		return ""
+	}
+
+	return base
+}
+
 var filesDeleteCmd = &cobra.Command{
 	Use:   "delete <project-id> <file-id>",
 	Short: "Delete a book file from a project",
@@ -165,8 +200,9 @@ var filesDeleteCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		projectID := args[0]
 		fileID := args[1]
+		force, _ := cmd.Flags().GetBool("force")
 
-		if !flagFileForce && !printer.JSON {
+		if !force && !printer.JSON {
 			fmt.Printf("Are you sure you want to delete file #%s from project #%s? (y/N): ", fileID, projectID)
 			var ans string
 			fmt.Scanln(&ans)
@@ -192,8 +228,8 @@ var filesDeleteCmd = &cobra.Command{
 }
 
 func init() {
-	filesDownloadCmd.Flags().StringVarP(&flagFileOutput, "output", "o", "", "Destination file path")
-	filesDeleteCmd.Flags().BoolVarP(&flagFileForce, "force", "f", false, "Skip confirmation prompt")
+	filesDownloadCmd.Flags().StringP("output", "o", "", "Destination file path")
+	filesDeleteCmd.Flags().BoolP("force", "f", false, "Skip confirmation prompt")
 
 	filesCmd.AddCommand(filesListCmd)
 	filesCmd.AddCommand(filesUploadCmd)
