@@ -241,8 +241,10 @@ func TestLinksUpdateClearConsent(t *testing.T) {
 	if receivedPutBody["title"] != "Reader Magnet" {
 		t.Errorf("expected PUT title to preserve 'Reader Magnet', got %v", receivedPutBody["title"])
 	}
-	if _, ok := receivedPutBody["opt_in_text"]; ok {
-		t.Errorf("expected opt_in_text to be omitted when clearing consent, got %v", receivedPutBody["opt_in_text"])
+	// The API keeps fields a PUT omits, so clearing consent must send an explicit null.
+	consent, ok := receivedPutBody["opt_in_text"]
+	if !ok || consent != nil {
+		t.Errorf("expected opt_in_text to be sent as explicit null when clearing consent, got present=%v value=%v", ok, consent)
 	}
 }
 
