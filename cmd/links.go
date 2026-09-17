@@ -18,60 +18,66 @@ type SignupLinkItem struct {
 	CreatedAt string `json:"created_at"`
 }
 
-var linksCmd = &cobra.Command{
-	Use:     "links",
-	Aliases: []string{"link"},
-	Short:   "Manage reader signup links and landing pages",
+func linksCmd(a *app) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "links",
+		Aliases: []string{"link"},
+		Short:   "Manage reader signup links and landing pages",
+	}
+	cmd.AddCommand(linksListCmd(a), linksCreateCmd(a), linksUpdateCmd(a), linksDeleteCmd(a))
+	return cmd
 }
 
-var linksListCmd = &cobra.Command{
-	Use:   "list <project-id>",
-	Short: "List all signup links for a book project",
-	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		projectID := args[0]
-		raw, err := apiCli.Get(fmt.Sprintf("/api/v1/projects/%s/links", projectID), nil)
-		if err != nil {
-			return err
-		}
+func linksListCmd(a *app) *cobra.Command {
+	return &cobra.Command{
+		Use:   "list <project-id>",
+		Short: "List all signup links for a book project",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			projectID := args[0]
+			raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%s/links", projectID), nil)
+			if err != nil {
+				return err
+			}
 
-		if printer.JSON {
-			return printer.PrintRawJSON(raw)
-		}
+			if a.printer.JSON {
+				return a.printer.PrintRawJSON(raw)
+			}
 
-		var response struct {
-			Data []SignupLinkItem `json:"data"`
-		}
-		if err := json.Unmarshal(raw, &response); err != nil {
-			return err
-		}
-		links := response.Data
+			var response struct {
+				Data []SignupLinkItem `json:"data"`
+			}
+			if err := json.Unmarshal(raw, &response); err != nil {
+				return err
+			}
+			links := response.Data
 
-		if len(links) == 0 {
-			printer.PrintInfo("No signup links found for this project.")
+			if len(links) == 0 {
+				a.printer.PrintInfo("No signup links found for this project.")
+				return nil
+			}
+
+			headers := []string{"ID", "TITLE", "SLUG", "PUBLIC URL", "CREATED"}
+			var rows [][]string
+			for _, l := range links {
+				publicURL := fmt.Sprintf("%s/download/%s", strings.TrimRight(a.cfg.Host, "/"), l.Slug)
+				rows = append(rows, []string{
+					strconv.Itoa(l.ID),
+					l.Title,
+					l.Slug,
+					publicURL,
+					l.CreatedAt,
+				})
+			}
+
+			a.printer.Table(headers, rows)
 			return nil
-		}
-
-		headers := []string{"ID", "TITLE", "SLUG", "PUBLIC URL", "CREATED"}
-		var rows [][]string
-		for _, l := range links {
-			publicURL := fmt.Sprintf("%s/download/%s", strings.TrimRight(cfg.Host, "/"), l.Slug)
-			rows = append(rows, []string{
-				strconv.Itoa(l.ID),
-				l.Title,
-				l.Slug,
-				publicURL,
-				l.CreatedAt,
-			})
-		}
-
-		printer.Table(headers, rows)
-		return nil
-	},
+		},
+	}
 }
 
-func fetchExistingLink(projectID, linkID string) (*SignupLinkItem, error) {
-	raw, err := apiCli.Get(fmt.Sprintf("/api/v1/projects/%s/links", projectID), nil)
+func fetchExistingLink(a *app, projectID, linkID string) (*SignupLinkItem, error) {
+	raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%s/links", projectID), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -93,151 +99,153 @@ func fetchExistingLink(projectID, linkID string) (*SignupLinkItem, error) {
 	return nil, fmt.Errorf("signup link #%s not found in project %s", linkID, projectID)
 }
 
-var linksCreateCmd = &cobra.Command{
-	Use:   "create <project-id>",
-	Short: "Create a new reader signup link for a project",
-	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		projectID := args[0]
-		title, _ := cmd.Flags().GetString("title")
-		consent, _ := cmd.Flags().GetString("consent")
+func linksCreateCmd(a *app) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "create <project-id>",
+		Short: "Create a new reader signup link for a project",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			projectID := args[0]
+			title, _ := cmd.Flags().GetString("title")
+			consent, _ := cmd.Flags().GetString("consent")
 
-		payload := map[string]string{}
-		if title != "" {
-			payload["title"] = title
-		}
-		if consent != "" {
-			payload["opt_in_text"] = consent
-		}
+			payload := map[string]string{}
+			if title != "" {
+				payload["title"] = title
+			}
+			if consent != "" {
+				payload["opt_in_text"] = consent
+			}
 
-		raw, err := apiCli.Post(fmt.Sprintf("/api/v1/projects/%s/links", projectID), payload)
-		if err != nil {
-			return err
-		}
-
-		if printer.JSON {
-			return printer.PrintRawJSON(raw)
-		}
-
-		var response struct {
-			Data SignupLinkItem `json:"data"`
-		}
-		if err := json.Unmarshal(raw, &response); err != nil {
-			return err
-		}
-		created := response.Data
-		publicURL := fmt.Sprintf("%s/download/%s", strings.TrimRight(cfg.Host, "/"), created.Slug)
-		printer.PrintInfo(fmt.Sprintf("✓ Created signup link #%d: %s", created.ID, publicURL))
-		return nil
-	},
-}
-
-var linksUpdateCmd = &cobra.Command{
-	Use:   "update <project-id> <link-id>",
-	Short: "Update an existing signup link",
-	Args:  cobra.ExactArgs(2),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		projectID := args[0]
-		linkID := args[1]
-
-		title, _ := cmd.Flags().GetString("title")
-		consent, _ := cmd.Flags().GetString("consent")
-		clearConsent, _ := cmd.Flags().GetBool("clear-consent")
-
-		if consent != "" && clearConsent {
-			return fmt.Errorf("cannot specify both --consent and --clear-consent")
-		}
-
-		targetTitle := title
-		targetConsent := consent
-		hasConsent := consent != ""
-
-		if title == "" || (!clearConsent && !hasConsent) {
-			existing, err := fetchExistingLink(projectID, linkID)
+			raw, err := a.apiCli.Post(fmt.Sprintf("/api/v1/projects/%s/links", projectID), payload)
 			if err != nil {
 				return err
 			}
-			if targetTitle == "" {
-				targetTitle = existing.Title
-			}
-			if !clearConsent && !hasConsent {
-				targetConsent = existing.OptInText
-			}
-		}
 
-		payload := map[string]any{
-			"title": targetTitle,
-		}
-		if clearConsent {
-			// The API keeps fields a PUT omits, so clearing needs an explicit null.
-			payload["opt_in_text"] = nil
-		} else if targetConsent != "" {
-			payload["opt_in_text"] = targetConsent
-		}
+			if a.printer.JSON {
+				return a.printer.PrintRawJSON(raw)
+			}
 
-		raw, err := apiCli.Put(fmt.Sprintf("/api/v1/projects/%s/links/%s", projectID, linkID), payload)
+			var response struct {
+				Data SignupLinkItem `json:"data"`
+			}
+			if err := json.Unmarshal(raw, &response); err != nil {
+				return err
+			}
+			created := response.Data
+			publicURL := fmt.Sprintf("%s/download/%s", strings.TrimRight(a.cfg.Host, "/"), created.Slug)
+			a.printer.PrintInfo(fmt.Sprintf("✓ Created signup link #%d: %s", created.ID, publicURL))
+			return nil
+		},
+	}
+	cmd.Flags().String("title", "", "Signup link title")
+	cmd.Flags().String("consent", "", "Newsletter consent text")
+	return cmd
+}
+
+func linksUpdateCmd(a *app) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update <project-id> <link-id>",
+		Short: "Update an existing signup link",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			projectID := args[0]
+			linkID := args[1]
+
+			title, _ := cmd.Flags().GetString("title")
+			consent, _ := cmd.Flags().GetString("consent")
+			clearConsent, _ := cmd.Flags().GetBool("clear-consent")
+
+			if consent != "" && clearConsent {
+				return fmt.Errorf("cannot specify both --consent and --clear-consent")
+			}
+
+			payload, err := linkUpdatePayload(title, consent, clearConsent, func() (*SignupLinkItem, error) {
+				return fetchExistingLink(a, projectID, linkID)
+			})
+			if err != nil {
+				return err
+			}
+
+			raw, err := a.apiCli.Put(fmt.Sprintf("/api/v1/projects/%s/links/%s", projectID, linkID), payload)
+			if err != nil {
+				return err
+			}
+
+			if a.printer.JSON {
+				return a.printer.PrintRawJSON(raw)
+			}
+
+			a.printer.PrintInfo(fmt.Sprintf("✓ Updated signup link #%s", linkID))
+			return nil
+		},
+	}
+	cmd.Flags().String("title", "", "Updated link title")
+	cmd.Flags().String("consent", "", "Updated newsletter consent text")
+	cmd.Flags().Bool("clear-consent", false, "Clear newsletter consent text")
+	return cmd
+}
+
+func linksDeleteCmd(a *app) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "delete <project-id> <link-id>",
+		Short: "Delete a signup link",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			projectID := args[0]
+			linkID := args[1]
+			force, _ := cmd.Flags().GetBool("force")
+
+			if !force && !a.printer.JSON {
+				if !confirm(cmd, fmt.Sprintf("Are you sure you want to delete link #%s?", linkID)) {
+					a.printer.PrintInfo("Cancelled.")
+					return nil
+				}
+			}
+
+			raw, err := a.apiCli.Delete(fmt.Sprintf("/api/v1/projects/%s/links/%s", projectID, linkID))
+			if err != nil {
+				return err
+			}
+
+			if a.printer.JSON {
+				return a.printer.PrintRawJSON(raw)
+			}
+
+			a.printer.PrintInfo(fmt.Sprintf("✓ Deleted signup link #%s", linkID))
+			return nil
+		},
+	}
+	cmd.Flags().BoolP("force", "f", false, "Skip confirmation prompt")
+	return cmd
+}
+
+// linkUpdatePayload builds a full PUT body, filling fields the user left unset from the existing link.
+func linkUpdatePayload(title, consent string, clearConsent bool, fetch func() (*SignupLinkItem, error)) (map[string]any, error) {
+	if title == "" || (!clearConsent && consent == "") {
+		existing, err := fetch()
 		if err != nil {
-			return err
+			return nil, err
 		}
-
-		if printer.JSON {
-			return printer.PrintRawJSON(raw)
+		title = firstNonEmpty(title, existing.Title)
+		if !clearConsent {
+			consent = firstNonEmpty(consent, existing.OptInText)
 		}
+	}
 
-		printer.PrintInfo(fmt.Sprintf("✓ Updated signup link #%s", linkID))
-		return nil
-	},
+	payload := map[string]any{"title": title}
+	if clearConsent {
+		// The API keeps fields a PUT omits, so clearing needs an explicit null.
+		payload["opt_in_text"] = nil
+	} else if consent != "" {
+		payload["opt_in_text"] = consent
+	}
+	return payload, nil
 }
 
-var linksDeleteCmd = &cobra.Command{
-	Use:   "delete <project-id> <link-id>",
-	Short: "Delete a signup link",
-	Args:  cobra.ExactArgs(2),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		projectID := args[0]
-		linkID := args[1]
-		force, _ := cmd.Flags().GetBool("force")
-
-		if !force && !printer.JSON {
-			fmt.Printf("Are you sure you want to delete link #%s? (y/N): ", linkID)
-			var ans string
-			fmt.Scanln(&ans)
-			ans = strings.ToLower(strings.TrimSpace(ans))
-			if ans != "y" && ans != "yes" {
-				printer.PrintInfo("Cancelled.")
-				return nil
-			}
-		}
-
-		raw, err := apiCli.Delete(fmt.Sprintf("/api/v1/projects/%s/links/%s", projectID, linkID))
-		if err != nil {
-			return err
-		}
-
-		if printer.JSON {
-			return printer.PrintRawJSON(raw)
-		}
-
-		printer.PrintInfo(fmt.Sprintf("✓ Deleted signup link #%s", linkID))
-		return nil
-	},
+func firstNonEmpty(value, fallback string) string {
+	if value != "" {
+		return value
+	}
+	return fallback
 }
-
-func init() {
-	linksCreateCmd.Flags().String("title", "", "Signup link title")
-	linksCreateCmd.Flags().String("consent", "", "Newsletter consent text")
-
-	linksUpdateCmd.Flags().String("title", "", "Updated link title")
-	linksUpdateCmd.Flags().String("consent", "", "Updated newsletter consent text")
-	linksUpdateCmd.Flags().Bool("clear-consent", false, "Clear newsletter consent text")
-
-	linksDeleteCmd.Flags().BoolP("force", "f", false, "Skip confirmation prompt")
-
-	linksCmd.AddCommand(linksListCmd)
-	linksCmd.AddCommand(linksCreateCmd)
-	linksCmd.AddCommand(linksUpdateCmd)
-	linksCmd.AddCommand(linksDeleteCmd)
-
-	rootCmd.AddCommand(linksCmd)
-}
-

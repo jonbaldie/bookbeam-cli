@@ -14,6 +14,11 @@ import (
 )
 
 func TestNewsletterTelemetryBillingCommands(t *testing.T) {
+	a := &app{}
+	billingStatusCmd := billingStatusCmd(a)
+	logsCmd := logsCmd(a)
+	metricsCmd := metricsCmd(a)
+	newsletterStatusCmd := newsletterStatusCmd(a)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
@@ -64,9 +69,9 @@ func TestNewsletterTelemetryBillingCommands(t *testing.T) {
 	defer ts.Close()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	err := newsletterStatusCmd.RunE(newsletterStatusCmd, []string{})
 	if err != nil {

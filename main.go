@@ -1,7 +1,10 @@
 package main
 
-import "github.com/jonbaldie/bookbeam-cli/cmd"
+import (
+	"github.com/jonbaldie/bookbeam-cli/cmd"
+	"github.com/spf13/cobra"
+)
 
 func main() {
-	cmd.Execute()
+	cobra.CheckErr(cmd.Execute())
 }
