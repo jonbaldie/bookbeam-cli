@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
 )
@@ -287,7 +288,14 @@ func TestDownloaderTableDisplaysAttribution(t *testing.T) {
 }
 
 func TestLinksUpdatePreservesTitleAndConsent(t *testing.T) {
+	// The handler runs on a server goroutine; the mutex hands each PUT body to the test goroutine.
+	var mu sync.Mutex
 	var lastPutBody map[string]any
+	putBody := func() map[string]any {
+		mu.Lock()
+		defer mu.Unlock()
+		return lastPutBody
+	}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		if r.URL.Path == "/api/v1/projects/42/links" && r.Method == "GET" {
@@ -295,8 +303,12 @@ func TestLinksUpdatePreservesTitleAndConsent(t *testing.T) {
 			return
 		}
 		if r.URL.Path == "/api/v1/projects/42/links/8" && r.Method == "PUT" {
-			_ = json.NewDecoder(r.Body).Decode(&lastPutBody)
-			if _, ok := lastPutBody["title"]; !ok {
+			var body map[string]any
+			_ = json.NewDecoder(r.Body).Decode(&body)
+			mu.Lock()
+			lastPutBody = body
+			mu.Unlock()
+			if _, ok := body["title"]; !ok {
 				w.WriteHeader(http.StatusUnprocessableEntity)
 				fmt.Fprint(w, `{"message":"The title field is required."}`)
 				return
@@ -316,11 +328,12 @@ func TestLinksUpdatePreservesTitleAndConsent(t *testing.T) {
 	if !strings.Contains(out, "Updated signup link #8") {
 		t.Errorf("expected success output, got: %s", out)
 	}
-	if lastPutBody["title"] != "Original Title" {
-		t.Errorf("expected preserved title 'Original Title', got %v", lastPutBody["title"])
+	body := putBody()
+	if body["title"] != "Original Title" {
+		t.Errorf("expected preserved title 'Original Title', got %v", body["title"])
 	}
-	if lastPutBody["opt_in_text"] != "New Consent Text" {
-		t.Errorf("expected opt_in_text 'New Consent Text', got %v", lastPutBody["opt_in_text"])
+	if body["opt_in_text"] != "New Consent Text" {
+		t.Errorf("expected opt_in_text 'New Consent Text', got %v", body["opt_in_text"])
 	}
 
 	// Update only title
@@ -328,11 +341,12 @@ func TestLinksUpdatePreservesTitleAndConsent(t *testing.T) {
 	if err != nil {
 		t.Fatalf("links update failed: %v %s", err, out)
 	}
-	if lastPutBody["title"] != "Updated Title" {
-		t.Errorf("expected title 'Updated Title', got %v", lastPutBody["title"])
+	body = putBody()
+	if body["title"] != "Updated Title" {
+		t.Errorf("expected title 'Updated Title', got %v", body["title"])
 	}
-	if lastPutBody["opt_in_text"] != "Keep This Consent" {
-		t.Errorf("expected preserved consent 'Keep This Consent', got %v", lastPutBody["opt_in_text"])
+	if body["opt_in_text"] != "Keep This Consent" {
+		t.Errorf("expected preserved consent 'Keep This Consent', got %v", body["opt_in_text"])
 	}
 }
 
