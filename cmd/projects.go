@@ -12,17 +12,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	flagProjectPage        int
-	flagProjectTitle       string
-	flagProjectDescription string
-	flagProjectCover       string
-	flagProjectRemoveCover bool
-	flagProjectForce       bool
-	flagProjectListID      string
-	flagProjectTags        string
-)
-
 type ProjectItem struct {
 	ID               int    `json:"id"`
 	Title            string `json:"title"`
@@ -40,6 +29,20 @@ type ProjectListResponse struct {
 	Total       int           `json:"total"`
 }
 
+func buildProjectUpdateMultipartFields(title, description string, removeCover bool) map[string]string {
+	fields := make(map[string]string)
+	if title != "" {
+		fields["title"] = title
+	}
+	if description != "" {
+		fields["description"] = description
+	}
+	if removeCover {
+		fields["remove_cover"] = "true"
+	}
+	return fields
+}
+
 var projectsCmd = &cobra.Command{
 	Use:     "projects",
 	Aliases: []string{"project"},
@@ -50,9 +53,10 @@ var projectsListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List book projects for your active team",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		page, _ := cmd.Flags().GetInt("page")
 		query := url.Values{}
-		if flagProjectPage > 0 {
-			query.Set("page", strconv.Itoa(flagProjectPage))
+		if page > 0 {
+			query.Set("page", strconv.Itoa(page))
 		}
 
 		raw, err := apiCli.Get("/api/v1/projects", query)
@@ -134,27 +138,31 @@ var projectsCreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a new book project",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if flagProjectTitle == "" {
+		title, _ := cmd.Flags().GetString("title")
+		description, _ := cmd.Flags().GetString("description")
+		cover, _ := cmd.Flags().GetString("cover")
+
+		if title == "" {
 			return fmt.Errorf("--title is required")
 		}
 
 		var raw []byte
 		var err error
 
-		if flagProjectCover != "" {
+		if cover != "" {
 			fields := map[string]string{
-				"title": flagProjectTitle,
+				"title": title,
 			}
-			if flagProjectDescription != "" {
-				fields["description"] = flagProjectDescription
+			if description != "" {
+				fields["description"] = description
 			}
-			raw, err = apiCli.PostMultipart("/api/v1/projects", fields, "cover_image", flagProjectCover)
+			raw, err = apiCli.PostMultipart("/api/v1/projects", fields, "cover_image", cover)
 		} else {
 			payload := map[string]string{
-				"title": flagProjectTitle,
+				"title": title,
 			}
-			if flagProjectDescription != "" {
-				payload["description"] = flagProjectDescription
+			if description != "" {
+				payload["description"] = description
 			}
 			raw, err = apiCli.Post("/api/v1/projects", payload)
 		}
@@ -185,30 +193,33 @@ var projectsUpdateCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		projectID := args[0]
+		title, _ := cmd.Flags().GetString("title")
+		description, _ := cmd.Flags().GetString("description")
+		cover, _ := cmd.Flags().GetString("cover")
+		removeCover, _ := cmd.Flags().GetBool("remove-cover")
+
+		if cover != "" && removeCover {
+			return fmt.Errorf("cannot specify both --cover and --remove-cover")
+		}
+
 		payload := make(map[string]any)
 
-		if flagProjectTitle != "" {
-			payload["title"] = flagProjectTitle
+		if title != "" {
+			payload["title"] = title
 		}
-		if flagProjectDescription != "" {
-			payload["description"] = flagProjectDescription
+		if description != "" {
+			payload["description"] = description
 		}
-		if flagProjectRemoveCover {
+		if removeCover {
 			payload["remove_cover"] = true
 		}
 
 		var raw []byte
 		var err error
 
-		if flagProjectCover != "" {
-			fields := map[string]string{}
-			if flagProjectTitle != "" {
-				fields["title"] = flagProjectTitle
-			}
-			if flagProjectDescription != "" {
-				fields["description"] = flagProjectDescription
-			}
-			raw, err = apiCli.PostMultipart(fmt.Sprintf("/api/v1/projects/%s", projectID), fields, "cover_image", flagProjectCover)
+		if cover != "" {
+			fields := buildProjectUpdateMultipartFields(title, description, removeCover)
+			raw, err = apiCli.PostMultipart(fmt.Sprintf("/api/v1/projects/%s", projectID), fields, "cover_image", cover)
 		} else {
 			raw, err = apiCli.Put(fmt.Sprintf("/api/v1/projects/%s", projectID), payload)
 		}
@@ -232,8 +243,9 @@ var projectsDeleteCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		projectID := args[0]
+		force, _ := cmd.Flags().GetBool("force")
 
-		if !flagProjectForce && !printer.JSON {
+		if !force && !printer.JSON {
 			fmt.Printf("Are you sure you want to delete project #%s? (y/N): ", projectID)
 			scanner := bufio.NewScanner(os.Stdin)
 			if !scanner.Scan() {
@@ -267,15 +279,18 @@ var projectsNewsletterCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		projectID := args[0]
-		if flagProjectListID == "" {
+		listID, _ := cmd.Flags().GetString("list-id")
+		tags, _ := cmd.Flags().GetString("tags")
+
+		if listID == "" {
 			return fmt.Errorf("--list-id is required")
 		}
 
 		payload := map[string]any{
-			"newsletter_list_id": flagProjectListID,
+			"newsletter_list_id": listID,
 		}
-		if flagProjectTags != "" {
-			payload["newsletter_tags"] = flagProjectTags
+		if tags != "" {
+			payload["newsletter_tags"] = tags
 		}
 
 		raw, err := apiCli.Put(fmt.Sprintf("/api/v1/projects/%s/newsletter", projectID), payload)
@@ -293,21 +308,21 @@ var projectsNewsletterCmd = &cobra.Command{
 }
 
 func init() {
-	projectsListCmd.Flags().IntVar(&flagProjectPage, "page", 1, "Page number")
+	projectsListCmd.Flags().Int("page", 1, "Page number")
 
-	projectsCreateCmd.Flags().StringVar(&flagProjectTitle, "title", "", "Book project title (required)")
-	projectsCreateCmd.Flags().StringVar(&flagProjectDescription, "description", "", "Book project description")
-	projectsCreateCmd.Flags().StringVar(&flagProjectCover, "cover", "", "Path to cover image file")
+	projectsCreateCmd.Flags().String("title", "", "Book project title (required)")
+	projectsCreateCmd.Flags().String("description", "", "Book project description")
+	projectsCreateCmd.Flags().String("cover", "", "Path to cover image file")
 
-	projectsUpdateCmd.Flags().StringVar(&flagProjectTitle, "title", "", "Updated book project title")
-	projectsUpdateCmd.Flags().StringVar(&flagProjectDescription, "description", "", "Updated book project description")
-	projectsUpdateCmd.Flags().StringVar(&flagProjectCover, "cover", "", "Path to new cover image file")
-	projectsUpdateCmd.Flags().BoolVar(&flagProjectRemoveCover, "remove-cover", false, "Remove current cover image")
+	projectsUpdateCmd.Flags().String("title", "", "Updated book project title")
+	projectsUpdateCmd.Flags().String("description", "", "Updated book project description")
+	projectsUpdateCmd.Flags().String("cover", "", "Path to new cover image file")
+	projectsUpdateCmd.Flags().Bool("remove-cover", false, "Remove current cover image")
 
-	projectsDeleteCmd.Flags().BoolVarP(&flagProjectForce, "force", "f", false, "Skip confirmation prompt")
+	projectsDeleteCmd.Flags().BoolP("force", "f", false, "Skip confirmation prompt")
 
-	projectsNewsletterCmd.Flags().StringVar(&flagProjectListID, "list-id", "", "Newsletter list ID (required)")
-	projectsNewsletterCmd.Flags().StringVar(&flagProjectTags, "tags", "", "Comma-separated newsletter tags")
+	projectsNewsletterCmd.Flags().String("list-id", "", "Newsletter list ID (required)")
+	projectsNewsletterCmd.Flags().String("tags", "", "Comma-separated newsletter tags")
 
 	projectsCmd.AddCommand(projectsListCmd)
 	projectsCmd.AddCommand(projectsGetCmd)

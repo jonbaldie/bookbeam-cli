@@ -267,4 +267,59 @@ func TestUnreadableConfigReportsPermissionError(t *testing.T) {
 	}
 }
 
+func TestProjectsUpdateConflictingCoverFlags(t *testing.T) {
+	dummyFile := filepath.Join(t.TempDir(), "cover.jpg")
+	if err := os.WriteFile(dummyFile, []byte("fake-image"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	var requestCount atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestCount.Add(1)
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, `{"data":{"id":42}}`)
+	}))
+	defer server.Close()
+
+	out, err := runCLI(t, server, "", "projects", "update", "42", "--cover", dummyFile, "--remove-cover")
+	if err == nil {
+		t.Fatalf("expected error when passing conflicting cover flags, got success: %s", out)
+	}
+	if !strings.Contains(out, "cannot specify both --cover and --remove-cover") {
+		t.Errorf("expected conflict error message, got: %s", out)
+	}
+	if strings.Contains(out, "✓ Updated book project") {
+		t.Errorf("expected no success message on failure, got: %s", out)
+	}
+	if count := requestCount.Load(); count != 0 {
+		t.Errorf("expected 0 HTTP requests, but got %d", count)
+	}
+}
+
+func TestProjectsUpdateRemoveCover(t *testing.T) {
+	var receivedBody map[string]any
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if r.URL.Path == "/api/v1/projects/42" && r.Method == "PUT" {
+			_ = json.NewDecoder(r.Body).Decode(&receivedBody)
+			fmt.Fprint(w, `{"data":{"id":42,"title":"Test Project"}}`)
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
+
+	out, err := runCLI(t, server, "", "projects", "update", "42", "--remove-cover")
+	if err != nil {
+		t.Fatalf("expected success, got error: %v %s", err, out)
+	}
+	if !strings.Contains(out, "Updated book project #42") {
+		t.Errorf("expected success message, got: %s", out)
+	}
+	if val, ok := receivedBody["remove_cover"].(bool); !ok || !val {
+		t.Errorf("expected remove_cover to be true, got %v", receivedBody["remove_cover"])
+	}
+}
+
+
 
