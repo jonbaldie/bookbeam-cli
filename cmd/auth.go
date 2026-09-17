@@ -99,7 +99,7 @@ var loginCmd = &cobra.Command{
 
 		for {
 			if time.Now().After(deadline) {
-				return fmt.Errorf("device authorization timed out; please run 'bookbeam login' again")
+				return fmt.Errorf("device authorization timed out; please run 'bookbeam auth login' again")
 			}
 
 			time.Sleep(time.Duration(pollInterval) * time.Second)
@@ -158,7 +158,7 @@ var whoamiCmd = &cobra.Command{
 	Short: "Display the currently authenticated user and team",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if cfg.Token == "" {
-			printer.PrintError("Error: Not authenticated. Run 'bookbeam login' to authenticate.")
+			printer.PrintError("Error: Not authenticated. Run 'bookbeam auth login' to authenticate.")
 			os.Exit(4)
 		}
 
