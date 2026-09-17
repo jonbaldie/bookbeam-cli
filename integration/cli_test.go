@@ -222,3 +222,49 @@ func TestLinksUpdatePreservesTitleAndConsent(t *testing.T) {
 	}
 }
 
+func runCLIWithHome(t *testing.T, homeDir string, args ...string) (string, error) {
+	t.Helper()
+	command := exec.Command(binary, args...)
+	var env []string
+	for _, e := range os.Environ() {
+		if !strings.HasPrefix(e, "BOOKBEAM_") && !strings.HasPrefix(e, "HOME=") && !strings.HasPrefix(e, "USERPROFILE=") {
+			env = append(env, e)
+		}
+	}
+	command.Env = append(env, "HOME="+homeDir, "USERPROFILE="+homeDir)
+	out, err := command.CombinedOutput()
+	return string(out), err
+}
+
+func TestUnreadableConfigReportsPermissionError(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("POSIX permissions not applicable on Windows")
+	}
+
+	homeDir := t.TempDir()
+	configDir := filepath.Join(homeDir, ".config", "bookbeam")
+	if err := os.MkdirAll(configDir, 0700); err != nil {
+		t.Fatal(err)
+	}
+
+	configPath := filepath.Join(configDir, "config.json")
+	if err := os.WriteFile(configPath, []byte(`{"token":"secret-token"}`), 0000); err != nil {
+		t.Fatal(err)
+	}
+
+	out, err := runCLIWithHome(t, homeDir, "whoami")
+	if err == nil {
+		t.Fatalf("expected command to fail, got success. output: %s", out)
+	}
+	if strings.Contains(out, "Not authenticated") {
+		t.Errorf("expected error not to report 'Not authenticated', got: %s", out)
+	}
+	if !strings.Contains(out, "config.json") {
+		t.Errorf("expected error to name config path, got: %s", out)
+	}
+	if !strings.Contains(out, "permission denied") {
+		t.Errorf("expected error to indicate permission denied, got: %s", out)
+	}
+}
+
+
