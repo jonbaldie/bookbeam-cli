@@ -197,6 +197,10 @@ bookbeam completion zsh > "${fpath[1]}/_bookbeam"
 bookbeam completion fish | source
 ```
 
+## Documentation
+
+See [`docs/`](docs/README.md) for project documentation, including the [2026-09-17 Exploratory Testing Pass](docs/exploratory-testing/2026-09-17-bookbeam-cli.md).
+
 ## License
 
 Subject Zero Ltd. Open source under the MIT License.
