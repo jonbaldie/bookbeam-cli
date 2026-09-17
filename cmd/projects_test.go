@@ -215,6 +215,60 @@ func TestProjectsUpdateMultipartRemoveCoverServer(t *testing.T) {
 	}
 }
 
+// TestProjectsUpdateCoverMethodSpoofing simulates the real BookBeam API route
+// dispatcher: /api/v1/projects/<id> only accepts PUT/PATCH/DELETE/GET/HEAD, so a
+// plain multipart POST (needed for file uploads) must carry a Laravel-style
+// "_method=PUT" spoofed-method field or the route rejects it with 405.
+func TestProjectsUpdateCoverMethodSpoofing(t *testing.T) {
+	tempDir := t.TempDir()
+	coverFile := filepath.Join(tempDir, "cover.jpg")
+	if err := os.WriteFile(coverFile, []byte("fake-cover-content"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/v1/projects/42" {
+			http.NotFound(w, r)
+			return
+		}
+
+		if r.Method == http.MethodPost {
+			if err := r.ParseMultipartForm(10 << 20); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			if r.FormValue("_method") != "PUT" {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusMethodNotAllowed)
+				_ = json.NewEncoder(w).Encode(map[string]any{
+					"message": "The POST method is not supported for route api/v1/projects/42. Supported methods: GET, HEAD, PUT, PATCH, DELETE.",
+				})
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(map[string]any{"data": map[string]any{"id": 42}})
+			return
+		}
+
+		http.NotFound(w, r)
+	}))
+	defer ts.Close()
+
+	var buf bytes.Buffer
+	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
+	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	apiCli = client.New(ts.URL, "test-token")
+
+	resetProjectFlags()
+	defer resetProjectFlags()
+
+	_ = projectsUpdateCmd.Flags().Set("cover", coverFile)
+	err := projectsUpdateCmd.RunE(projectsUpdateCmd, []string{"42"})
+	if err != nil {
+		t.Fatalf("expected cover update to succeed, got error: %v", err)
+	}
+}
+
 func TestProjectsListVariations(t *testing.T) {
 	var requestedPage string
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

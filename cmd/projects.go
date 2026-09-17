@@ -40,6 +40,7 @@ func buildProjectUpdateMultipartFields(title, description string, removeCover bo
 	if removeCover {
 		fields["remove_cover"] = "true"
 	}
+	fields["_method"] = "PUT"
 	return fields
 }
 
