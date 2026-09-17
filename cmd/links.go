@@ -168,7 +168,10 @@ var linksUpdateCmd = &cobra.Command{
 		payload := map[string]any{
 			"title": targetTitle,
 		}
-		if targetConsent != "" {
+		if clearConsent {
+			// The API keeps fields a PUT omits, so clearing needs an explicit null.
+			payload["opt_in_text"] = nil
+		} else if targetConsent != "" {
 			payload["opt_in_text"] = targetConsent
 		}
 

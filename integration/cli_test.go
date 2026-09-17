@@ -336,6 +336,36 @@ func TestLinksUpdatePreservesTitleAndConsent(t *testing.T) {
 	}
 }
 
+func TestLinksUpdateClearConsentSendsExplicitNull(t *testing.T) {
+	var lastPutBody map[string]any
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if r.URL.Path == "/api/v1/projects/42/links" && r.Method == "GET" {
+			fmt.Fprint(w, `{"data":[{"id":8,"title":"Original Title","opt_in_text":"Clear This Consent"}]}`)
+			return
+		}
+		if r.URL.Path == "/api/v1/projects/42/links/8" && r.Method == "PUT" {
+			_ = json.NewDecoder(r.Body).Decode(&lastPutBody)
+			fmt.Fprint(w, `{"data":{"id":8}}`)
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
+
+	out, err := runCLI(t, server, "", "links", "update", "42", "8", "--clear-consent")
+	if err != nil {
+		t.Fatalf("links update failed: %v %s", err, out)
+	}
+	if lastPutBody["title"] != "Original Title" {
+		t.Errorf("expected preserved title 'Original Title', got %v", lastPutBody["title"])
+	}
+	// The API keeps fields a PUT omits, so an absent opt_in_text would leave the consent in place.
+	if consent, ok := lastPutBody["opt_in_text"]; !ok || consent != nil {
+		t.Errorf("expected opt_in_text to be sent as explicit null, got present=%v value=%v", ok, consent)
+	}
+}
+
 func runCLIWithHome(t *testing.T, homeDir string, args ...string) (string, error) {
 	t.Helper()
 	command := exec.Command(binary, args...)
@@ -430,8 +460,8 @@ func TestProjectsUpdateRemoveCover(t *testing.T) {
 	if !strings.Contains(out, "Updated book project #42") {
 		t.Errorf("expected success message, got: %s", out)
 	}
-	if val, ok := receivedBody["remove_cover"].(bool); !ok || !val {
-		t.Errorf("expected remove_cover to be true, got %v", receivedBody["remove_cover"])
+	if val, ok := receivedBody["remove_cover_image"].(bool); !ok || !val {
+		t.Errorf("expected remove_cover_image to be true, got %v", receivedBody["remove_cover_image"])
 	}
 }
 

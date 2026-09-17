@@ -38,7 +38,7 @@ func buildProjectUpdateMultipartFields(title, description string, removeCover bo
 		fields["description"] = description
 	}
 	if removeCover {
-		fields["remove_cover"] = "true"
+		fields["remove_cover_image"] = "true"
 	}
 	fields["_method"] = "PUT"
 	return fields
@@ -212,7 +212,7 @@ var projectsUpdateCmd = &cobra.Command{
 			payload["description"] = description
 		}
 		if removeCover {
-			payload["remove_cover"] = true
+			payload["remove_cover_image"] = true
 		}
 
 		var raw []byte

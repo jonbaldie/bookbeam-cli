@@ -161,8 +161,11 @@ func TestProjectsUpdateRemoveCoverJSON(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if val, ok := receivedBody["remove_cover"].(bool); !ok || !val {
-		t.Errorf("expected remove_cover to be true, got %v", receivedBody["remove_cover"])
+	if val, ok := receivedBody["remove_cover_image"].(bool); !ok || !val {
+		t.Errorf("expected remove_cover_image to be true, got %v", receivedBody["remove_cover_image"])
+	}
+	if _, ok := receivedBody["remove_cover"]; ok {
+		t.Errorf("expected no remove_cover field (the API ignores it), got %v", receivedBody["remove_cover"])
 	}
 
 	if !strings.Contains(buf.String(), "Updated book project #42") {
@@ -178,8 +181,8 @@ func TestProjectsUpdateMultipartFieldsWithRemoveCover(t *testing.T) {
 	if fields["description"] != "My Description" {
 		t.Errorf("expected description 'My Description', got %q", fields["description"])
 	}
-	if fields["remove_cover"] != "true" {
-		t.Errorf("expected remove_cover 'true', got %q", fields["remove_cover"])
+	if fields["remove_cover_image"] != "true" {
+		t.Errorf("expected remove_cover_image 'true', got %q", fields["remove_cover_image"])
 	}
 }
 
@@ -197,7 +200,7 @@ func TestProjectsUpdateMultipartRemoveCoverServer(t *testing.T) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		removeCoverVal = r.FormValue("remove_cover")
+		removeCoverVal = r.FormValue("remove_cover_image")
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{"data": map[string]any{"id": 42}})
 	}))
@@ -211,7 +214,7 @@ func TestProjectsUpdateMultipartRemoveCoverServer(t *testing.T) {
 	}
 
 	if removeCoverVal != "true" {
-		t.Errorf("expected server to receive remove_cover=true in multipart body, got %q", removeCoverVal)
+		t.Errorf("expected server to receive remove_cover_image=true in multipart body, got %q", removeCoverVal)
 	}
 }
 
