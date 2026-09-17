@@ -16,6 +16,9 @@ import (
 )
 
 func TestProjectsListAndCreate(t *testing.T) {
+	a := &app{}
+	projectsCreateCmd := projectsCreateCmd(a)
+	projectsListCmd := projectsListCmd(a)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
@@ -51,13 +54,10 @@ func TestProjectsListAndCreate(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	resetProjectFlags()
-	defer resetProjectFlags()
-
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	err := projectsListCmd.RunE(projectsListCmd, []string{})
 	if err != nil {
@@ -80,21 +80,9 @@ func TestProjectsListAndCreate(t *testing.T) {
 	}
 }
 
-func resetProjectFlags() {
-	_ = projectsListCmd.Flags().Set("page", "1")
-	_ = projectsCreateCmd.Flags().Set("title", "")
-	_ = projectsCreateCmd.Flags().Set("description", "")
-	_ = projectsCreateCmd.Flags().Set("cover", "")
-	_ = projectsUpdateCmd.Flags().Set("title", "")
-	_ = projectsUpdateCmd.Flags().Set("description", "")
-	_ = projectsUpdateCmd.Flags().Set("cover", "")
-	_ = projectsUpdateCmd.Flags().Set("remove-cover", "false")
-	_ = projectsDeleteCmd.Flags().Set("force", "false")
-	_ = projectsNewsletterCmd.Flags().Set("list-id", "")
-	_ = projectsNewsletterCmd.Flags().Set("tags", "")
-}
-
 func TestProjectsUpdateConflictingCoverFlags(t *testing.T) {
+	a := &app{}
+	projectsUpdateCmd := projectsUpdateCmd(a)
 	tempDir := t.TempDir()
 	coverFile := filepath.Join(tempDir, "cover.jpg")
 	if err := os.WriteFile(coverFile, []byte("fake-cover-content"), 0644); err != nil {
@@ -110,12 +98,9 @@ func TestProjectsUpdateConflictingCoverFlags(t *testing.T) {
 	defer ts.Close()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
-
-	resetProjectFlags()
-	defer resetProjectFlags()
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = projectsUpdateCmd.Flags().Set("cover", coverFile)
 	_ = projectsUpdateCmd.Flags().Set("remove-cover", "true")
@@ -134,6 +119,8 @@ func TestProjectsUpdateConflictingCoverFlags(t *testing.T) {
 }
 
 func TestProjectsUpdateRemoveCoverJSON(t *testing.T) {
+	a := &app{}
+	projectsUpdateCmd := projectsUpdateCmd(a)
 	var receivedBody map[string]any
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/api/v1/projects/42" && r.Method == http.MethodPut {
@@ -147,12 +134,9 @@ func TestProjectsUpdateRemoveCoverJSON(t *testing.T) {
 	defer ts.Close()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
-
-	resetProjectFlags()
-	defer resetProjectFlags()
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = projectsUpdateCmd.Flags().Set("remove-cover", "true")
 
@@ -223,6 +207,8 @@ func TestProjectsUpdateMultipartRemoveCoverServer(t *testing.T) {
 // plain multipart POST (needed for file uploads) must carry a Laravel-style
 // "_method=PUT" spoofed-method field or the route rejects it with 405.
 func TestProjectsUpdateCoverMethodSpoofing(t *testing.T) {
+	a := &app{}
+	projectsUpdateCmd := projectsUpdateCmd(a)
 	tempDir := t.TempDir()
 	coverFile := filepath.Join(tempDir, "cover.jpg")
 	if err := os.WriteFile(coverFile, []byte("fake-cover-content"), 0644); err != nil {
@@ -258,12 +244,9 @@ func TestProjectsUpdateCoverMethodSpoofing(t *testing.T) {
 	defer ts.Close()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
-
-	resetProjectFlags()
-	defer resetProjectFlags()
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = projectsUpdateCmd.Flags().Set("cover", coverFile)
 	err := projectsUpdateCmd.RunE(projectsUpdateCmd, []string{"42"})
@@ -273,6 +256,8 @@ func TestProjectsUpdateCoverMethodSpoofing(t *testing.T) {
 }
 
 func TestProjectsListVariations(t *testing.T) {
+	a := &app{}
+	projectsListCmd := projectsListCmd(a)
 	var requestedPage string
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requestedPage = r.URL.Query().Get("page")
@@ -297,13 +282,10 @@ func TestProjectsListVariations(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	resetProjectFlags()
-	defer resetProjectFlags()
-
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	// Test page flag
 	_ = projectsListCmd.Flags().Set("page", "2")
@@ -328,7 +310,7 @@ func TestProjectsListVariations(t *testing.T) {
 
 	// Test JSON output
 	buf.Reset()
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: true}
+	a.printer = &output.Printer{Out: &buf, JSON: true}
 	_ = projectsListCmd.Flags().Set("page", "1")
 	err = projectsListCmd.RunE(projectsListCmd, []string{})
 	if err != nil {
@@ -340,6 +322,8 @@ func TestProjectsListVariations(t *testing.T) {
 }
 
 func TestProjectsGetVariations(t *testing.T) {
+	a := &app{}
+	projectsGetCmd := projectsGetCmd(a)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		if r.URL.Path == "/api/v1/projects/42" {
@@ -361,9 +345,9 @@ func TestProjectsGetVariations(t *testing.T) {
 	defer ts.Close()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	err := projectsGetCmd.RunE(projectsGetCmd, []string{"42"})
 	if err != nil {
@@ -375,7 +359,7 @@ func TestProjectsGetVariations(t *testing.T) {
 
 	// Test JSON output
 	buf.Reset()
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: true}
+	a.printer = &output.Printer{Out: &buf, JSON: true}
 	err = projectsGetCmd.RunE(projectsGetCmd, []string{"42"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -392,6 +376,8 @@ func TestProjectsGetVariations(t *testing.T) {
 }
 
 func TestProjectsCreateVariations(t *testing.T) {
+	a := &app{}
+	projectsCreateCmd := projectsCreateCmd(a)
 	var receivedPost map[string]string
 	var receivedMultipartFields map[string]string
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -412,13 +398,10 @@ func TestProjectsCreateVariations(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	resetProjectFlags()
-	defer resetProjectFlags()
-
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	// Missing title error
 	err := projectsCreateCmd.RunE(projectsCreateCmd, []string{})
@@ -453,7 +436,7 @@ func TestProjectsCreateVariations(t *testing.T) {
 
 	// Create with JSON output
 	buf.Reset()
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: true}
+	a.printer = &output.Printer{Out: &buf, JSON: true}
 	_ = projectsCreateCmd.Flags().Set("cover", "")
 	_ = projectsCreateCmd.Flags().Set("title", "JSON Book")
 	err = projectsCreateCmd.RunE(projectsCreateCmd, []string{})
@@ -466,6 +449,8 @@ func TestProjectsCreateVariations(t *testing.T) {
 }
 
 func TestProjectsUpdateVariations(t *testing.T) {
+	a := &app{}
+	projectsUpdateCmd := projectsUpdateCmd(a)
 	var receivedPut map[string]any
 	var receivedMultipartFields map[string]string
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -486,13 +471,10 @@ func TestProjectsUpdateVariations(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	resetProjectFlags()
-	defer resetProjectFlags()
-
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	// Update title and description
 	_ = projectsUpdateCmd.Flags().Set("title", "Updated Title")
@@ -521,7 +503,7 @@ func TestProjectsUpdateVariations(t *testing.T) {
 
 	// Update JSON output
 	buf.Reset()
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: true}
+	a.printer = &output.Printer{Out: &buf, JSON: true}
 	_ = projectsUpdateCmd.Flags().Set("cover", "")
 	err = projectsUpdateCmd.RunE(projectsUpdateCmd, []string{"42"})
 	if err != nil {
@@ -533,6 +515,8 @@ func TestProjectsUpdateVariations(t *testing.T) {
 }
 
 func TestProjectsDeleteVariations(t *testing.T) {
+	a := &app{}
+	projectsDeleteCmd := projectsDeleteCmd(a)
 	deleted := false
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodDelete {
@@ -545,13 +529,10 @@ func TestProjectsDeleteVariations(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	resetProjectFlags()
-	defer resetProjectFlags()
-
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	// Delete with force
 	_ = projectsDeleteCmd.Flags().Set("force", "true")
@@ -568,7 +549,7 @@ func TestProjectsDeleteVariations(t *testing.T) {
 
 	// Delete with JSON
 	buf.Reset()
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: true}
+	a.printer = &output.Printer{Out: &buf, JSON: true}
 	_ = projectsDeleteCmd.Flags().Set("force", "false")
 	err = projectsDeleteCmd.RunE(projectsDeleteCmd, []string{"42"})
 	if err != nil {
@@ -580,6 +561,8 @@ func TestProjectsDeleteVariations(t *testing.T) {
 }
 
 func TestProjectsNewsletterVariations(t *testing.T) {
+	a := &app{}
+	projectsNewsletterCmd := projectsNewsletterCmd(a)
 	var receivedPut map[string]any
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -588,13 +571,10 @@ func TestProjectsNewsletterVariations(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	resetProjectFlags()
-	defer resetProjectFlags()
-
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	// Missing list-id error
 	err := projectsNewsletterCmd.RunE(projectsNewsletterCmd, []string{"42"})
@@ -615,7 +595,7 @@ func TestProjectsNewsletterVariations(t *testing.T) {
 
 	// With JSON output
 	buf.Reset()
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: true}
+	a.printer = &output.Printer{Out: &buf, JSON: true}
 	err = projectsNewsletterCmd.RunE(projectsNewsletterCmd, []string{"42"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -624,6 +604,3 @@ func TestProjectsNewsletterVariations(t *testing.T) {
 		t.Errorf("expected JSON output, got %s", buf.String())
 	}
 }
-
-
-

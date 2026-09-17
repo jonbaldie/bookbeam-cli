@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"text/tabwriter"
 )
 
@@ -13,7 +14,6 @@ type Printer struct {
 	JSON  bool
 	Quiet bool
 	Out   io.Writer
-	Err   io.Writer
 }
 
 func New(jsonOutput, quiet bool) *Printer {
@@ -21,7 +21,6 @@ func New(jsonOutput, quiet bool) *Printer {
 		JSON:  jsonOutput,
 		Quiet: quiet,
 		Out:   os.Stdout,
-		Err:   os.Stderr,
 	}
 }
 
@@ -52,43 +51,35 @@ func (p *Printer) PrintInfo(msg string) {
 	}
 }
 
-func (p *Printer) PrintError(msg string) {
-	fmt.Fprintln(p.Err, msg)
-}
-
 func (p *Printer) Table(headers []string, rows [][]string) {
 	if p.JSON {
-		var records []map[string]string
-		for _, row := range rows {
-			record := make(map[string]string)
-			for i, val := range row {
-				if i < len(headers) {
-					record[headers[i]] = val
-				}
-			}
-			records = append(records, record)
-		}
-		_ = p.PrintJSON(records)
+		_ = p.PrintJSON(tableRecords(headers, rows))
 		return
 	}
 
 	w := tabwriter.NewWriter(p.Out, 0, 0, 3, ' ', 0)
-	for i, header := range headers {
-		if i > 0 {
-			fmt.Fprint(w, "\t")
-		}
-		fmt.Fprint(w, header)
-	}
-	fmt.Fprintln(w)
-
+	writeRow(w, headers)
 	for _, row := range rows {
-		for i, cell := range row {
-			if i > 0 {
-				fmt.Fprint(w, "\t")
-			}
-			fmt.Fprint(w, cell)
-		}
-		fmt.Fprintln(w)
+		writeRow(w, row)
 	}
 	_ = w.Flush()
+}
+
+// tableRecords keys each row's cells by header; cells beyond the headers are dropped.
+func tableRecords(headers []string, rows [][]string) []map[string]string {
+	var records []map[string]string
+	for _, row := range rows {
+		record := make(map[string]string)
+		for i, val := range row {
+			if i < len(headers) {
+				record[headers[i]] = val
+			}
+		}
+		records = append(records, record)
+	}
+	return records
+}
+
+func writeRow(w io.Writer, cells []string) {
+	fmt.Fprintln(w, strings.Join(cells, "\t"))
 }

@@ -16,6 +16,10 @@ import (
 )
 
 func TestLinksAndDownloadersCommands(t *testing.T) {
+	a := &app{}
+	downloadersExportCmd := downloadersExportCmd(a)
+	downloadersListCmd := downloadersListCmd(a)
+	linksListCmd := linksListCmd(a)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
@@ -60,9 +64,9 @@ func TestLinksAndDownloadersCommands(t *testing.T) {
 	defer ts.Close()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	err := linksListCmd.RunE(linksListCmd, []string{"5"})
 	if err != nil {
@@ -88,7 +92,7 @@ func TestLinksAndDownloadersCommands(t *testing.T) {
 	defer os.RemoveAll(tempDir)
 
 	exportFile := filepath.Join(tempDir, "export.csv")
-	flagDownloaderOutput = exportFile
+	_ = downloadersExportCmd.Flags().Set("output", exportFile)
 
 	buf.Reset()
 	err = downloadersExportCmd.RunE(downloadersExportCmd, []string{"5"})
@@ -103,15 +107,6 @@ func TestLinksAndDownloadersCommands(t *testing.T) {
 	if !strings.Contains(string(data), "reader@example.com") {
 		t.Errorf("expected CSV to contain reader@example.com, got %s", string(data))
 	}
-}
-
-func resetLinkFlags() {
-	_ = linksUpdateCmd.Flags().Set("title", "")
-	_ = linksUpdateCmd.Flags().Set("consent", "")
-	_ = linksUpdateCmd.Flags().Set("clear-consent", "false")
-	_ = linksCreateCmd.Flags().Set("title", "")
-	_ = linksCreateCmd.Flags().Set("consent", "")
-	_ = linksDeleteCmd.Flags().Set("force", "false")
 }
 
 func setupLinksMockServer(t *testing.T, putBodyCapture *map[string]any) *httptest.Server {
@@ -157,23 +152,21 @@ func setupLinksMockServer(t *testing.T, putBodyCapture *map[string]any) *httptes
 			return
 		}
 
-
 		http.NotFound(w, r)
 	}))
 }
 
 func TestLinksUpdateOnlyConsent(t *testing.T) {
+	a := &app{}
+	linksUpdateCmd := linksUpdateCmd(a)
 	var receivedPutBody map[string]any
 	ts := setupLinksMockServer(t, &receivedPutBody)
 	defer ts.Close()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
-
-	resetLinkFlags()
-	defer resetLinkFlags()
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = linksUpdateCmd.Flags().Set("consent", "Updated consent text")
 
@@ -191,17 +184,16 @@ func TestLinksUpdateOnlyConsent(t *testing.T) {
 }
 
 func TestLinksUpdateOnlyTitlePreservesConsent(t *testing.T) {
+	a := &app{}
+	linksUpdateCmd := linksUpdateCmd(a)
 	var receivedPutBody map[string]any
 	ts := setupLinksMockServer(t, &receivedPutBody)
 	defer ts.Close()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
-
-	resetLinkFlags()
-	defer resetLinkFlags()
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = linksUpdateCmd.Flags().Set("title", "New Magnet Title")
 
@@ -219,17 +211,16 @@ func TestLinksUpdateOnlyTitlePreservesConsent(t *testing.T) {
 }
 
 func TestLinksUpdateClearConsent(t *testing.T) {
+	a := &app{}
+	linksUpdateCmd := linksUpdateCmd(a)
 	var receivedPutBody map[string]any
 	ts := setupLinksMockServer(t, &receivedPutBody)
 	defer ts.Close()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
-
-	resetLinkFlags()
-	defer resetLinkFlags()
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = linksUpdateCmd.Flags().Set("clear-consent", "true")
 
@@ -249,8 +240,8 @@ func TestLinksUpdateClearConsent(t *testing.T) {
 }
 
 func TestLinksUpdateBothConsentAndClearConsentError(t *testing.T) {
-	resetLinkFlags()
-	defer resetLinkFlags()
+	a := &app{}
+	linksUpdateCmd := linksUpdateCmd(a)
 
 	_ = linksUpdateCmd.Flags().Set("consent", "Some consent")
 	_ = linksUpdateCmd.Flags().Set("clear-consent", "true")
@@ -265,16 +256,15 @@ func TestLinksUpdateBothConsentAndClearConsentError(t *testing.T) {
 }
 
 func TestLinksUpdateLinkNotFound(t *testing.T) {
+	a := &app{}
+	linksUpdateCmd := linksUpdateCmd(a)
 	ts := setupLinksMockServer(t, nil)
 	defer ts.Close()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
-
-	resetLinkFlags()
-	defer resetLinkFlags()
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = linksUpdateCmd.Flags().Set("consent", "New consent")
 
@@ -288,6 +278,8 @@ func TestLinksUpdateLinkNotFound(t *testing.T) {
 }
 
 func TestLinksUpdateBothTitleAndConsentExplicit(t *testing.T) {
+	a := &app{}
+	linksUpdateCmd := linksUpdateCmd(a)
 	var receivedPutBody map[string]any
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -307,12 +299,9 @@ func TestLinksUpdateBothTitleAndConsentExplicit(t *testing.T) {
 	defer ts.Close()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
-
-	resetLinkFlags()
-	defer resetLinkFlags()
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = linksUpdateCmd.Flags().Set("title", "Explicit Title")
 	_ = linksUpdateCmd.Flags().Set("consent", "Explicit Consent")
@@ -331,17 +320,16 @@ func TestLinksUpdateBothTitleAndConsentExplicit(t *testing.T) {
 }
 
 func TestLinksUpdateNoFlagsPreservesAll(t *testing.T) {
+	a := &app{}
+	linksUpdateCmd := linksUpdateCmd(a)
 	var receivedPutBody map[string]any
 	ts := setupLinksMockServer(t, &receivedPutBody)
 	defer ts.Close()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
-
-	resetLinkFlags()
-	defer resetLinkFlags()
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	err := linksUpdateCmd.RunE(linksUpdateCmd, []string{"5", "201"})
 	if err != nil {
@@ -357,6 +345,10 @@ func TestLinksUpdateNoFlagsPreservesAll(t *testing.T) {
 }
 
 func TestLinksCreateAndForceDelete(t *testing.T) {
+	a := &app{}
+	linksCreateCmd := linksCreateCmd(a)
+	linksDeleteCmd := linksDeleteCmd(a)
+	linksUpdateCmd := linksUpdateCmd(a)
 	var createdTitle string
 	var createdConsent string
 	var deletedLinkID string
@@ -391,12 +383,9 @@ func TestLinksCreateAndForceDelete(t *testing.T) {
 	defer ts.Close()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
-
-	resetLinkFlags()
-	defer resetLinkFlags()
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	// Verify flag defaults
 	if f := linksUpdateCmd.Flags().Lookup("clear-consent"); f == nil || f.DefValue != "false" {
@@ -431,18 +420,18 @@ func TestLinksCreateAndForceDelete(t *testing.T) {
 }
 
 func TestLinksUpdateJSONOutput(t *testing.T) {
+	a := &app{}
+	linksUpdateCmd := linksUpdateCmd(a)
 	ts := setupLinksMockServer(t, nil)
 	defer ts.Close()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: true}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
+	a.printer = &output.Printer{Out: &buf, JSON: true}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
-	resetLinkFlags()
 	defer func() {
-		resetLinkFlags()
-		printer = &output.Printer{Out: os.Stdout, Err: os.Stderr, JSON: false}
+		a.printer = &output.Printer{Out: os.Stdout, JSON: false}
 	}()
 
 	_ = linksUpdateCmd.Flags().Set("title", "JSON Title")
@@ -458,6 +447,8 @@ func TestLinksUpdateJSONOutput(t *testing.T) {
 }
 
 func TestLinksUpdateEmptyExistingConsent(t *testing.T) {
+	a := &app{}
+	linksUpdateCmd := linksUpdateCmd(a)
 	var receivedPutBody map[string]any
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -483,12 +474,9 @@ func TestLinksUpdateEmptyExistingConsent(t *testing.T) {
 	defer ts.Close()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
-
-	resetLinkFlags()
-	defer resetLinkFlags()
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = linksUpdateCmd.Flags().Set("title", "Updated Title Only")
 
@@ -503,18 +491,17 @@ func TestLinksUpdateEmptyExistingConsent(t *testing.T) {
 }
 
 func TestLinksUpdateAPIErrors(t *testing.T) {
+	a := &app{}
+	linksUpdateCmd := linksUpdateCmd(a)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{"message":"Internal Server Error 500"}`, http.StatusInternalServerError)
 	}))
 	defer ts.Close()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
-
-	resetLinkFlags()
-	defer resetLinkFlags()
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	// Should fail fetching existing
 	err := linksUpdateCmd.RunE(linksUpdateCmd, []string{"5", "201"})
@@ -532,23 +519,25 @@ func TestLinksUpdateAPIErrors(t *testing.T) {
 }
 
 func TestFetchExistingLinkInvalidJSON(t *testing.T) {
+	a := &app{}
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write([]byte("not valid json"))
 	}))
 	defer ts.Close()
 
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
-	_, err := fetchExistingLink("5", "201")
+	_, err := fetchExistingLink(a, "5", "201")
 	if err == nil || !strings.Contains(err.Error(), "invalid character") {
 		t.Fatalf("expected json unmarshal error with 'invalid character', got: %v", err)
 	}
 }
 
-
 func TestLinksCreateVariations(t *testing.T) {
+	a := &app{}
+	linksCreateCmd := linksCreateCmd(a)
 	var receivedPost map[string]string
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -564,14 +553,12 @@ func TestLinksCreateVariations(t *testing.T) {
 	defer ts.Close()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: true}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
+	a.printer = &output.Printer{Out: &buf, JSON: true}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
-	resetLinkFlags()
 	defer func() {
-		resetLinkFlags()
-		printer = &output.Printer{Out: os.Stdout, Err: os.Stderr, JSON: false}
+		a.printer = &output.Printer{Out: os.Stdout, JSON: false}
 	}()
 
 	_ = linksCreateCmd.Flags().Set("title", "Only Title")
@@ -588,6 +575,8 @@ func TestLinksCreateVariations(t *testing.T) {
 }
 
 func TestLinksDeleteJSONOutput(t *testing.T) {
+	a := &app{}
+	linksDeleteCmd := linksDeleteCmd(a)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		if r.URL.Path == "/api/v1/projects/5/links/501" && r.Method == http.MethodDelete {
@@ -599,14 +588,12 @@ func TestLinksDeleteJSONOutput(t *testing.T) {
 	defer ts.Close()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: true}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
+	a.printer = &output.Printer{Out: &buf, JSON: true}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
-	resetLinkFlags()
 	defer func() {
-		resetLinkFlags()
-		printer = &output.Printer{Out: os.Stdout, Err: os.Stderr, JSON: false}
+		a.printer = &output.Printer{Out: os.Stdout, JSON: false}
 	}()
 
 	err := linksDeleteCmd.RunE(linksDeleteCmd, []string{"5", "501"})
@@ -617,7 +604,3 @@ func TestLinksDeleteJSONOutput(t *testing.T) {
 		t.Errorf("expected JSON output containing message, got: %s", buf.String())
 	}
 }
-
-
-
-

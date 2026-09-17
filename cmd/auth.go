@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	"os"
 	"os/exec"
 	"runtime"
 	"time"
@@ -11,10 +11,6 @@ import (
 	"github.com/jonbaldie/bookbeam-cli/pkg/client"
 	"github.com/jonbaldie/bookbeam-cli/pkg/config"
 	"github.com/spf13/cobra"
-)
-
-var (
-	flagDirectToken string
 )
 
 type DeviceCodeResponse struct {
@@ -43,176 +39,200 @@ type UserProfileResponse struct {
 	} `json:"current_team,omitempty"`
 }
 
-var authCmd = &cobra.Command{
-	Use:   "auth",
-	Short: "Manage authentication and tokens",
-}
-
-var loginCmd = &cobra.Command{
-	Use:   "login",
-	Short: "Authenticate with BookBeam via browser or direct token",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		if flagDirectToken != "" {
-			cfg.Token = flagDirectToken
-			if err := config.Save(cfg, ""); err != nil {
-				return fmt.Errorf("failed to save token to config: %w", err)
-			}
-			printer.PrintInfo("✓ Authentication token saved successfully.")
-			return nil
-		}
-
-		printer.PrintInfo(fmt.Sprintf("Initiating device login with %s...", cfg.Host))
-
-		codePayload := map[string]string{
-			"client_id": "bookbeam-cli",
-		}
-		rawResp, err := apiCli.Post("/api/v1/oauth/device/code", codePayload)
-		if err != nil {
-			return fmt.Errorf("failed to request device authorization code: %w", err)
-		}
-
-		var deviceResp DeviceCodeResponse
-		if err := json.Unmarshal(rawResp, &deviceResp); err != nil {
-			return fmt.Errorf("invalid server response: %w", err)
-		}
-
-		printer.PrintInfo("")
-		printer.PrintInfo(fmt.Sprintf("! Your one-time verification code is: %s", deviceResp.UserCode))
-		printer.PrintInfo(fmt.Sprintf("- Open verification page: %s", deviceResp.VerificationURIComplete))
-		printer.PrintInfo("")
-
-		openBrowser(deviceResp.VerificationURIComplete)
-
-		pollInterval := deviceResp.Interval
-		if pollInterval < 1 {
-			pollInterval = 5
-		}
-
-		deadline := time.Now().Add(time.Duration(deviceResp.ExpiresIn) * time.Second)
-		tokenPayload := map[string]string{
-			"grant_type":  "urn:ietf:params:oauth:grant-type:device_code",
-			"device_code": deviceResp.DeviceCode,
-			"client_id":   "bookbeam-cli",
-		}
-
-		printer.PrintInfo("Waiting for authorization in browser...")
-
-		for {
-			if time.Now().After(deadline) {
-				return fmt.Errorf("device authorization timed out; please run 'bookbeam auth login' again")
-			}
-
-			time.Sleep(time.Duration(pollInterval) * time.Second)
-
-			tokenRaw, err := apiCli.Post("/api/v1/oauth/device/token", tokenPayload)
-			if err == nil {
-				var tokenResp DeviceTokenResponse
-				if err := json.Unmarshal(tokenRaw, &tokenResp); err != nil {
-					return fmt.Errorf("failed to parse token response: %w", err)
+func loginCmd(a *app) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "login",
+		Short: "Authenticate with BookBeam via browser or direct token",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			directToken, _ := cmd.Flags().GetString("token")
+			if directToken != "" {
+				if err := saveToken(a, directToken); err != nil {
+					return err
 				}
-
-				cfg.Token = tokenResp.AccessToken
-				if err := config.Save(cfg, ""); err != nil {
-					return fmt.Errorf("failed to save token to configuration: %w", err)
-				}
-
-				printer.PrintInfo("")
-				printer.PrintInfo("✓ Successfully authenticated! Logged in to BookBeam.")
+				a.printer.PrintInfo("✓ Authentication token saved successfully.")
 				return nil
 			}
 
-			apiErr, ok := err.(*client.APIError)
-			if !ok {
+			a.printer.PrintInfo(fmt.Sprintf("Initiating device login with %s...", a.cfg.Host))
+
+			codePayload := map[string]string{
+				"client_id": "bookbeam-cli",
+			}
+			rawResp, err := a.apiCli.Post("/api/v1/oauth/device/code", codePayload)
+			if err != nil {
+				return fmt.Errorf("failed to request device authorization code: %w", err)
+			}
+
+			var deviceResp DeviceCodeResponse
+			if err := json.Unmarshal(rawResp, &deviceResp); err != nil {
+				return fmt.Errorf("invalid server response: %w", err)
+			}
+
+			a.printer.PrintInfo("")
+			a.printer.PrintInfo(fmt.Sprintf("! Your one-time verification code is: %s", deviceResp.UserCode))
+			a.printer.PrintInfo(fmt.Sprintf("- Open verification page: %s", deviceResp.VerificationURIComplete))
+			a.printer.PrintInfo("")
+
+			a.openURL(deviceResp.VerificationURIComplete)
+
+			a.printer.PrintInfo("Waiting for authorization in browser...")
+
+			token, err := pollDeviceToken(a.apiCli, deviceResp, a.sleep)
+			if err != nil {
+				return err
+			}
+			if err := saveToken(a, token); err != nil {
 				return err
 			}
 
-			if apiErr.ErrorType == "authorization_pending" {
-				continue
-			}
-
-			if apiErr.ErrorType == "slow_down" {
-				pollInterval += 5
-				continue
-			}
-
-			return fmt.Errorf("authorization failed: %s", apiErr.ErrorDescription)
-		}
-	},
+			a.printer.PrintInfo("")
+			a.printer.PrintInfo("✓ Successfully authenticated! Logged in to BookBeam.")
+			return nil
+		},
+	}
+	cmd.Flags().String("token", "", "Authenticate directly with an API personal access token")
+	return cmd
 }
 
-var logoutCmd = &cobra.Command{
-	Use:   "logout",
-	Short: "Log out of BookBeam and remove saved credentials",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg.Token = ""
-		if err := config.Save(cfg, ""); err != nil {
-			return fmt.Errorf("failed to update config file: %w", err)
-		}
-		printer.PrintInfo("✓ Logged out successfully.")
-		return nil
-	},
+func logoutCmd(a *app) *cobra.Command {
+	return &cobra.Command{
+		Use:   "logout",
+		Short: "Log out of BookBeam and remove saved credentials",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			a.cfg.Token = ""
+			if err := config.Save(a.cfg, ""); err != nil {
+				return fmt.Errorf("failed to update config file: %w", err)
+			}
+			a.printer.PrintInfo("✓ Logged out successfully.")
+			return nil
+		},
+	}
 }
 
-var whoamiCmd = &cobra.Command{
-	Use:   "whoami",
-	Short: "Display the currently authenticated user and team",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		if cfg.Token == "" {
-			printer.PrintError("Error: Not authenticated. Run 'bookbeam auth login' to authenticate.")
-			os.Exit(4)
-		}
+func whoamiCmd(a *app) *cobra.Command {
+	return &cobra.Command{
+		Use:   "whoami",
+		Short: "Display the currently authenticated user and team",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if a.cfg.Token == "" {
+				cmd.SilenceUsage = true
+				return errors.New("Not authenticated. Run 'bookbeam auth login' to authenticate.")
+			}
 
-		rawResp, err := apiCli.Get("/api/v1/user", nil)
-		if err != nil {
-			return fmt.Errorf("failed to get user details: %w", err)
-		}
+			rawResp, err := a.apiCli.Get("/api/v1/user", nil)
+			if err != nil {
+				return fmt.Errorf("failed to get user details: %w", err)
+			}
 
-		if printer.JSON {
-			return printer.PrintRawJSON(rawResp)
-		}
+			if a.printer.JSON {
+				return a.printer.PrintRawJSON(rawResp)
+			}
 
-		var profile UserProfileResponse
-		if err := json.Unmarshal(rawResp, &profile); err != nil {
-			return fmt.Errorf("failed to parse profile response: %w", err)
-		}
+			var profile UserProfileResponse
+			if err := json.Unmarshal(rawResp, &profile); err != nil {
+				return fmt.Errorf("failed to parse profile response: %w", err)
+			}
 
-		teamName := "Personal"
-		if profile.CurrentTeam != nil && profile.CurrentTeam.Name != "" {
-			teamName = profile.CurrentTeam.Name
-		}
+			teamName := "Personal"
+			if profile.CurrentTeam != nil && profile.CurrentTeam.Name != "" {
+				teamName = profile.CurrentTeam.Name
+			}
 
-		rows := [][]string{
-			{"Name", profile.Name},
-			{"Email", profile.Email},
-			{"Active Team", teamName},
-			{"API Host", cfg.Host},
-		}
+			rows := [][]string{
+				{"Name", profile.Name},
+				{"Email", profile.Email},
+				{"Active Team", teamName},
+				{"API Host", a.cfg.Host},
+			}
 
-		printer.Table([]string{"Property", "Value"}, rows)
-		return nil
-	},
+			a.printer.Table([]string{"Property", "Value"}, rows)
+			return nil
+		},
+	}
 }
 
 func openBrowser(url string) {
-	var cmd *exec.Cmd
-	switch runtime.GOOS {
-	case "darwin":
-		cmd = exec.Command("open", url)
-	case "windows":
-		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
-	default:
-		cmd = exec.Command("xdg-open", url)
-	}
-	_ = cmd.Start()
+	_ = browserCommand(runtime.GOOS, url).Start()
 }
 
-func init() {
-	loginCmd.Flags().StringVar(&flagDirectToken, "token", "", "Authenticate directly with an API personal access token")
+// browserCommand returns the platform's command for opening url in the default browser.
+func browserCommand(goos, url string) *exec.Cmd {
+	switch goos {
+	case "darwin":
+		return exec.Command("open", url)
+	case "windows":
+		return exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
+	}
+	return exec.Command("xdg-open", url)
+}
 
-	authCmd.AddCommand(loginCmd)
-	authCmd.AddCommand(logoutCmd)
-	authCmd.AddCommand(whoamiCmd)
+func authCmd(a *app) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "auth",
+		Short: "Manage authentication and tokens",
+	}
+	cmd.AddCommand(loginCmd(a), logoutCmd(a), whoamiCmd(a))
+	return cmd
+}
 
-	rootCmd.AddCommand(authCmd)
-	rootCmd.AddCommand(whoamiCmd)
+func saveToken(a *app, token string) error {
+	a.cfg.Token = token
+	if err := config.Save(a.cfg, ""); err != nil {
+		return fmt.Errorf("failed to save token to config: %w", err)
+	}
+	return nil
+}
+
+// pollDeviceToken polls the token endpoint until the user approves the device code, it expires, or the server refuses it.
+func pollDeviceToken(apiCli *client.Client, deviceResp DeviceCodeResponse, sleep func(time.Duration)) (string, error) {
+	pollInterval := deviceResp.Interval
+	if pollInterval < 1 {
+		pollInterval = 5
+	}
+
+	deadline := time.Now().Add(time.Duration(deviceResp.ExpiresIn) * time.Second)
+	tokenPayload := map[string]string{
+		"grant_type":  "urn:ietf:params:oauth:grant-type:device_code",
+		"device_code": deviceResp.DeviceCode,
+		"client_id":   "bookbeam-cli",
+	}
+
+	for time.Now().Before(deadline) {
+		sleep(time.Duration(pollInterval) * time.Second)
+
+		tokenRaw, err := apiCli.Post("/api/v1/oauth/device/token", tokenPayload)
+		if err == nil {
+			return parseDeviceToken(tokenRaw)
+		}
+
+		extra, err := pollBackoff(err)
+		if err != nil {
+			return "", err
+		}
+		pollInterval += extra
+	}
+	return "", fmt.Errorf("device authorization timed out; please run 'bookbeam auth login' again")
+}
+
+func parseDeviceToken(raw []byte) (string, error) {
+	var tokenResp DeviceTokenResponse
+	if err := json.Unmarshal(raw, &tokenResp); err != nil {
+		return "", fmt.Errorf("failed to parse token response: %w", err)
+	}
+	return tokenResp.AccessToken, nil
+}
+
+// pollBackoff returns the extra seconds to wait before polling again, or the error that ends polling.
+func pollBackoff(err error) (int, error) {
+	apiErr, ok := err.(*client.APIError)
+	if !ok {
+		return 0, err
+	}
+	switch apiErr.ErrorType {
+	case "authorization_pending":
+		return 0, nil
+	case "slow_down":
+		return 5, nil
+	}
+	return 0, fmt.Errorf("authorization failed: %s", apiErr.ErrorDescription)
 }

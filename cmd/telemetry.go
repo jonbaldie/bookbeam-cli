@@ -8,11 +8,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	flagLogLimit int
-	flagLogEvent string
-)
-
 type ActivityLogItem struct {
 	ID        int    `json:"id"`
 	Type      string `json:"type"`
@@ -28,87 +23,88 @@ type DashboardMetricsResponse struct {
 	TotalViews     int `json:"total_views"`
 }
 
-var logsCmd = &cobra.Command{
-	Use:   "logs",
-	Short: "View chronological telemetry activity logs",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		query := url.Values{}
-		if flagLogLimit > 0 {
-			query.Set("limit", strconv.Itoa(flagLogLimit))
-		}
-		if flagLogEvent != "" {
-			query.Set("event", flagLogEvent)
-		}
+func logsCmd(a *app) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "logs",
+		Short: "View chronological telemetry activity logs",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			query := url.Values{}
+			limit, _ := cmd.Flags().GetInt("limit")
+			event, _ := cmd.Flags().GetString("event")
+			if limit > 0 {
+				query.Set("limit", strconv.Itoa(limit))
+			}
+			if event != "" {
+				query.Set("event", event)
+			}
 
-		raw, err := apiCli.Get("/api/v1/logs", query)
-		if err != nil {
-			return err
-		}
+			raw, err := a.apiCli.Get("/api/v1/logs", query)
+			if err != nil {
+				return err
+			}
 
-		if printer.JSON {
-			return printer.PrintRawJSON(raw)
-		}
+			if a.printer.JSON {
+				return a.printer.PrintRawJSON(raw)
+			}
 
-		var items []ActivityLogItem
-		if err := json.Unmarshal(raw, &items); err != nil {
-			return err
-		}
+			var items []ActivityLogItem
+			if err := json.Unmarshal(raw, &items); err != nil {
+				return err
+			}
 
-		if len(items) == 0 {
-			printer.PrintInfo("No activity logs recorded.")
+			if len(items) == 0 {
+				a.printer.PrintInfo("No activity logs recorded.")
+				return nil
+			}
+
+			headers := []string{"TIME", "TYPE", "STATUS", "SUMMARY"}
+			var rows [][]string
+			for _, item := range items {
+				rows = append(rows, []string{
+					item.CreatedAt,
+					item.Type,
+					item.Status,
+					item.Summary,
+				})
+			}
+
+			a.printer.Table(headers, rows)
 			return nil
-		}
-
-		headers := []string{"TIME", "TYPE", "STATUS", "SUMMARY"}
-		var rows [][]string
-		for _, item := range items {
-			rows = append(rows, []string{
-				item.CreatedAt,
-				item.Type,
-				item.Status,
-				item.Summary,
-			})
-		}
-
-		printer.Table(headers, rows)
-		return nil
-	},
+		},
+	}
+	cmd.Flags().IntP("limit", "n", 50, "Maximum number of log events to show")
+	cmd.Flags().String("event", "", "Filter logs by event type (e.g. signup, download)")
+	return cmd
 }
 
-var metricsCmd = &cobra.Command{
-	Use:   "metrics",
-	Short: "Display aggregated catalog and reader engagement metrics",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		raw, err := apiCli.Get("/api/v1/dashboard/metrics", nil)
-		if err != nil {
-			return err
-		}
+func metricsCmd(a *app) *cobra.Command {
+	return &cobra.Command{
+		Use:   "metrics",
+		Short: "Display aggregated catalog and reader engagement metrics",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			raw, err := a.apiCli.Get("/api/v1/dashboard/metrics", nil)
+			if err != nil {
+				return err
+			}
 
-		if printer.JSON {
-			return printer.PrintRawJSON(raw)
-		}
+			if a.printer.JSON {
+				return a.printer.PrintRawJSON(raw)
+			}
 
-		var metrics DashboardMetricsResponse
-		if err := json.Unmarshal(raw, &metrics); err != nil {
-			return err
-		}
+			var metrics DashboardMetricsResponse
+			if err := json.Unmarshal(raw, &metrics); err != nil {
+				return err
+			}
 
-		rows := [][]string{
-			{"Total Book Projects", strconv.Itoa(metrics.TotalProjects)},
-			{"Total Uploaded Files", strconv.Itoa(metrics.TotalFiles)},
-			{"Total Reader Downloads", strconv.Itoa(metrics.TotalDownloads)},
-			{"Total Landing Page Views", strconv.Itoa(metrics.TotalViews)},
-		}
+			rows := [][]string{
+				{"Total Book Projects", strconv.Itoa(metrics.TotalProjects)},
+				{"Total Uploaded Files", strconv.Itoa(metrics.TotalFiles)},
+				{"Total Reader Downloads", strconv.Itoa(metrics.TotalDownloads)},
+				{"Total Landing Page Views", strconv.Itoa(metrics.TotalViews)},
+			}
 
-		printer.Table([]string{"Metric", "Total"}, rows)
-		return nil
-	},
-}
-
-func init() {
-	logsCmd.Flags().IntVarP(&flagLogLimit, "limit", "n", 50, "Maximum number of log events to show")
-	logsCmd.Flags().StringVar(&flagLogEvent, "event", "", "Filter logs by event type (e.g. signup, download)")
-
-	rootCmd.AddCommand(logsCmd)
-	rootCmd.AddCommand(metricsCmd)
+			a.printer.Table([]string{"Metric", "Total"}, rows)
+			return nil
+		},
+	}
 }

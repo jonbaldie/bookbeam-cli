@@ -5,14 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 	"github.com/spf13/cobra"
-)
-
-var (
-	flagNewsletterProvider string
-	flagNewsletterAPIKey   string
-	flagNewsletterEndpoint string
-	flagNewsletterWebhook  string
 )
 
 type NewsletterSettingsResponse struct {
@@ -31,189 +25,194 @@ type NewsletterListsResponse struct {
 	Tags  []NewsletterListOption `json:"tags"`
 }
 
-var newsletterCmd = &cobra.Command{
-	Use:   "newsletter",
-	Short: "Manage mailing list integrations and webhook notifications",
+func newsletterCmd(a *app) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "newsletter",
+		Short: "Manage mailing list integrations and webhook notifications",
+	}
+	cmd.AddCommand(newsletterStatusCmd(a), newsletterConfigureCmd(a), newsletterDisconnectCmd(a), newsletterWebhookCmd(a), newsletterListsCmd(a))
+	return cmd
 }
 
-var newsletterStatusCmd = &cobra.Command{
-	Use:   "status",
-	Short: "Show current team newsletter provider settings",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		raw, err := apiCli.Get("/api/v1/settings/newsletter", nil)
-		if err != nil {
-			return err
-		}
+func newsletterStatusCmd(a *app) *cobra.Command {
+	return &cobra.Command{
+		Use:   "status",
+		Short: "Show current team newsletter provider settings",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			raw, err := a.apiCli.Get("/api/v1/settings/newsletter", nil)
+			if err != nil {
+				return err
+			}
 
-		if printer.JSON {
-			return printer.PrintRawJSON(raw)
-		}
+			if a.printer.JSON {
+				return a.printer.PrintRawJSON(raw)
+			}
 
-		var settings NewsletterSettingsResponse
-		if err := json.Unmarshal(raw, &settings); err != nil {
-			return err
-		}
+			var settings NewsletterSettingsResponse
+			if err := json.Unmarshal(raw, &settings); err != nil {
+				return err
+			}
 
-		provider := settings.Provider
-		if provider == "" {
-			provider = "None (disconnected)"
-		}
+			provider := settings.Provider
+			if provider == "" {
+				provider = "None (disconnected)"
+			}
 
-		webhook := settings.WebhookURL
-		if webhook == "" {
-			webhook = "None"
-		}
+			webhook := settings.WebhookURL
+			if webhook == "" {
+				webhook = "None"
+			}
 
-		configured := "No"
-		if settings.IsConfigured {
-			configured = "Yes"
-		}
+			configured := "No"
+			if settings.IsConfigured {
+				configured = "Yes"
+			}
 
-		rows := [][]string{
-			{"Active Provider", strings.ToUpper(provider)},
-			{"Configured", configured},
-			{"Webhook Endpoint", webhook},
-		}
+			rows := [][]string{
+				{"Active Provider", strings.ToUpper(provider)},
+				{"Configured", configured},
+				{"Webhook Endpoint", webhook},
+			}
 
-		printer.Table([]string{"Setting", "Value"}, rows)
-		return nil
-	},
-}
-
-var newsletterConfigureCmd = &cobra.Command{
-	Use:   "configure",
-	Short: "Connect a newsletter service (mailerlite, kit, mailcoach)",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		if flagNewsletterProvider == "" {
-			return fmt.Errorf("--provider is required (kit, mailcoach, or mailerlite)")
-		}
-		if flagNewsletterAPIKey == "" {
-			return fmt.Errorf("--api-key is required")
-		}
-
-		payload := map[string]string{
-			"provider": strings.ToLower(flagNewsletterProvider),
-			"api_key":  flagNewsletterAPIKey,
-		}
-		if flagNewsletterEndpoint != "" {
-			payload["api_endpoint"] = flagNewsletterEndpoint
-		}
-
-		raw, err := apiCli.Put("/api/v1/settings/newsletter/provider", payload)
-		if err != nil {
-			return err
-		}
-
-		if printer.JSON {
-			return printer.PrintRawJSON(raw)
-		}
-
-		printer.PrintInfo(fmt.Sprintf("✓ Connected provider: %s", strings.ToUpper(flagNewsletterProvider)))
-		return nil
-	},
-}
-
-var newsletterDisconnectCmd = &cobra.Command{
-	Use:   "disconnect",
-	Short: "Disconnect active newsletter provider credentials",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		raw, err := apiCli.Delete("/api/v1/settings/newsletter/provider")
-		if err != nil {
-			return err
-		}
-
-		if printer.JSON {
-			return printer.PrintRawJSON(raw)
-		}
-
-		printer.PrintInfo("✓ Disconnected newsletter provider.")
-		return nil
-	},
-}
-
-var newsletterWebhookCmd = &cobra.Command{
-	Use:   "webhook",
-	Short: "Set or clear subscriber notification webhook URL",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		payload := map[string]string{
-			"webhook_url": flagNewsletterWebhook,
-		}
-
-		raw, err := apiCli.Put("/api/v1/settings/newsletter/webhook", payload)
-		if err != nil {
-			return err
-		}
-
-		if printer.JSON {
-			return printer.PrintRawJSON(raw)
-		}
-
-		if flagNewsletterWebhook == "" {
-			printer.PrintInfo("✓ Cleared newsletter webhook URL.")
-		} else {
-			printer.PrintInfo(fmt.Sprintf("✓ Configured webhook URL: %s", flagNewsletterWebhook))
-		}
-		return nil
-	},
-}
-
-var newsletterListsCmd = &cobra.Command{
-	Use:   "lists",
-	Short: "Fetch available lists and tags from configured provider",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		raw, err := apiCli.Post("/api/v1/settings/newsletter/lists", map[string]string{})
-		if err != nil {
-			return err
-		}
-
-		if printer.JSON {
-			return printer.PrintRawJSON(raw)
-		}
-
-		var listsResp NewsletterListsResponse
-		if err := json.Unmarshal(raw, &listsResp); err != nil {
-			return err
-		}
-
-		if len(listsResp.Lists) == 0 && len(listsResp.Tags) == 0 {
-			printer.PrintInfo("No mailing lists or tags returned by provider.")
+			a.printer.Table([]string{"Setting", "Value"}, rows)
 			return nil
-		}
-
-		if len(listsResp.Lists) > 0 {
-			printer.PrintInfo("Mailing Lists:")
-			var rows [][]string
-			for _, l := range listsResp.Lists {
-				rows = append(rows, []string{l.ID, l.Name})
-			}
-			printer.Table([]string{"LIST ID", "NAME"}, rows)
-		}
-
-		if len(listsResp.Tags) > 0 {
-			printer.PrintInfo("\nTags:")
-			var rows [][]string
-			for _, t := range listsResp.Tags {
-				rows = append(rows, []string{t.ID, t.Name})
-			}
-			printer.Table([]string{"TAG ID", "NAME"}, rows)
-		}
-
-		return nil
-	},
+		},
+	}
 }
 
-func init() {
-	newsletterConfigureCmd.Flags().StringVar(&flagNewsletterProvider, "provider", "", "Provider type: kit, mailcoach, or mailerlite (required)")
-	newsletterConfigureCmd.Flags().StringVar(&flagNewsletterAPIKey, "api-key", "", "Provider API secret key (required)")
-	newsletterConfigureCmd.Flags().StringVar(&flagNewsletterEndpoint, "endpoint", "", "API endpoint URL (required for Mailcoach)")
+func newsletterConfigureCmd(a *app) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "configure",
+		Short: "Connect a newsletter service (mailerlite, kit, mailcoach)",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			provider, _ := cmd.Flags().GetString("provider")
+			apiKey, _ := cmd.Flags().GetString("api-key")
+			endpoint, _ := cmd.Flags().GetString("endpoint")
+			if provider == "" {
+				return fmt.Errorf("--provider is required (kit, mailcoach, or mailerlite)")
+			}
+			if apiKey == "" {
+				return fmt.Errorf("--api-key is required")
+			}
 
-	newsletterWebhookCmd.Flags().StringVar(&flagNewsletterWebhook, "url", "", "Target webhook URL (empty string clears webhook)")
+			payload := map[string]string{
+				"provider": strings.ToLower(provider),
+				"api_key":  apiKey,
+			}
+			if endpoint != "" {
+				payload["api_endpoint"] = endpoint
+			}
 
-	newsletterCmd.AddCommand(newsletterStatusCmd)
-	newsletterCmd.AddCommand(newsletterConfigureCmd)
-	newsletterCmd.AddCommand(newsletterDisconnectCmd)
-	newsletterCmd.AddCommand(newsletterWebhookCmd)
-	newsletterCmd.AddCommand(newsletterListsCmd)
+			raw, err := a.apiCli.Put("/api/v1/settings/newsletter/provider", payload)
+			if err != nil {
+				return err
+			}
 
-	rootCmd.AddCommand(newsletterCmd)
+			if a.printer.JSON {
+				return a.printer.PrintRawJSON(raw)
+			}
+
+			a.printer.PrintInfo(fmt.Sprintf("✓ Connected provider: %s", strings.ToUpper(provider)))
+			return nil
+		},
+	}
+	cmd.Flags().String("provider", "", "Provider type: kit, mailcoach, or mailerlite (required)")
+	cmd.Flags().String("api-key", "", "Provider API secret key (required)")
+	cmd.Flags().String("endpoint", "", "API endpoint URL (required for Mailcoach)")
+	return cmd
+}
+
+func newsletterDisconnectCmd(a *app) *cobra.Command {
+	return &cobra.Command{
+		Use:   "disconnect",
+		Short: "Disconnect active newsletter provider credentials",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			raw, err := a.apiCli.Delete("/api/v1/settings/newsletter/provider")
+			if err != nil {
+				return err
+			}
+
+			if a.printer.JSON {
+				return a.printer.PrintRawJSON(raw)
+			}
+
+			a.printer.PrintInfo("✓ Disconnected newsletter provider.")
+			return nil
+		},
+	}
+}
+
+func newsletterWebhookCmd(a *app) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "webhook",
+		Short: "Set or clear subscriber notification webhook URL",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			webhookURL, _ := cmd.Flags().GetString("url")
+			payload := map[string]string{
+				"webhook_url": webhookURL,
+			}
+
+			raw, err := a.apiCli.Put("/api/v1/settings/newsletter/webhook", payload)
+			if err != nil {
+				return err
+			}
+
+			if a.printer.JSON {
+				return a.printer.PrintRawJSON(raw)
+			}
+
+			if webhookURL == "" {
+				a.printer.PrintInfo("✓ Cleared newsletter webhook URL.")
+			} else {
+				a.printer.PrintInfo(fmt.Sprintf("✓ Configured webhook URL: %s", webhookURL))
+			}
+			return nil
+		},
+	}
+	cmd.Flags().String("url", "", "Target webhook URL (empty string clears webhook)")
+	return cmd
+}
+
+func newsletterListsCmd(a *app) *cobra.Command {
+	return &cobra.Command{
+		Use:   "lists",
+		Short: "Fetch available lists and tags from configured provider",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			raw, err := a.apiCli.Post("/api/v1/settings/newsletter/lists", map[string]string{})
+			if err != nil {
+				return err
+			}
+
+			if a.printer.JSON {
+				return a.printer.PrintRawJSON(raw)
+			}
+
+			var listsResp NewsletterListsResponse
+			if err := json.Unmarshal(raw, &listsResp); err != nil {
+				return err
+			}
+
+			if len(listsResp.Lists) == 0 && len(listsResp.Tags) == 0 {
+				a.printer.PrintInfo("No mailing lists or tags returned by provider.")
+				return nil
+			}
+
+			printOptions(a.printer, "Mailing Lists:", "LIST ID", listsResp.Lists)
+			printOptions(a.printer, "\nTags:", "TAG ID", listsResp.Tags)
+
+			return nil
+		},
+	}
+}
+
+func printOptions(printer *output.Printer, title, idHeader string, options []NewsletterListOption) {
+	if len(options) == 0 {
+		return
+	}
+	printer.PrintInfo(title)
+	rows := make([][]string, 0, len(options))
+	for _, option := range options {
+		rows = append(rows, []string{option.ID, option.Name})
+	}
+	printer.Table([]string{idHeader, "NAME"}, rows)
 }

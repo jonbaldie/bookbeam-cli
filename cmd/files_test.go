@@ -16,6 +16,9 @@ import (
 )
 
 func TestFilesListAndUpload(t *testing.T) {
+	a := &app{}
+	filesListCmd := filesListCmd(a)
+	filesUploadCmd := filesUploadCmd(a)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
@@ -48,9 +51,9 @@ func TestFilesListAndUpload(t *testing.T) {
 	defer ts.Close()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "test-token"}
-	apiCli = client.New(ts.URL, "test-token")
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
 
 	err := filesListCmd.RunE(filesListCmd, []string{"10"})
 	if err != nil {
@@ -85,12 +88,12 @@ func TestFilesListAndUpload(t *testing.T) {
 
 func TestResolveDownloadDestination(t *testing.T) {
 	tests := []struct {
-		name        string
-		outputFlag  string
-		header      string
-		projectID   string
-		fileID      string
-		expected    string
+		name       string
+		outputFlag string
+		header     string
+		projectID  string
+		fileID     string
+		expected   string
 	}{
 		{
 			name:       "explicit output flag wins unconditionally",
@@ -277,6 +280,8 @@ func TestSanitizeFilename(t *testing.T) {
 }
 
 func TestFilesDownloadCmd(t *testing.T) {
+	a := &app{}
+	filesDownloadCmd := filesDownloadCmd(a)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/api/v1/projects/7/files/16/download" {
 			w.Header().Set("Content-Disposition", `attachment; filename="novel.epub"`)
@@ -301,8 +306,8 @@ func TestFilesDownloadCmd(t *testing.T) {
 		t.Chdir(tempDir)
 
 		var buf bytes.Buffer
-		printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-		apiCli = client.New(ts.URL, "test-token")
+		a.printer = &output.Printer{Out: &buf, JSON: false}
+		a.apiCli = client.New(ts.URL, "test-token")
 
 		filesDownloadCmd.Flags().Set("output", "")
 		err := filesDownloadCmd.RunE(filesDownloadCmd, []string{"7", "16"})
@@ -324,8 +329,8 @@ func TestFilesDownloadCmd(t *testing.T) {
 		t.Chdir(tempDir)
 
 		var buf bytes.Buffer
-		printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-		apiCli = client.New(ts.URL, "test-token")
+		a.printer = &output.Printer{Out: &buf, JSON: false}
+		a.apiCli = client.New(ts.URL, "test-token")
 
 		filesDownloadCmd.Flags().Set("output", "")
 		err := filesDownloadCmd.RunE(filesDownloadCmd, []string{"7", "99"})
@@ -343,8 +348,8 @@ func TestFilesDownloadCmd(t *testing.T) {
 		tempDir := t.TempDir()
 
 		var buf bytes.Buffer
-		printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-		apiCli = client.New(ts.URL, "test-token")
+		a.printer = &output.Printer{Out: &buf, JSON: false}
+		a.apiCli = client.New(ts.URL, "test-token")
 
 		customDest := filepath.Join(tempDir, "custom.epub")
 		filesDownloadCmd.Flags().Set("output", customDest)
@@ -363,8 +368,8 @@ func TestFilesDownloadCmd(t *testing.T) {
 
 	t.Run("download API error", func(t *testing.T) {
 		var buf bytes.Buffer
-		printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-		apiCli = client.New(ts.URL, "test-token")
+		a.printer = &output.Printer{Out: &buf, JSON: false}
+		a.apiCli = client.New(ts.URL, "test-token")
 
 		filesDownloadCmd.Flags().Set("output", "")
 		err := filesDownloadCmd.RunE(filesDownloadCmd, []string{"7", "404"})
@@ -375,8 +380,8 @@ func TestFilesDownloadCmd(t *testing.T) {
 
 	t.Run("download invalid destination path error", func(t *testing.T) {
 		var buf bytes.Buffer
-		printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-		apiCli = client.New(ts.URL, "test-token")
+		a.printer = &output.Printer{Out: &buf, JSON: false}
+		a.apiCli = client.New(ts.URL, "test-token")
 
 		filesDownloadCmd.Flags().Set("output", "/non/existent/dir/file.epub")
 		defer filesDownloadCmd.Flags().Set("output", "")
@@ -389,6 +394,8 @@ func TestFilesDownloadCmd(t *testing.T) {
 }
 
 func TestFilesDeleteCmd(t *testing.T) {
+	a := &app{}
+	filesDeleteCmd := filesDeleteCmd(a)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/api/v1/projects/7/files/16" && r.Method == http.MethodDelete {
 			w.Header().Set("Content-Type", "application/json")
@@ -401,8 +408,8 @@ func TestFilesDeleteCmd(t *testing.T) {
 
 	t.Run("force delete success", func(t *testing.T) {
 		var buf bytes.Buffer
-		printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-		apiCli = client.New(ts.URL, "test-token")
+		a.printer = &output.Printer{Out: &buf, JSON: false}
+		a.apiCli = client.New(ts.URL, "test-token")
 
 		filesDeleteCmd.Flags().Set("force", "true")
 		defer filesDeleteCmd.Flags().Set("force", "false")
@@ -418,9 +425,9 @@ func TestFilesDeleteCmd(t *testing.T) {
 
 	t.Run("force delete JSON output", func(t *testing.T) {
 		var buf bytes.Buffer
-		printer = &output.Printer{Out: &buf, Err: &buf, JSON: true}
-		defer func() { printer.JSON = false }()
-		apiCli = client.New(ts.URL, "test-token")
+		a.printer = &output.Printer{Out: &buf, JSON: true}
+		defer func() { a.printer.JSON = false }()
+		a.apiCli = client.New(ts.URL, "test-token")
 
 		filesDeleteCmd.Flags().Set("force", "true")
 		defer filesDeleteCmd.Flags().Set("force", "false")
@@ -436,9 +443,9 @@ func TestFilesDeleteCmd(t *testing.T) {
 
 	t.Run("json output without force skips prompt", func(t *testing.T) {
 		var buf bytes.Buffer
-		printer = &output.Printer{Out: &buf, Err: &buf, JSON: true}
-		defer func() { printer.JSON = false }()
-		apiCli = client.New(ts.URL, "test-token")
+		a.printer = &output.Printer{Out: &buf, JSON: true}
+		defer func() { a.printer.JSON = false }()
+		a.apiCli = client.New(ts.URL, "test-token")
 
 		filesDeleteCmd.Flags().Set("force", "false")
 
@@ -453,8 +460,8 @@ func TestFilesDeleteCmd(t *testing.T) {
 
 	t.Run("delete API error", func(t *testing.T) {
 		var buf bytes.Buffer
-		printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-		apiCli = client.New(ts.URL, "test-token")
+		a.printer = &output.Printer{Out: &buf, JSON: false}
+		a.apiCli = client.New(ts.URL, "test-token")
 
 		filesDeleteCmd.Flags().Set("force", "true")
 		defer filesDeleteCmd.Flags().Set("force", "false")
@@ -467,8 +474,8 @@ func TestFilesDeleteCmd(t *testing.T) {
 
 	t.Run("interactive prompt confirm y", func(t *testing.T) {
 		var buf bytes.Buffer
-		printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-		apiCli = client.New(ts.URL, "test-token")
+		a.printer = &output.Printer{Out: &buf, JSON: false}
+		a.apiCli = client.New(ts.URL, "test-token")
 
 		filesDeleteCmd.Flags().Set("force", "false")
 
@@ -490,8 +497,8 @@ func TestFilesDeleteCmd(t *testing.T) {
 
 	t.Run("interactive prompt cancel n", func(t *testing.T) {
 		var buf bytes.Buffer
-		printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-		apiCli = client.New(ts.URL, "test-token")
+		a.printer = &output.Printer{Out: &buf, JSON: false}
+		a.apiCli = client.New(ts.URL, "test-token")
 
 		filesDeleteCmd.Flags().Set("force", "false")
 
@@ -513,6 +520,9 @@ func TestFilesDeleteCmd(t *testing.T) {
 }
 
 func TestFilesListAndUploadVariations(t *testing.T) {
+	a := &app{}
+	filesListCmd := filesListCmd(a)
+	filesUploadCmd := filesUploadCmd(a)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		if r.URL.Path == "/api/v1/projects/1/files" && r.Method == http.MethodGet {
@@ -529,8 +539,8 @@ func TestFilesListAndUploadVariations(t *testing.T) {
 
 	t.Run("empty list prints info", func(t *testing.T) {
 		var buf bytes.Buffer
-		printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-		apiCli = client.New(ts.URL, "test-token")
+		a.printer = &output.Printer{Out: &buf, JSON: false}
+		a.apiCli = client.New(ts.URL, "test-token")
 
 		err := filesListCmd.RunE(filesListCmd, []string{"1"})
 		if err != nil {
@@ -543,9 +553,9 @@ func TestFilesListAndUploadVariations(t *testing.T) {
 
 	t.Run("list JSON output", func(t *testing.T) {
 		var buf bytes.Buffer
-		printer = &output.Printer{Out: &buf, Err: &buf, JSON: true}
-		defer func() { printer.JSON = false }()
-		apiCli = client.New(ts.URL, "test-token")
+		a.printer = &output.Printer{Out: &buf, JSON: true}
+		defer func() { a.printer.JSON = false }()
+		a.apiCli = client.New(ts.URL, "test-token")
 
 		err := filesListCmd.RunE(filesListCmd, []string{"2"})
 		if err != nil {
@@ -561,7 +571,7 @@ func TestFilesListAndUploadVariations(t *testing.T) {
 		txtFile := filepath.Join(tempDir, "notes.txt")
 		_ = os.WriteFile(txtFile, []byte("some notes"), 0644)
 
-		apiCli = client.New(ts.URL, "test-token")
+		a.apiCli = client.New(ts.URL, "test-token")
 		err := filesUploadCmd.RunE(filesUploadCmd, []string{"1", txtFile})
 		if err == nil || !strings.Contains(err.Error(), "unsupported file extension") {
 			t.Fatalf("expected unsupported extension error, got: %v", err)
@@ -569,7 +579,7 @@ func TestFilesListAndUploadVariations(t *testing.T) {
 	})
 
 	t.Run("upload non-existent file", func(t *testing.T) {
-		apiCli = client.New(ts.URL, "test-token")
+		a.apiCli = client.New(ts.URL, "test-token")
 		err := filesUploadCmd.RunE(filesUploadCmd, []string{"1", "/non/existent/file.epub"})
 		if err == nil || !strings.Contains(err.Error(), "file not found") {
 			t.Fatalf("expected file not found error, got: %v", err)

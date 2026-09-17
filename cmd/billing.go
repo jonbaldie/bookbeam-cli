@@ -15,73 +15,74 @@ type BillingStatusResponse struct {
 	CheckoutURL string `json:"checkout_url"`
 }
 
-var billingCmd = &cobra.Command{
-	Use:   "billing",
-	Short: "Check team account billing and subscription entitlement",
+func billingCmd(a *app) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "billing",
+		Short: "Check team account billing and subscription entitlement",
+	}
+	cmd.AddCommand(billingStatusCmd(a), billingCheckoutCmd(a))
+	return cmd
 }
 
-var billingStatusCmd = &cobra.Command{
-	Use:   "status",
-	Short: "Show current team subscription status and active plan",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		raw, err := apiCli.Get("/api/v1/billing", nil)
-		if err != nil {
-			return err
-		}
+func billingStatusCmd(a *app) *cobra.Command {
+	return &cobra.Command{
+		Use:   "status",
+		Short: "Show current team subscription status and active plan",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			raw, err := a.apiCli.Get("/api/v1/billing", nil)
+			if err != nil {
+				return err
+			}
 
-		if printer.JSON {
-			return printer.PrintRawJSON(raw)
-		}
+			if a.printer.JSON {
+				return a.printer.PrintRawJSON(raw)
+			}
 
-		var b BillingStatusResponse
-		if err := json.Unmarshal(raw, &b); err != nil {
-			return err
-		}
+			var b BillingStatusResponse
+			if err := json.Unmarshal(raw, &b); err != nil {
+				return err
+			}
 
-		accessStr := "Inactive (No access)"
-		if b.HasAccess {
-			accessStr = "Active (Paid access granted)"
-		}
+			accessStr := "Inactive (No access)"
+			if b.HasAccess {
+				accessStr = "Active (Paid access granted)"
+			}
 
-		rows := [][]string{
-			{"Access Status", accessStr},
-			{"Plan Type", strings.ToUpper(b.OfferType)},
-			{"Active Offer", b.ActiveOffer},
-			{"Checkout Link", b.CheckoutURL},
-		}
+			rows := [][]string{
+				{"Access Status", accessStr},
+				{"Plan Type", strings.ToUpper(b.OfferType)},
+				{"Active Offer", b.ActiveOffer},
+				{"Checkout Link", b.CheckoutURL},
+			}
 
-		printer.Table([]string{"Field", "Value"}, rows)
-		return nil
-	},
+			a.printer.Table([]string{"Field", "Value"}, rows)
+			return nil
+		},
+	}
 }
 
-var billingCheckoutCmd = &cobra.Command{
-	Use:   "checkout",
-	Short: "Open or display the checkout link for the active plan",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		raw, err := apiCli.Get("/api/v1/billing", nil)
-		if err != nil {
-			return err
-		}
+func billingCheckoutCmd(a *app) *cobra.Command {
+	return &cobra.Command{
+		Use:   "checkout",
+		Short: "Open or display the checkout link for the active plan",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			raw, err := a.apiCli.Get("/api/v1/billing", nil)
+			if err != nil {
+				return err
+			}
 
-		var b BillingStatusResponse
-		if err := json.Unmarshal(raw, &b); err != nil || b.CheckoutURL == "" {
-			return fmt.Errorf("checkout unavailable: %s", string(raw))
-		}
+			var b BillingStatusResponse
+			if err := json.Unmarshal(raw, &b); err != nil || b.CheckoutURL == "" {
+				return fmt.Errorf("checkout unavailable: %s", string(raw))
+			}
 
-		if printer.JSON {
-			return printer.PrintRawJSON(raw)
-		}
+			if a.printer.JSON {
+				return a.printer.PrintRawJSON(raw)
+			}
 
-		printer.PrintInfo(fmt.Sprintf("Checkout URL: %s", b.CheckoutURL))
-		openBrowser(b.CheckoutURL)
-		return nil
-	},
-}
-
-func init() {
-	billingCmd.AddCommand(billingStatusCmd)
-	billingCmd.AddCommand(billingCheckoutCmd)
-
-	rootCmd.AddCommand(billingCmd)
+			a.printer.PrintInfo(fmt.Sprintf("Checkout URL: %s", b.CheckoutURL))
+			a.openURL(b.CheckoutURL)
+			return nil
+		},
+	}
 }

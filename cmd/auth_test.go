@@ -34,13 +34,16 @@ func setupTestEnv(t *testing.T) (string, func()) {
 }
 
 func TestDirectTokenLoginAndLogout(t *testing.T) {
+	a := &app{}
+	loginCmd := loginCmd(a)
+	logoutCmd := logoutCmd(a)
 	_, cleanup := setupTestEnv(t)
 	defer cleanup()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf}
-	cfg = &config.Config{Host: "http://localhost:8000"}
-	flagDirectToken = "direct-token-abc"
+	a.printer = &output.Printer{Out: &buf}
+	a.cfg = &config.Config{Host: "http://localhost:8000"}
+	_ = loginCmd.Flags().Set("token", "direct-token-abc")
 
 	err := loginCmd.RunE(loginCmd, []string{})
 	if err != nil {
@@ -51,8 +54,8 @@ func TestDirectTokenLoginAndLogout(t *testing.T) {
 		t.Errorf("expected success message, got %s", buf.String())
 	}
 
-	if cfg.Token != "direct-token-abc" {
-		t.Errorf("expected token direct-token-abc, got %s", cfg.Token)
+	if a.cfg.Token != "direct-token-abc" {
+		t.Errorf("expected token direct-token-abc, got %s", a.cfg.Token)
 	}
 
 	buf.Reset()
@@ -65,12 +68,14 @@ func TestDirectTokenLoginAndLogout(t *testing.T) {
 		t.Errorf("expected logout message, got %s", buf.String())
 	}
 
-	if cfg.Token != "" {
-		t.Errorf("expected empty token after logout, got %s", cfg.Token)
+	if a.cfg.Token != "" {
+		t.Errorf("expected empty token after logout, got %s", a.cfg.Token)
 	}
 }
 
 func TestWhoamiCommand(t *testing.T) {
+	a := &app{}
+	whoamiCmd := whoamiCmd(a)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/api/v1/user" {
 			http.NotFound(w, r)
@@ -95,9 +100,9 @@ func TestWhoamiCommand(t *testing.T) {
 	defer ts.Close()
 
 	var buf bytes.Buffer
-	printer = &output.Printer{Out: &buf, Err: &buf, JSON: false}
-	cfg = &config.Config{Host: ts.URL, Token: "valid-token"}
-	apiCli = client.New(ts.URL, "valid-token")
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "valid-token"}
+	a.apiCli = client.New(ts.URL, "valid-token")
 
 	err := whoamiCmd.RunE(whoamiCmd, []string{})
 	if err != nil {
