@@ -1,6 +1,7 @@
 package integration_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -170,3 +171,54 @@ func TestDownloaderTableDisplaysAttribution(t *testing.T) {
 		}
 	}
 }
+
+func TestLinksUpdatePreservesTitleAndConsent(t *testing.T) {
+	var lastPutBody map[string]any
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if r.URL.Path == "/api/v1/projects/42/links" && r.Method == "GET" {
+			fmt.Fprint(w, `{"data":[{"id":8,"title":"Original Title","opt_in_text":"Keep This Consent"}]}`)
+			return
+		}
+		if r.URL.Path == "/api/v1/projects/42/links/8" && r.Method == "PUT" {
+			_ = json.NewDecoder(r.Body).Decode(&lastPutBody)
+			if _, ok := lastPutBody["title"]; !ok {
+				w.WriteHeader(http.StatusUnprocessableEntity)
+				fmt.Fprint(w, `{"message":"The title field is required."}`)
+				return
+			}
+			fmt.Fprint(w, `{"data":{"id":8}}`)
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer server.Close()
+
+	// Update only consent
+	out, err := runCLI(t, server, "", "links", "update", "42", "8", "--consent", "New Consent Text")
+	if err != nil {
+		t.Fatalf("links update failed: %v %s", err, out)
+	}
+	if !strings.Contains(out, "Updated signup link #8") {
+		t.Errorf("expected success output, got: %s", out)
+	}
+	if lastPutBody["title"] != "Original Title" {
+		t.Errorf("expected preserved title 'Original Title', got %v", lastPutBody["title"])
+	}
+	if lastPutBody["opt_in_text"] != "New Consent Text" {
+		t.Errorf("expected opt_in_text 'New Consent Text', got %v", lastPutBody["opt_in_text"])
+	}
+
+	// Update only title
+	out, err = runCLI(t, server, "", "links", "update", "42", "8", "--title", "Updated Title")
+	if err != nil {
+		t.Fatalf("links update failed: %v %s", err, out)
+	}
+	if lastPutBody["title"] != "Updated Title" {
+		t.Errorf("expected title 'Updated Title', got %v", lastPutBody["title"])
+	}
+	if lastPutBody["opt_in_text"] != "Keep This Consent" {
+		t.Errorf("expected preserved consent 'Keep This Consent', got %v", lastPutBody["opt_in_text"])
+	}
+}
+

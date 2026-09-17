@@ -9,12 +9,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	flagLinkTitle string
-	flagLinkOptIn string
-	flagLinkForce bool
-)
-
 type SignupLinkItem struct {
 	ID        int    `json:"id"`
 	ProjectID int    `json:"book_project_id"`
@@ -76,18 +70,44 @@ var linksListCmd = &cobra.Command{
 	},
 }
 
+func fetchExistingLink(projectID, linkID string) (*SignupLinkItem, error) {
+	raw, err := apiCli.Get(fmt.Sprintf("/api/v1/projects/%s/links", projectID), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var response struct {
+		Data []SignupLinkItem `json:"data"`
+	}
+	if err := json.Unmarshal(raw, &response); err != nil {
+		return nil, err
+	}
+
+	trimmedLinkID := strings.TrimSpace(linkID)
+	for _, link := range response.Data {
+		if strconv.Itoa(link.ID) == trimmedLinkID {
+			return &link, nil
+		}
+	}
+
+	return nil, fmt.Errorf("signup link #%s not found in project %s", linkID, projectID)
+}
+
 var linksCreateCmd = &cobra.Command{
 	Use:   "create <project-id>",
 	Short: "Create a new reader signup link for a project",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		projectID := args[0]
+		title, _ := cmd.Flags().GetString("title")
+		consent, _ := cmd.Flags().GetString("consent")
+
 		payload := map[string]string{}
-		if flagLinkTitle != "" {
-			payload["title"] = flagLinkTitle
+		if title != "" {
+			payload["title"] = title
 		}
-		if flagLinkOptIn != "" {
-			payload["opt_in_text"] = flagLinkOptIn
+		if consent != "" {
+			payload["opt_in_text"] = consent
 		}
 
 		raw, err := apiCli.Post(fmt.Sprintf("/api/v1/projects/%s/links", projectID), payload)
@@ -120,12 +140,36 @@ var linksUpdateCmd = &cobra.Command{
 		projectID := args[0]
 		linkID := args[1]
 
-		payload := map[string]string{}
-		if flagLinkTitle != "" {
-			payload["title"] = flagLinkTitle
+		title, _ := cmd.Flags().GetString("title")
+		consent, _ := cmd.Flags().GetString("consent")
+		clearConsent, _ := cmd.Flags().GetBool("clear-consent")
+
+		if consent != "" && clearConsent {
+			return fmt.Errorf("cannot specify both --consent and --clear-consent")
 		}
-		if flagLinkOptIn != "" {
-			payload["opt_in_text"] = flagLinkOptIn
+
+		targetTitle := title
+		targetConsent := consent
+		hasConsent := consent != ""
+
+		if title == "" || (!clearConsent && !hasConsent) {
+			existing, err := fetchExistingLink(projectID, linkID)
+			if err != nil {
+				return err
+			}
+			if targetTitle == "" {
+				targetTitle = existing.Title
+			}
+			if !clearConsent && !hasConsent {
+				targetConsent = existing.OptInText
+			}
+		}
+
+		payload := map[string]any{
+			"title": targetTitle,
+		}
+		if targetConsent != "" {
+			payload["opt_in_text"] = targetConsent
 		}
 
 		raw, err := apiCli.Put(fmt.Sprintf("/api/v1/projects/%s/links/%s", projectID, linkID), payload)
@@ -149,8 +193,9 @@ var linksDeleteCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		projectID := args[0]
 		linkID := args[1]
+		force, _ := cmd.Flags().GetBool("force")
 
-		if !flagLinkForce && !printer.JSON {
+		if !force && !printer.JSON {
 			fmt.Printf("Are you sure you want to delete link #%s? (y/N): ", linkID)
 			var ans string
 			fmt.Scanln(&ans)
@@ -176,13 +221,14 @@ var linksDeleteCmd = &cobra.Command{
 }
 
 func init() {
-	linksCreateCmd.Flags().StringVar(&flagLinkTitle, "title", "", "Signup link title")
-	linksCreateCmd.Flags().StringVar(&flagLinkOptIn, "consent", "", "Newsletter consent text")
+	linksCreateCmd.Flags().String("title", "", "Signup link title")
+	linksCreateCmd.Flags().String("consent", "", "Newsletter consent text")
 
-	linksUpdateCmd.Flags().StringVar(&flagLinkTitle, "title", "", "Updated link title")
-	linksUpdateCmd.Flags().StringVar(&flagLinkOptIn, "consent", "", "Updated newsletter consent text")
+	linksUpdateCmd.Flags().String("title", "", "Updated link title")
+	linksUpdateCmd.Flags().String("consent", "", "Updated newsletter consent text")
+	linksUpdateCmd.Flags().Bool("clear-consent", false, "Clear newsletter consent text")
 
-	linksDeleteCmd.Flags().BoolVarP(&flagLinkForce, "force", "f", false, "Skip confirmation prompt")
+	linksDeleteCmd.Flags().BoolP("force", "f", false, "Skip confirmation prompt")
 
 	linksCmd.AddCommand(linksListCmd)
 	linksCmd.AddCommand(linksCreateCmd)
@@ -191,3 +237,4 @@ func init() {
 
 	rootCmd.AddCommand(linksCmd)
 }
+
