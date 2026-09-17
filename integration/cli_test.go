@@ -38,7 +38,15 @@ func TestMain(m *testing.M) {
 
 func runCLI(t *testing.T, server *httptest.Server, input string, args ...string) (string, error) {
 	t.Helper()
+	return runCLIInDir(t, "", server, input, args...)
+}
+
+func runCLIInDir(t *testing.T, dir string, server *httptest.Server, input string, args ...string) (string, error) {
+	t.Helper()
 	command := exec.Command(binary, args...)
+	if dir != "" {
+		command.Dir = dir
+	}
 	command.Env = append(os.Environ(), "BOOKBEAM_HOST="+server.URL, "BOOKBEAM_TOKEN=fixture-token")
 	command.Stdin = strings.NewReader(input)
 	out, err := command.CombinedOutput()
@@ -153,6 +161,112 @@ func TestDownloadSavesBookBytes(t *testing.T) {
 	saved, err := os.ReadFile(dest)
 	if err != nil || string(saved) != book {
 		t.Fatalf("download differs: %v %q", err, saved)
+	}
+}
+
+func TestDownloadHonoursContentDispositionFilename(t *testing.T) {
+	const book = "%PDF-1.4\nbook content\x00\xff"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") != "Bearer fixture-token" {
+			http.Error(w, "Unauthorized", 401)
+			return
+		}
+		w.Header().Set("Content-Type", "application/epub+zip")
+		w.Header().Set("Content-Disposition", `attachment; filename="dogfood-sampler.epub"`)
+		fmt.Fprint(w, book)
+	}))
+	defer server.Close()
+
+	workDir := t.TempDir()
+	out, err := runCLIInDir(t, workDir, server, "", "files", "download", "7", "16")
+	if err != nil {
+		t.Fatalf("download failed: %v %s", err, out)
+	}
+
+	dest := filepath.Join(workDir, "dogfood-sampler.epub")
+	saved, err := os.ReadFile(dest)
+	if err != nil || string(saved) != book {
+		t.Fatalf("expected file %s to be created with book bytes, err=%v (out: %s)", dest, err, out)
+	}
+}
+
+func TestDownloadFallbackWhenHeaderAbsent(t *testing.T) {
+	const book = "fallback-content"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") != "Bearer fixture-token" {
+			http.Error(w, "Unauthorized", 401)
+			return
+		}
+		w.Header().Set("Content-Type", "application/octet-stream")
+		fmt.Fprint(w, book)
+	}))
+	defer server.Close()
+
+	workDir := t.TempDir()
+	out, err := runCLIInDir(t, workDir, server, "", "files", "download", "42", "99")
+	if err != nil {
+		t.Fatalf("download failed: %v %s", err, out)
+	}
+
+	dest := filepath.Join(workDir, "project-42-file-99")
+	saved, err := os.ReadFile(dest)
+	if err != nil || string(saved) != book {
+		t.Fatalf("expected fallback file %s to be created, err=%v (out: %s)", dest, err, out)
+	}
+}
+
+func TestDownloadPathTraversalSanitized(t *testing.T) {
+	const book = "sanitized-content"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") != "Bearer fixture-token" {
+			http.Error(w, "Unauthorized", 401)
+			return
+		}
+		w.Header().Set("Content-Disposition", `attachment; filename="../../traversal-sample.epub"`)
+		fmt.Fprint(w, book)
+	}))
+	defer server.Close()
+
+	workDir := t.TempDir()
+	out, err := runCLIInDir(t, workDir, server, "", "files", "download", "7", "16")
+	if err != nil {
+		t.Fatalf("download failed: %v %s", err, out)
+	}
+
+	dest := filepath.Join(workDir, "traversal-sample.epub")
+	saved, err := os.ReadFile(dest)
+	if err != nil || string(saved) != book {
+		t.Fatalf("expected file %s in workDir, err=%v (out: %s)", dest, err, out)
+	}
+}
+
+func TestDownloadOutputFlagOverridesHeader(t *testing.T) {
+	const book = "override-content"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") != "Bearer fixture-token" {
+			http.Error(w, "Unauthorized", 401)
+			return
+		}
+		w.Header().Set("Content-Disposition", `attachment; filename="server-name.epub"`)
+		fmt.Fprint(w, book)
+	}))
+	defer server.Close()
+
+	workDir := t.TempDir()
+	customPath := filepath.Join(workDir, "custom-name.epub")
+	out, err := runCLIInDir(t, workDir, server, "", "files", "download", "7", "16", "-o", customPath)
+	if err != nil {
+		t.Fatalf("download failed: %v %s", err, out)
+	}
+
+	saved, err := os.ReadFile(customPath)
+	if err != nil || string(saved) != book {
+		t.Fatalf("expected explicit path %s to be created, err=%v", customPath, err)
+	}
+
+	serverNamedPath := filepath.Join(workDir, "server-name.epub")
+	if _, err := os.Stat(serverNamedPath); !os.IsNotExist(err) {
+		t.Fatalf("server-name.epub should not have been created when -o was specified")
 	}
 }
 
