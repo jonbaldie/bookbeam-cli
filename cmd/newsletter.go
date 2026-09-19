@@ -9,10 +9,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type NewsletterProviderConfig struct {
+	APIToken string `json:"api_token"`
+}
+
 type NewsletterSettingsResponse struct {
-	Provider     string `json:"provider"`
-	WebhookURL   string `json:"webhook_url"`
-	IsConfigured bool   `json:"is_configured"`
+	Provider   string                   `json:"provider"`
+	WebhookURL string                   `json:"webhook_url"`
+	Config     NewsletterProviderConfig `json:"config"`
 }
 
 type NewsletterListOption struct {
@@ -21,8 +25,7 @@ type NewsletterListOption struct {
 }
 
 type NewsletterListsResponse struct {
-	Lists []NewsletterListOption `json:"lists"`
-	Tags  []NewsletterListOption `json:"tags"`
+	Data []NewsletterListOption `json:"data"`
 }
 
 func newsletterCmd(a *app) *cobra.Command {
@@ -64,7 +67,7 @@ func newsletterStatusCmd(a *app) *cobra.Command {
 			}
 
 			configured := "No"
-			if settings.IsConfigured {
+			if settings.Provider != "" && settings.Config.APIToken != "" {
 				configured = "Yes"
 			}
 
@@ -176,7 +179,7 @@ func newsletterWebhookCmd(a *app) *cobra.Command {
 func newsletterListsCmd(a *app) *cobra.Command {
 	return &cobra.Command{
 		Use:   "lists",
-		Short: "Fetch available lists and tags from configured provider",
+		Short: "Fetch available lists from configured provider",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			raw, err := a.apiCli.Post("/api/v1/settings/newsletter/lists", map[string]string{})
 			if err != nil {
@@ -192,13 +195,12 @@ func newsletterListsCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			if len(listsResp.Lists) == 0 && len(listsResp.Tags) == 0 {
-				a.printer.PrintInfo("No mailing lists or tags returned by provider.")
+			if len(listsResp.Data) == 0 {
+				a.printer.PrintInfo("No mailing lists returned by provider.")
 				return nil
 			}
 
-			printOptions(a.printer, "Mailing Lists:", "LIST ID", listsResp.Lists)
-			printOptions(a.printer, "\nTags:", "TAG ID", listsResp.Tags)
+			printOptions(a.printer, "Mailing Lists:", "LIST ID", listsResp.Data)
 
 			return nil
 		},
