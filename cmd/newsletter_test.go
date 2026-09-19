@@ -58,10 +58,17 @@ func TestNewsletterTelemetryBillingCommands(t *testing.T) {
 
 		if r.URL.Path == "/api/v1/billing" && r.Method == http.MethodGet {
 			_ = json.NewEncoder(w).Encode(map[string]any{
-				"has_access":   true,
-				"offer_type":   "subscription",
-				"active_offer": "monthly",
-				"checkout_url": "https://bookbeam.lemonsqueezy.com/checkout/buy/123",
+				"has_access": true,
+				"subscription": map[string]any{
+					"active": true,
+					"name":   "Pro Monthly",
+					"status": "active",
+				},
+				"active_offer": map[string]any{
+					"name":         "monthly",
+					"price_label":  "$19/month",
+					"checkout_url": "https://bookbeam.lemonsqueezy.com/checkout/buy/123",
+				},
 			})
 			return
 		}
