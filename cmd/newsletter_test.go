@@ -24,9 +24,11 @@ func TestNewsletterTelemetryBillingCommands(t *testing.T) {
 
 		if r.URL.Path == "/api/v1/settings/newsletter" && r.Method == http.MethodGet {
 			_ = json.NewEncoder(w).Encode(map[string]any{
-				"provider":      "mailerlite",
-				"webhook_url":   "https://hooks.zapier.com/test",
-				"is_configured": true,
+				"provider":    "mailerlite",
+				"webhook_url": "https://hooks.zapier.com/test",
+				"config": map[string]any{
+					"api_token": "********",
+				},
 			})
 			return
 		}
@@ -106,5 +108,71 @@ func TestNewsletterTelemetryBillingCommands(t *testing.T) {
 	}
 	if !strings.Contains(buf.String(), "Paid access granted") {
 		t.Errorf("expected billing status to show 'Paid access granted', got %s", buf.String())
+	}
+}
+
+func TestNewsletterStatusUsesProviderAndToken(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if r.URL.Path == "/api/v1/settings/newsletter" && r.Method == http.MethodGet {
+			_, _ = w.Write([]byte(`{"provider":"mailcoach","config":{"api_url":"https://mailcoach.example/api","api_token":"********","default_list_id":null},"webhook_url":null}`))
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer ts.Close()
+
+	var buf bytes.Buffer
+	a := &app{
+		printer: &output.Printer{Out: &buf, JSON: false},
+		cfg:     &config.Config{Host: ts.URL, Token: "test-token"},
+		apiCli:  client.New(ts.URL, "test-token"),
+	}
+	cmd := newsletterStatusCmd(a)
+	if err := cmd.RunE(cmd, nil); err != nil {
+		t.Fatalf("unexpected newsletter status error: %v", err)
+	}
+	got := buf.String()
+	if !strings.Contains(got, "MAILCOACH") {
+		t.Errorf("expected provider MAILCOACH, got %s", got)
+	}
+	if !strings.Contains(got, "Configured         Yes") {
+		t.Errorf("expected Configured: Yes for a working provider, got %s", got)
+	}
+	if !strings.Contains(got, "Webhook Endpoint   None") {
+		t.Errorf("expected Webhook Endpoint None, got %s", got)
+	}
+}
+
+func TestNewsletterListsUsesDataArray(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if r.URL.Path == "/api/v1/settings/newsletter/lists" && r.Method == http.MethodPost {
+			_, _ = w.Write([]byte(`{"data":[{"id":"list-1","name":"Launch list"},{"id":"list-2","name":"Readers"}]}`))
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer ts.Close()
+
+	var buf bytes.Buffer
+	a := &app{
+		printer: &output.Printer{Out: &buf, JSON: false},
+		cfg:     &config.Config{Host: ts.URL, Token: "test-token"},
+		apiCli:  client.New(ts.URL, "test-token"),
+	}
+	cmd := newsletterListsCmd(a)
+	if err := cmd.RunE(cmd, nil); err != nil {
+		t.Fatalf("unexpected newsletter lists error: %v", err)
+	}
+	got := buf.String()
+	if strings.Contains(got, "No mailing lists") {
+		t.Errorf("expected lists table, got empty message: %s", got)
+	}
+	if !strings.Contains(got, "list-1") || !strings.Contains(got, "Launch list") {
+		t.Errorf("expected list entries, got %s", got)
+	}
+	if strings.Contains(got, "Tags:") || strings.Contains(got, "TAG ID") {
+		t.Errorf("expected no tags section, got %s", got)
 	}
 }

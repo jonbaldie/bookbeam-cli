@@ -100,7 +100,7 @@ func TestNtdHelpListsCommandsAndDescriptions(t *testing.T) {
 			"Manage mailing list integrations and webhook notifications",
 			"configure   Connect a newsletter service (mailerlite, kit, mailcoach)",
 			"disconnect  Disconnect active newsletter provider credentials",
-			"lists       Fetch available lists and tags from configured provider",
+			"lists       Fetch available lists from configured provider",
 			"status      Show current team newsletter provider settings",
 			"webhook     Set or clear subscriber notification webhook URL",
 		}},
@@ -306,9 +306,15 @@ func TestNtdNewsletterStatusText(t *testing.T) {
 	cases := []struct {
 		name, body, want string
 	}{
-		{"configured", `{"provider":"kit","webhook_url":"https://example.com/hook","is_configured":true}`,
+		{"configured", `{"provider":"kit","webhook_url":"https://example.com/hook","config":{"api_token":"********"}}`,
 			"Setting            Value\nActive Provider    KIT\nConfigured         Yes\nWebhook Endpoint   https://example.com/hook\n"},
-		{"disconnected", `{"provider":"","webhook_url":"","is_configured":false}`,
+		{"mailcoach live", `{"provider":"mailcoach","config":{"api_url":"https://mailcoach.example/api","api_token":"********","default_list_id":null},"webhook_url":null}`,
+			"Setting            Value\nActive Provider    MAILCOACH\nConfigured         Yes\nWebhook Endpoint   None\n"},
+		{"disconnected", `{"provider":"","webhook_url":"","config":{"api_token":""}}`,
+			"Setting            Value\nActive Provider    NONE (DISCONNECTED)\nConfigured         No\nWebhook Endpoint   None\n"},
+		{"provider without token", `{"provider":"mailcoach","config":{"api_token":""},"webhook_url":null}`,
+			"Setting            Value\nActive Provider    MAILCOACH\nConfigured         No\nWebhook Endpoint   None\n"},
+		{"token without provider", `{"provider":"","config":{"api_token":"********"},"webhook_url":null}`,
 			"Setting            Value\nActive Provider    NONE (DISCONNECTED)\nConfigured         No\nWebhook Endpoint   None\n"},
 	}
 	for _, tc := range cases {
@@ -528,14 +534,14 @@ func TestNtdNewsletterListsText(t *testing.T) {
 	cases := []struct {
 		name, body, want string
 	}{
-		{"lists and tags", `{"lists":[{"id":"l1","name":"Main"},{"id":"l22","name":"VIP"}],"tags":[{"id":"t1","name":"Fans"}]}`,
-			"Mailing Lists:\nLIST ID   NAME\nl1        Main\nl22       VIP\n\nTags:\nTAG ID   NAME\nt1       Fans\n"},
-		{"lists only", `{"lists":[{"id":"l1","name":"Main"}],"tags":[]}`,
+		{"lists", `{"data":[{"id":"l1","name":"Main"},{"id":"l22","name":"VIP"}]}`,
+			"Mailing Lists:\nLIST ID   NAME\nl1        Main\nl22       VIP\n"},
+		{"one list", `{"data":[{"id":"l1","name":"Main"}]}`,
 			"Mailing Lists:\nLIST ID   NAME\nl1        Main\n"},
-		{"tags only", `{"lists":[],"tags":[{"id":"t1","name":"Fans"}]}`,
-			"\nTags:\nTAG ID   NAME\nt1       Fans\n"},
-		{"none", `{"lists":[],"tags":[]}`,
-			"No mailing lists or tags returned by provider.\n"},
+		{"ignores tags", `{"data":[{"id":"l1","name":"Main"}],"tags":[{"id":"t1","name":"Fans"}]}`,
+			"Mailing Lists:\nLIST ID   NAME\nl1        Main\n"},
+		{"none", `{"data":[]}`,
+			"No mailing lists returned by provider.\n"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
