@@ -862,10 +862,71 @@ func TestARBWhoamiJSONAndErrors(t *testing.T) {
 
 func TestARBBillingStatus(t *testing.T) {
 	cases := []struct {
-		name, body, access, plan string
+		name, body, access, sub, subStatus, offer, link string
 	}{
-		{"active", `{"has_access":true,"offer_type":"subscription","active_offer":"Pro","checkout_url":"https://pay.example.com"}`, "Active (Paid access granted)", "SUBSCRIPTION"},
-		{"inactive", `{"has_access":false,"offer_type":"lifetime","active_offer":"Pro","checkout_url":"https://pay.example.com"}`, "Inactive (No access)", "LIFETIME"},
+		{
+			name:      "active with subscription",
+			body:      `{"has_access":true,"subscription":{"active":true,"name":"Pro Monthly","status":"active"},"active_offer":{"name":"Pro","price_label":"$29/mo","checkout_url":"https://pay.example.com"}}`,
+			access:    "Active (Paid access granted)",
+			sub:       "Pro Monthly",
+			subStatus: "active",
+			offer:     "Pro ($29/mo)",
+			link:      "https://pay.example.com",
+		},
+		{
+			name:      "lifetime deal no subscription",
+			body:      `{"has_access":true,"subscription":{"active":false,"name":null,"status":null},"active_offer":{"name":"Founder's Lifetime Deal","price_label":"$99 one-time","checkout_url":"https://pay.example.com"}}`,
+			access:    "Active (Paid access granted)",
+			sub:       "none",
+			subStatus: "none",
+			offer:     "Founder's Lifetime Deal ($99 one-time)",
+			link:      "https://pay.example.com",
+		},
+		{
+			name:      "inactive no subscription no offer",
+			body:      `{"has_access":false,"subscription":null,"active_offer":null}`,
+			access:    "Inactive (No access)",
+			sub:       "none",
+			subStatus: "none",
+			offer:     "none",
+			link:      "",
+		},
+		{
+			name:      "offer name only",
+			body:      `{"has_access":true,"subscription":null,"active_offer":{"name":"Solo"}}`,
+			access:    "Active (Paid access granted)",
+			sub:       "none",
+			subStatus: "none",
+			offer:     "Solo",
+			link:      "",
+		},
+		{
+			name:      "offer price only",
+			body:      `{"has_access":true,"subscription":null,"active_offer":{"price_label":"$10"}}`,
+			access:    "Active (Paid access granted)",
+			sub:       "none",
+			subStatus: "none",
+			offer:     "$10",
+			link:      "",
+		},
+		{
+			name:      "subscription name only",
+			body:      `{"has_access":true,"subscription":{"name":"Team"},"active_offer":null}`,
+			access:    "Active (Paid access granted)",
+			sub:       "Team",
+			subStatus: "none",
+			offer:     "none",
+			link:      "",
+		},
+		{
+			name:      "subscription status only",
+			body:      `{"has_access":true,"subscription":{"status":"past_due"},"active_offer":null}`,
+			access:    "Active (Paid access granted)",
+			sub:       "none",
+			subStatus: "past_due",
+			offer:     "none",
+			link:      "",
+		},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -880,11 +941,12 @@ func TestARBBillingStatus(t *testing.T) {
 			if path != "/api/v1/billing" {
 				t.Errorf("path %s", path)
 			}
-			want := "Field           Value\n" +
-				"Access Status   " + tc.access + "\n" +
-				"Plan Type       " + tc.plan + "\n" +
-				"Active Offer    Pro\n" +
-				"Checkout Link   https://pay.example.com\n"
+			want := "Field                 Value\n" +
+				"Access Status         " + tc.access + "\n" +
+				"Subscription          " + tc.sub + "\n" +
+				"Subscription Status   " + tc.subStatus + "\n" +
+				"Active Offer          " + tc.offer + "\n" +
+				"Checkout Link         " + tc.link + "\n"
 			if h.out.String() != want {
 				t.Errorf("got\n%q\nwant\n%q", h.out.String(), want)
 			}
@@ -925,7 +987,7 @@ func TestARBBillingCheckout(t *testing.T) {
 	var path string
 	h := arbNewHarness(t, func(w http.ResponseWriter, r *http.Request) {
 		path = r.URL.Path
-		arbWriteJSON(w, 200, `{"checkout_url":"https://pay.example.com"}`)
+		arbWriteJSON(w, 200, `{"active_offer":{"checkout_url":"https://pay.example.com"}}`)
 	}, true)
 	if err := arbRun(t, billingCheckoutCmd(h.a)); err != nil {
 		t.Fatal(err)
@@ -933,13 +995,14 @@ func TestARBBillingCheckout(t *testing.T) {
 	if path != "/api/v1/billing" {
 		t.Errorf("path %s", path)
 	}
-	if h.out.String() != "{\n  \"checkout_url\": \"https://pay.example.com\"\n}\n" {
+	if h.out.String() != "{\n  \"active_offer\": {\n    \"checkout_url\": \"https://pay.example.com\"\n  }\n}\n" {
 		t.Errorf("got %q", h.out.String())
 	}
 
 	for body, want := range map[string]string{
-		`{"checkout_url":""}`: `checkout unavailable: {"checkout_url":""}`,
-		`not json`:            "checkout unavailable: not json",
+		`{"active_offer":{"checkout_url":""}}`: `checkout unavailable: {"active_offer":{"checkout_url":""}}`,
+		`{"active_offer":null}`:                 `checkout unavailable: {"active_offer":null}`,
+		`not json`:                              "checkout unavailable: not json",
 	} {
 		h = arbNewHarness(t, func(w http.ResponseWriter, r *http.Request) {
 			arbWriteJSON(w, 200, body)
@@ -962,7 +1025,7 @@ func TestARBBillingCheckout(t *testing.T) {
 
 func TestARBBillingCheckoutTextOpensBrowser(t *testing.T) {
 	h := arbNewHarness(t, func(w http.ResponseWriter, r *http.Request) {
-		arbWriteJSON(w, 200, `{"checkout_url":"https://pay.example.com"}`)
+		arbWriteJSON(w, 200, `{"active_offer":{"checkout_url":"https://pay.example.com"}}`)
 	}, false)
 	if err := arbRun(t, billingCheckoutCmd(h.a)); err != nil {
 		t.Fatal(err)
