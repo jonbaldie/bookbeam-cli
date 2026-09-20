@@ -190,3 +190,79 @@ func TestNewsletterListsUsesDataArray(t *testing.T) {
 		t.Errorf("expected no tags section, got %s", got)
 	}
 }
+
+// newsletterProviderValidator mimics NewsletterSettingsController::updateProvider,
+// which requires api_token and treats api_url as the optional endpoint override.
+func newsletterProviderValidator(t *testing.T) (*httptest.Server, *map[string]any) {
+	t.Helper()
+	var validated map[string]any
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var body map[string]any
+		_ = json.NewDecoder(r.Body).Decode(&body)
+		w.Header().Set("Content-Type", "application/json")
+		if token, ok := body["api_token"].(string); !ok || token == "" {
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			_, _ = w.Write([]byte(`{"message":"The api token field is required."}`))
+			return
+		}
+		validated = body
+		_, _ = w.Write([]byte(`{"provider":"mailcoach"}`))
+	}))
+	t.Cleanup(ts.Close)
+	return ts, &validated
+}
+
+func TestNewsletterConfigureMatchesProviderAPIContract(t *testing.T) {
+	ts, validated := newsletterProviderValidator(t)
+	var buf bytes.Buffer
+	a := &app{
+		printer: &output.Printer{Out: &buf, JSON: false},
+		cfg:     &config.Config{Host: ts.URL, Token: "test-token"},
+		apiCli:  client.New(ts.URL, "test-token"),
+	}
+	cmd := newsletterConfigureCmd(a)
+	_ = cmd.Flags().Set("provider", "MailCoach")
+	_ = cmd.Flags().Set("api-key", "mc_secret_key")
+	_ = cmd.Flags().Set("endpoint", "https://mailcoach.example.com")
+
+	if err := cmd.RunE(cmd, nil); err != nil {
+		t.Fatalf("configure failed: %v", err)
+	}
+	got := *validated
+	if got["provider"] != "mailcoach" {
+		t.Errorf("provider: got %v, want mailcoach", got["provider"])
+	}
+	if got["api_token"] != "mc_secret_key" {
+		t.Errorf("api_token: got %v, want mc_secret_key", got["api_token"])
+	}
+	if got["api_url"] != "https://mailcoach.example.com" {
+		t.Errorf("api_url: got %v, want https://mailcoach.example.com", got["api_url"])
+	}
+	if len(got) != 3 {
+		t.Errorf("unexpected extra payload fields: %v", got)
+	}
+}
+
+func TestNewsletterConfigureOmitsAPIURLWithoutEndpoint(t *testing.T) {
+	ts, validated := newsletterProviderValidator(t)
+	var buf bytes.Buffer
+	a := &app{
+		printer: &output.Printer{Out: &buf, JSON: false},
+		cfg:     &config.Config{Host: ts.URL, Token: "test-token"},
+		apiCli:  client.New(ts.URL, "test-token"),
+	}
+	cmd := newsletterConfigureCmd(a)
+	_ = cmd.Flags().Set("provider", "mailerlite")
+	_ = cmd.Flags().Set("api-key", "ml_secret_key")
+
+	if err := cmd.RunE(cmd, nil); err != nil {
+		t.Fatalf("configure failed: %v", err)
+	}
+	got := *validated
+	if _, ok := got["api_url"]; ok {
+		t.Errorf("expected no api_url, got %v", got)
+	}
+	if got["api_token"] != "ml_secret_key" || len(got) != 2 {
+		t.Errorf("unexpected body %v", got)
+	}
+}
