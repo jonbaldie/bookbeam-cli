@@ -211,6 +211,9 @@ func TestFlpFlagDefaults(t *testing.T) {
 	if f := projectsUpdateCmd(a).Flags().Lookup("remove-cover"); f == nil || f.DefValue != "false" {
 		t.Fatalf("remove-cover flag: %+v", f)
 	}
+	if f := projectsNewsletterCmd(a).Flags().Lookup("clear-tags"); f == nil || f.DefValue != "false" {
+		t.Fatalf("clear-tags flag: %+v", f)
+	}
 }
 
 func TestFlpFilesList(t *testing.T) {
@@ -847,22 +850,55 @@ func TestFlpProjectsNewsletter(t *testing.T) {
 
 	reqs = nil
 	a, _ = flpServe(t, 200, `{}`, &reqs)
-	if err := flpRun(t, projectsNewsletterCmd(a), map[string]string{"list-id": "L1"}, "4"); err != nil ||
-		!reflect.DeepEqual(reqs[0].Body, map[string]any{"newsletter_list_id": "L1"}) {
-		t.Fatalf("no tags %v %+v", err, reqs)
+	err := flpRun(t, projectsNewsletterCmd(a), map[string]string{"tags": "a", "clear-tags": "true"}, "4")
+	if err == nil || err.Error() != "cannot specify both --tags and --clear-tags" || len(reqs) != 0 {
+		t.Fatalf("conflict %v %+v", err, reqs)
 	}
 
 	reqs = nil
 	a, _ = flpServe(t, 200, `{}`, &reqs)
-	if err := flpRun(t, projectsNewsletterCmd(a), map[string]string{"tags": "a"}, "4"); err == nil || err.Error() != "--list-id is required" || len(reqs) != 0 {
+	if err := flpRun(t, projectsNewsletterCmd(a), nil, "4"); err == nil || err.Error() != "specify --list-id, --tags, or --clear-tags" || len(reqs) != 0 {
 		t.Fatalf("required %v", err)
 	}
 
 	a, buf = flpServe(t, 200, `{"ok":1}`, &reqs)
 	a.printer.JSON = true
-	if err := flpRun(t, projectsNewsletterCmd(a), map[string]string{"list-id": "L1"}, "4"); err != nil || buf.String() != "{\n  \"ok\": 1\n}\n" {
+	if err := flpRun(t, projectsNewsletterCmd(a), map[string]string{"list-id": "L1", "tags": "a"}, "4"); err != nil || buf.String() != "{\n  \"ok\": 1\n}\n" {
 		t.Fatalf("json %v %q", err, buf.String())
 	}
 	a, _ = flpServe(t, 422, `{}`, &reqs)
-	flpAPIStatus(t, flpRun(t, projectsNewsletterCmd(a), map[string]string{"list-id": "L1"}, "4"), 422)
+	flpAPIStatus(t, flpRun(t, projectsNewsletterCmd(a), map[string]string{"list-id": "L1", "tags": "a"}, "4"), 422)
+}
+
+func TestFlpProjectNewsletterPayloadSkipsFetchWhenComplete(t *testing.T) {
+	calls := 0
+	fetch := func() (*ProjectItem, error) {
+		calls++
+		return &ProjectItem{NewsletterListID: "old-list", NewsletterTags: "old-tags"}, nil
+	}
+	got, err := projectNewsletterPayload("L1", "a,b", false, fetch)
+	if err != nil || calls != 0 || !reflect.DeepEqual(got, map[string]any{"newsletter_list_id": "L1", "newsletter_tags": "a,b"}) {
+		t.Fatalf("got %v %v calls=%d", got, err, calls)
+	}
+	got, err = projectNewsletterPayload("L1", "", true, fetch)
+	if err != nil || calls != 0 || !reflect.DeepEqual(got, map[string]any{"newsletter_list_id": "L1", "newsletter_tags": nil}) {
+		t.Fatalf("got %v %v calls=%d", got, err, calls)
+	}
+	got, err = projectNewsletterPayload("", "", true, fetch)
+	if err != nil || calls != 1 || !reflect.DeepEqual(got, map[string]any{"newsletter_list_id": "old-list", "newsletter_tags": nil}) {
+		t.Fatalf("got %v %v calls=%d", got, err, calls)
+	}
+	got, err = projectNewsletterPayload("L1", "", false, fetch)
+	if err != nil || calls != 2 || !reflect.DeepEqual(got, map[string]any{"newsletter_list_id": "L1", "newsletter_tags": "old-tags"}) {
+		t.Fatalf("got %v %v calls=%d", got, err, calls)
+	}
+	got, err = projectNewsletterPayload("", "new", false, fetch)
+	if err != nil || calls != 3 || !reflect.DeepEqual(got, map[string]any{"newsletter_list_id": "old-list", "newsletter_tags": "new"}) {
+		t.Fatalf("got %v %v calls=%d", got, err, calls)
+	}
+	fetchErr := errors.New("fetch failed")
+	got, err = projectNewsletterPayload("", "new", false, func() (*ProjectItem, error) { return nil, fetchErr })
+	if err != fetchErr || got != nil {
+		t.Fatalf("got %v %v", got, err)
+	}
 }
