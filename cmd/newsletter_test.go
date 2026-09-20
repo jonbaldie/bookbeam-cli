@@ -34,13 +34,20 @@ func TestNewsletterTelemetryBillingCommands(t *testing.T) {
 		}
 
 		if r.URL.Path == "/api/v1/logs" && r.Method == http.MethodGet {
-			_ = json.NewEncoder(w).Encode([]map[string]any{
-				{
-					"id":         1,
-					"type":       "signup",
-					"summary":    "Reader signed up",
-					"status":     "success",
-					"created_at": "2026-09-13T12:00:00Z",
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"current_page": 1,
+				"per_page":     15,
+				"total":        1,
+				"last_page":    1,
+				"data": []map[string]any{
+					{
+						"id":               1,
+						"type":             "signup",
+						"occurred_at":      "2026-09-13T12:00:00Z",
+						"reader_email":     "reader@example.com",
+						"book_title":       "Reader Magnet Playbook",
+						"signup_link_slug": "iNS2rgt9RS",
+					},
 				},
 			})
 			return
@@ -95,8 +102,8 @@ func TestNewsletterTelemetryBillingCommands(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected logs error: %v", err)
 	}
-	if !strings.Contains(buf.String(), "Reader signed up") {
-		t.Errorf("expected logs to contain 'Reader signed up', got %s", buf.String())
+	if !strings.Contains(buf.String(), "reader@example.com") {
+		t.Errorf("expected logs to contain the reader email, got %s", buf.String())
 	}
 
 	buf.Reset()

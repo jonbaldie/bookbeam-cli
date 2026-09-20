@@ -110,7 +110,7 @@ func TestNtdHelpListsCommandsAndDescriptions(t *testing.T) {
 			"logs        View chronological telemetry activity logs",
 			"metrics     Display aggregated catalog and reader engagement metrics",
 		}},
-		{[]string{"logs", "--help"}, []string{"-n, --limit int", "(default 50)", "--event string"}},
+		{[]string{"logs", "--help"}, []string{"-n, --limit int", "(default 50)", "--event string", "capped at 100", "--json stays unfiltered"}},
 	}
 	for _, tc := range cases {
 		t.Run(strings.Join(tc.args, " "), func(t *testing.T) {
@@ -594,19 +594,34 @@ func TestNtdNewsletterListsJSONAndErrors(t *testing.T) {
 	}
 }
 
+// ntdLogsPage is a redacted capture of GET /api/v1/logs in production (issue #1):
+// a Laravel paginator whose events sit under data.
+const ntdLogsPage = `{"current_page":1,"data":[` +
+	`{"id":5,"type":"download","occurred_at":"2026-09-15T08:00:01.000000Z",` +
+	`"reader_email":"reader@example.com","book_title":"Reader Magnet Playbook",` +
+	`"filename":"the-reader-magnet-playbook.pdf","signup_link_slug":"iNS2rgt9RS"},` +
+	`{"id":6,"type":"signup","occurred_at":"2026-09-15T09:10:00.000000Z",` +
+	`"reader_email":"other@example.com","book_title":"Reader Magnet Playbook",` +
+	`"filename":null,"signup_link_slug":"iNS2rgt9RS","webhook_status":null,` +
+	`"webhook_success":null,"newsletter_provider":"mailcoach",` +
+	`"newsletter_provider_success":true}],` +
+	`"per_page":15,"total":11,"last_page":1,"first_page_url":"https://bookbeam.app/api/v1/logs?page=1"}`
+
 func TestNtdLogsQueryFlags(t *testing.T) {
 	cases := []struct {
 		name, limit, event, query string
 	}{
-		{"defaults", "", "", "limit=50"},
-		{"limit and event", "5", "signup", "event=signup&limit=5"},
+		{"defaults", "", "", "per_page=50"},
+		{"limit and event", "5", "signup", "per_page=5"},
 		{"zero limit omitted", "0", "", ""},
-		{"negative limit omitted", "-3", "download", "event=download"},
-		{"limit one", "1", "", "limit=1"},
+		{"negative limit omitted", "-3", "download", ""},
+		{"limit one", "1", "", "per_page=1"},
+		{"limit at cap", "100", "", "per_page=100"},
+		{"limit above cap", "101", "", "per_page=100"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			ts, seen := ntdServer(t, 200, `[]`)
+			ts, seen := ntdServer(t, 200, `{"data":[]}`)
 			a, _ := ntdApp(ts.URL, false)
 			cmd := logsCmd(a)
 			if tc.limit != "" {
@@ -624,23 +639,72 @@ func TestNtdLogsQueryFlags(t *testing.T) {
 	}
 }
 
-func TestNtdLogsOutput(t *testing.T) {
-	ts, _ := ntdServer(t, 200, `[{"id":1,"type":"signup","summary":"Reader joined","status":"ok","created_at":"2026-01-01"},{"id":2,"type":"download","summary":"Got book","status":"failed","created_at":"2026-01-02"}]`)
+// TestNtdLogsProductionShape pins the table against the captured paginator.
+func TestNtdLogsProductionShape(t *testing.T) {
+	ts, _ := ntdServer(t, 200, ntdLogsPage)
 	a, buf := ntdApp(ts.URL, false)
 	cmd := logsCmd(a)
 	if err := cmd.RunE(cmd, nil); err != nil {
-		t.Fatal(err)
+		t.Fatalf("logs failed on the production shape: %v", err)
 	}
-	want := "TIME         TYPE       STATUS   SUMMARY\n" +
-		"2026-01-01   signup     ok       Reader joined\n" +
-		"2026-01-02   download   failed   Got book\n"
+	want := "TIME                          TYPE       READER               BOOK                     FILE\n" +
+		"2026-09-15T08:00:01.000000Z   download   reader@example.com   Reader Magnet Playbook   the-reader-magnet-playbook.pdf\n" +
+		"2026-09-15T09:10:00.000000Z   signup     other@example.com    Reader Magnet Playbook   \n"
 	if buf.String() != want {
 		t.Errorf("got %q, want %q", buf.String(), want)
 	}
+}
 
-	ts, _ = ntdServer(t, 200, `[]`)
-	a, buf = ntdApp(ts.URL, false)
-	cmd = logsCmd(a)
+// TestNtdLogsEventFilter covers the client-side filter: the API has no event param.
+func TestNtdLogsEventFilter(t *testing.T) {
+	cases := []struct {
+		name, event string
+		wantRows    []string
+		wantAbsent  []string
+	}{
+		{"no filter keeps both", "", []string{"download", "signup"}, nil},
+		{"signup only", "signup", []string{"signup"}, []string{"download"}},
+		{"download only", "download", []string{"download"}, []string{"signup"}},
+		{"case insensitive", "SignUp", []string{"signup"}, []string{"download"}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			ts, _ := ntdServer(t, 200, ntdLogsPage)
+			a, buf := ntdApp(ts.URL, false)
+			cmd := logsCmd(a)
+			_ = cmd.Flags().Set("event", tc.event)
+			if err := cmd.RunE(cmd, nil); err != nil {
+				t.Fatal(err)
+			}
+			for _, want := range tc.wantRows {
+				if !strings.Contains(buf.String(), want) {
+					t.Errorf("expected %q in %q", want, buf.String())
+				}
+			}
+			for _, absent := range tc.wantAbsent {
+				if strings.Contains(buf.String(), absent) {
+					t.Errorf("expected no %q in %q", absent, buf.String())
+				}
+			}
+		})
+	}
+
+	ts, _ := ntdServer(t, 200, ntdLogsPage)
+	a, buf := ntdApp(ts.URL, false)
+	cmd := logsCmd(a)
+	_ = cmd.Flags().Set("event", "refund")
+	if err := cmd.RunE(cmd, nil); err != nil {
+		t.Fatal(err)
+	}
+	if buf.String() != "No activity logs recorded.\n" {
+		t.Errorf("got %q", buf.String())
+	}
+}
+
+func TestNtdLogsOutput(t *testing.T) {
+	ts, _ := ntdServer(t, 200, `{"data":[]}`)
+	a, buf := ntdApp(ts.URL, false)
+	cmd := logsCmd(a)
 	if err := cmd.RunE(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
@@ -648,17 +712,19 @@ func TestNtdLogsOutput(t *testing.T) {
 		t.Errorf("got %q", buf.String())
 	}
 
-	ts, _ = ntdServer(t, 200, `[{"id":1}]`)
+	// --json hands back the paginator untouched, filter or no filter.
+	ts, _ = ntdServer(t, 200, `{"data":[{"id":1}]}`)
 	a, buf = ntdApp(ts.URL, true)
 	cmd = logsCmd(a)
+	_ = cmd.Flags().Set("event", "signup")
 	if err := cmd.RunE(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
-	if buf.String() != "[\n  {\n    \"id\": 1\n  }\n]\n" {
+	if buf.String() != "{\n  \"data\": [\n    {\n      \"id\": 1\n    }\n  ]\n}\n" {
 		t.Errorf("got %q", buf.String())
 	}
 
-	ts, _ = ntdServer(t, 200, `{"not":"a list"}`)
+	ts, _ = ntdServer(t, 200, `[{"id":1}]`)
 	a, buf = ntdApp(ts.URL, false)
 	cmd = logsCmd(a)
 	if err := cmd.RunE(cmd, nil); err == nil {

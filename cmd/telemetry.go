@@ -4,16 +4,28 @@ import (
 	"encoding/json"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
 
+// maxLogsPerPage is the largest per_page value GET /api/v1/logs accepts.
+const maxLogsPerPage = 100
+
+// ActivityLogItem is one telemetry event; signup events carry no filename.
 type ActivityLogItem struct {
-	ID        int    `json:"id"`
-	Type      string `json:"type"`
-	Summary   string `json:"summary"`
-	Status    string `json:"status"`
-	CreatedAt string `json:"created_at"`
+	ID             int    `json:"id"`
+	Type           string `json:"type"`
+	OccurredAt     string `json:"occurred_at"`
+	ReaderEmail    string `json:"reader_email"`
+	BookTitle      string `json:"book_title"`
+	Filename       string `json:"filename"`
+	SignupLinkSlug string `json:"signup_link_slug"`
+}
+
+// ActivityLogPage is the paginator GET /api/v1/logs wraps its events in.
+type ActivityLogPage struct {
+	Data []ActivityLogItem `json:"data"`
 }
 
 type DashboardMetricsResponse struct {
@@ -32,10 +44,7 @@ func logsCmd(a *app) *cobra.Command {
 			limit, _ := cmd.Flags().GetInt("limit")
 			event, _ := cmd.Flags().GetString("event")
 			if limit > 0 {
-				query.Set("limit", strconv.Itoa(limit))
-			}
-			if event != "" {
-				query.Set("event", event)
+				query.Set("per_page", strconv.Itoa(min(limit, maxLogsPerPage)))
 			}
 
 			raw, err := a.apiCli.Get("/api/v1/logs", query)
@@ -47,24 +56,26 @@ func logsCmd(a *app) *cobra.Command {
 				return a.printer.PrintRawJSON(raw)
 			}
 
-			var items []ActivityLogItem
-			if err := json.Unmarshal(raw, &items); err != nil {
+			var page ActivityLogPage
+			if err := json.Unmarshal(raw, &page); err != nil {
 				return err
 			}
 
+			items := logsOfType(page.Data, event)
 			if len(items) == 0 {
 				a.printer.PrintInfo("No activity logs recorded.")
 				return nil
 			}
 
-			headers := []string{"TIME", "TYPE", "STATUS", "SUMMARY"}
+			headers := []string{"TIME", "TYPE", "READER", "BOOK", "FILE"}
 			var rows [][]string
 			for _, item := range items {
 				rows = append(rows, []string{
-					item.CreatedAt,
+					item.OccurredAt,
 					item.Type,
-					item.Status,
-					item.Summary,
+					item.ReaderEmail,
+					item.BookTitle,
+					item.Filename,
 				})
 			}
 
@@ -72,9 +83,23 @@ func logsCmd(a *app) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().IntP("limit", "n", 50, "Maximum number of log events to show")
-	cmd.Flags().String("event", "", "Filter logs by event type (e.g. signup, download)")
+	cmd.Flags().IntP("limit", "n", 50, "Maximum number of log events to show (capped at 100)")
+	cmd.Flags().String("event", "", "Filter table rows by event type (e.g. signup, download); --json stays unfiltered")
 	return cmd
+}
+
+// logsOfType keeps the events matching event, which the API has no filter for.
+func logsOfType(items []ActivityLogItem, event string) []ActivityLogItem {
+	if event == "" {
+		return items
+	}
+	var matched []ActivityLogItem
+	for _, item := range items {
+		if strings.EqualFold(item.Type, event) {
+			matched = append(matched, item)
+		}
+	}
+	return matched
 }
 
 func metricsCmd(a *app) *cobra.Command {
