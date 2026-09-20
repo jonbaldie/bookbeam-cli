@@ -407,7 +407,7 @@ func TestNtdNewsletterConfigureSendsProvider(t *testing.T) {
 		t.Errorf("unexpected request %+v", req)
 	}
 	body := ntdJSONBody(t, req.Body)
-	if len(body) != 3 || body["provider"] != "mailcoach" || body["api_key"] != "secret" || body["api_endpoint"] != "https://example.com/api" {
+	if len(body) != 3 || body["provider"] != "mailcoach" || body["api_token"] != "secret" || body["api_url"] != "https://example.com/api" {
 		t.Errorf("unexpected body %v", body)
 	}
 	if buf.String() != "✓ Connected provider: MAILCOACH\n" {
@@ -425,7 +425,7 @@ func TestNtdNewsletterConfigureWithoutEndpointJSONAndError(t *testing.T) {
 		t.Fatal(err)
 	}
 	body := ntdJSONBody(t, ntdOnly(t, seen).Body)
-	if _, ok := body["api_endpoint"]; ok || len(body) != 2 {
+	if _, ok := body["api_url"]; ok || len(body) != 2 {
 		t.Errorf("unexpected body %v", body)
 	}
 	if buf.String() != "{\n  \"provider\": \"kit\"\n}\n" {

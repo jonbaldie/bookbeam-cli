@@ -99,11 +99,11 @@ func newsletterConfigureCmd(a *app) *cobra.Command {
 			}
 
 			payload := map[string]string{
-				"provider": strings.ToLower(provider),
-				"api_key":  apiKey,
+				"provider":  strings.ToLower(provider),
+				"api_token": apiKey,
 			}
 			if endpoint != "" {
-				payload["api_endpoint"] = endpoint
+				payload["api_url"] = endpoint
 			}
 
 			raw, err := a.apiCli.Put("/api/v1/settings/newsletter/provider", payload)
