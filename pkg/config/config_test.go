@@ -61,12 +61,8 @@ func TestSaveAndLoadConfig(t *testing.T) {
 }
 
 func TestEnvironmentOverrides(t *testing.T) {
-	os.Setenv("BOOKBEAM_HOST", "http://custom-host.test")
-	os.Setenv("BOOKBEAM_TOKEN", "env-token-123")
-	defer func() {
-		os.Unsetenv("BOOKBEAM_HOST")
-		os.Unsetenv("BOOKBEAM_TOKEN")
-	}()
+	t.Setenv("BOOKBEAM_HOST", "http://custom-host.test")
+	t.Setenv("BOOKBEAM_TOKEN", "env-token-123")
 
 	tempDir, err := os.MkdirTemp("", "bookbeam-test-*")
 	if err != nil {
@@ -191,10 +187,10 @@ func TestLoadEmptyConfigFile(t *testing.T) {
 	}
 }
 
-func TestGetConfigDirAndPath(t *testing.T) {
+func TestGetConfigDirAndPathUseTheHomeDirectory(t *testing.T) {
 	tempDir := t.TempDir()
-	t.Setenv("HOME", tempDir)
-	t.Setenv("USERPROFILE", tempDir)
+	t.Setenv(ConfigDirEnv, "")
+	stubHomeDir(t, tempDir, nil)
 
 	dir, err := GetConfigDir()
 	if err != nil {
@@ -215,11 +211,60 @@ func TestGetConfigDirAndPath(t *testing.T) {
 	}
 }
 
+func TestConfigDirEnvOverridesTheHomeDirectory(t *testing.T) {
+	override := filepath.Join(t.TempDir(), "elsewhere")
+	t.Setenv(ConfigDirEnv, override)
+	stubHomeDir(t, filepath.Join(t.TempDir(), "home"), nil)
+
+	dir, err := GetConfigDir()
+	if err != nil {
+		t.Fatalf("GetConfigDir failed: %v", err)
+	}
+	if dir != override {
+		t.Errorf("expected dir %q, got %q", override, dir)
+	}
+
+	path, err := GetConfigPath()
+	if err != nil {
+		t.Fatalf("GetConfigPath failed: %v", err)
+	}
+	if want := filepath.Join(override, "config.json"); path != want {
+		t.Errorf("expected path %q, got %q", want, path)
+	}
+}
+
+// Regression test for the config-clobbering bug: nothing this package resolves
+// by default during a test run may sit inside the developer's real home.
+func TestDefaultConfigPathStaysOutOfTheRealHome(t *testing.T) {
+	if realHomeDir == "" {
+		t.Skip("no real home directory to protect on this machine")
+	}
+	isolateConfigDir(t)
+	liveDir := filepath.Join(realHomeDir, ".config", "bookbeam")
+
+	path, err := GetConfigPath()
+	if err != nil {
+		t.Fatalf("GetConfigPath failed: %v", err)
+	}
+	if strings.HasPrefix(path, liveDir) {
+		t.Fatalf("default config path %q is inside the live config dir %q", path, liveDir)
+	}
+
+	livePath := filepath.Join(liveDir, "config.json")
+	before, beforeErr := os.ReadFile(livePath)
+
+	if err := Save(&Config{Host: "https://example.com"}, ""); err != nil {
+		t.Fatalf("Save with empty path failed: %v", err)
+	}
+
+	after, afterErr := os.ReadFile(livePath)
+	if (beforeErr == nil) != (afterErr == nil) || string(before) != string(after) {
+		t.Fatalf("Save touched the live config file %q", livePath)
+	}
+}
+
 func TestLoadAndSaveEmptyPath(t *testing.T) {
-	tempDir := t.TempDir()
-	t.Setenv("HOME", tempDir)
-	t.Setenv("USERPROFILE", tempDir)
-	defer os.Remove("config.json")
+	isolateConfigDir(t)
 
 	cfg := &Config{
 		Host:  "http://empty-path.test",
@@ -242,6 +287,7 @@ func TestLoadAndSaveEmptyPath(t *testing.T) {
 }
 
 func TestSaveMkdirError(t *testing.T) {
+	isolateConfigDir(t)
 	tempDir := t.TempDir()
 	blockingFile := filepath.Join(tempDir, "blocker")
 	if err := os.WriteFile(blockingFile, []byte("blocker"), 0600); err != nil {

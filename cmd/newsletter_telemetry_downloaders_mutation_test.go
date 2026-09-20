@@ -54,7 +54,7 @@ func ntdApp(serverURL string, jsonOutput bool) (*app, *bytes.Buffer) {
 // ntdRoot runs the real command tree and returns its help/usage output.
 func ntdRoot(t *testing.T, args ...string) (string, error) {
 	t.Helper()
-	t.Setenv("HOME", t.TempDir())
+	isolateHome(t)
 	t.Setenv("BOOKBEAM_HOST", "")
 	t.Setenv("BOOKBEAM_TOKEN", "")
 	root := NewRootCmd()

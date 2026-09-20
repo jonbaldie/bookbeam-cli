@@ -13,6 +13,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"testing"
+
+	"github.com/jonbaldie/bookbeam-cli/pkg/config"
 )
 
 var binary string
@@ -389,7 +391,11 @@ func runCLIWithHome(t *testing.T, homeDir string, args ...string) (string, error
 			env = append(env, e)
 		}
 	}
-	command.Env = append(env, "HOME="+homeDir, "USERPROFILE="+homeDir)
+	command.Env = append(env,
+		"HOME="+homeDir,
+		"USERPROFILE="+homeDir,
+		config.ConfigDirEnv+"="+filepath.Join(homeDir, ".config", "bookbeam"),
+	)
 	out, err := command.CombinedOutput()
 	return string(out), err
 }
@@ -478,6 +484,3 @@ func TestProjectsUpdateRemoveCover(t *testing.T) {
 		t.Errorf("expected remove_cover_image to be true, got %v", receivedBody["remove_cover_image"])
 	}
 }
-
-
-
