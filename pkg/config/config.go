@@ -19,8 +19,20 @@ func DefaultConfig() *Config {
 	}
 }
 
+// ConfigDirEnv overrides the directory that holds config.json. It lets a
+// caller — a test suite above all — point default config resolution somewhere
+// other than the user's home directory.
+const ConfigDirEnv = "BOOKBEAM_CONFIG_DIR"
+
+// userHomeDir is indirected so tests can exercise a failing home lookup without
+// mutating the process-global HOME environment variable.
+var userHomeDir = os.UserHomeDir
+
 func GetConfigDir() (string, error) {
-	home, err := os.UserHomeDir()
+	if dir := os.Getenv(ConfigDirEnv); dir != "" {
+		return dir, nil
+	}
+	home, err := userHomeDir()
 	if err != nil {
 		return "", err
 	}

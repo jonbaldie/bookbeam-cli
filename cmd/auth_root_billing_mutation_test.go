@@ -20,12 +20,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// arbIsolate points HOME at a temp dir and clears BookBeam env overrides.
+// arbIsolate isolates the config directory and clears BookBeam env overrides.
 func arbIsolate(t *testing.T) string {
 	t.Helper()
-	home := t.TempDir()
-	t.Setenv("HOME", home)
-	t.Setenv("USERPROFILE", home)
+	home := isolateHome(t)
 	t.Setenv("BOOKBEAM_HOST", "")
 	t.Setenv("BOOKBEAM_TOKEN", "")
 	return home
@@ -1001,8 +999,8 @@ func TestARBBillingCheckout(t *testing.T) {
 
 	for body, want := range map[string]string{
 		`{"active_offer":{"checkout_url":""}}`: `checkout unavailable: {"active_offer":{"checkout_url":""}}`,
-		`{"active_offer":null}`:                 `checkout unavailable: {"active_offer":null}`,
-		`not json`:                              "checkout unavailable: not json",
+		`{"active_offer":null}`:                `checkout unavailable: {"active_offer":null}`,
+		`not json`:                             "checkout unavailable: not json",
 	} {
 		h = arbNewHarness(t, func(w http.ResponseWriter, r *http.Request) {
 			arbWriteJSON(w, 200, body)

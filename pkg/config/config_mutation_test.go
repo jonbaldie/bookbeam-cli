@@ -10,16 +10,8 @@ import (
 	"testing"
 )
 
-func unsetHome(t *testing.T) {
-	t.Helper()
-	if runtime.GOOS == "windows" || runtime.GOOS == "plan9" {
-		t.Skip("home directory lookup does not use $HOME on this platform")
-	}
-	t.Setenv("HOME", "")
-}
-
 func TestConfigPathsFailWithoutHomeDirectory(t *testing.T) {
-	unsetHome(t)
+	failHomeLookup(t)
 
 	if dir, err := GetConfigDir(); err == nil {
 		t.Fatalf("expected GetConfigDir error, got %q", dir)
@@ -33,7 +25,7 @@ func TestConfigPathsFailWithoutHomeDirectory(t *testing.T) {
 }
 
 func TestSaveWithoutHomeDirectoryWritesNothing(t *testing.T) {
-	unsetHome(t)
+	failHomeLookup(t)
 	workDir := t.TempDir()
 	t.Chdir(workDir)
 
@@ -51,6 +43,7 @@ func TestSaveWithoutHomeDirectoryWritesNothing(t *testing.T) {
 }
 
 func TestSaveReportsDirectoryCreationFailure(t *testing.T) {
+	isolateConfigDir(t)
 	blocker := filepath.Join(t.TempDir(), "blocker")
 	if err := os.WriteFile(blocker, []byte("x"), 0600); err != nil {
 		t.Fatal(err)
@@ -67,6 +60,7 @@ func TestSaveCreatesPrivateDirectoryAndFile(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("POSIX permissions are not enforced on Windows")
 	}
+	isolateConfigDir(t)
 	dir := filepath.Join(t.TempDir(), "nested", "bookbeam")
 	path := filepath.Join(dir, "config.json")
 

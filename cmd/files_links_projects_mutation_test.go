@@ -33,7 +33,7 @@ type flpRequest struct {
 // flpServe starts a server that records each request and answers with the given status and body.
 func flpServe(t *testing.T, status int, body string, reqs *[]flpRequest) (*app, *bytes.Buffer) {
 	t.Helper()
-	t.Setenv("HOME", t.TempDir())
+	isolateHome(t)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		rec := flpRequest{Method: r.Method, Path: r.URL.Path, Query: r.URL.RawQuery}
 		if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
@@ -310,7 +310,7 @@ func TestFlpFilesUpload(t *testing.T) {
 }
 
 func TestFlpFilesDownload(t *testing.T) {
-	t.Setenv("HOME", t.TempDir())
+	isolateHome(t)
 	var gotPath string
 	disposition := ""
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -375,7 +375,7 @@ func TestFlpFilesDownload(t *testing.T) {
 }
 
 func TestFlpFilesDownloadErrors(t *testing.T) {
-	t.Setenv("HOME", t.TempDir())
+	isolateHome(t)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.Contains(r.URL.Path, "/files/404/") {
 			w.WriteHeader(404)

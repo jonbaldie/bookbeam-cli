@@ -184,6 +184,14 @@ Every command supports:
 - `--host`: Override target API host (defaults to `https://bookbeam.app`).
 - `--token`: Override API authentication token for single commands.
 
+## Environment Variables
+
+- `BOOKBEAM_HOST`: Override the target API host.
+- `BOOKBEAM_TOKEN`: Override the API authentication token.
+- `BOOKBEAM_CONFIG_DIR`: Directory holding `config.json`. Defaults to
+  `~/.config/bookbeam`. Point it elsewhere to keep a sandbox — a test suite, a
+  CI job, a second account — away from your real configuration.
+
 ## Shell Autocompletion
 
 Generate shell completion scripts:

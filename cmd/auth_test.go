@@ -25,10 +25,13 @@ func setupTestEnv(t *testing.T) (string, func()) {
 	_ = config.Save(&config.Config{Host: "http://localhost:8000"}, configPath)
 
 	oldHome := os.Getenv("HOME")
+	oldConfigDir := os.Getenv(config.ConfigDirEnv)
 	os.Setenv("HOME", tempDir)
+	os.Setenv(config.ConfigDirEnv, filepath.Join(tempDir, ".config", "bookbeam"))
 
 	return tempDir, func() {
 		os.Setenv("HOME", oldHome)
+		os.Setenv(config.ConfigDirEnv, oldConfigDir)
 		_ = os.RemoveAll(tempDir)
 	}
 }
