@@ -156,12 +156,14 @@ bookbeam newsletter disconnect
 ### Telemetry & Analytics
 
 ```bash
-# View chronological reader activity feed
+# View chronological reader activity feed (limit is capped at 100)
 bookbeam logs [--limit 50] [--event signup]
 
 # View catalog metrics and download totals
 bookbeam metrics
 ```
+
+`--event` filters the table locally, since the API has no event parameter; `--json` returns the API's paginated response untouched.
 
 ### Billing & Subscription
 
