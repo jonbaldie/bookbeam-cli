@@ -560,6 +560,176 @@ func TestProjectsDeleteVariations(t *testing.T) {
 	}
 }
 
+func setupProjectNewsletterMock(t *testing.T, putBodyCapture *map[string]any) *httptest.Server {
+	t.Helper()
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if r.URL.Path == "/api/v1/projects/42" && r.Method == http.MethodGet {
+			_ = json.NewEncoder(w).Encode(map[string]any{"data": map[string]any{
+				"id":                 42,
+				"title":              "The Quantum Paradox",
+				"newsletter_list_id": "list-existing",
+				"newsletter_tags":    "vip,beta",
+			}})
+			return
+		}
+		if r.URL.Path == "/api/v1/projects/42/newsletter" && r.Method == http.MethodPut {
+			var body map[string]any
+			_ = json.NewDecoder(r.Body).Decode(&body)
+			if putBodyCapture != nil {
+				*putBodyCapture = body
+			}
+			_ = json.NewEncoder(w).Encode(map[string]any{"message": "success"})
+			return
+		}
+		http.NotFound(w, r)
+	}))
+}
+
+func TestProjectsNewsletterOmittingTagsPreservesExisting(t *testing.T) {
+	a := &app{}
+	cmd := projectsNewsletterCmd(a)
+	var receivedPut map[string]any
+	ts := setupProjectNewsletterMock(t, &receivedPut)
+	defer ts.Close()
+
+	var buf bytes.Buffer
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
+
+	_ = cmd.Flags().Set("list-id", "list-abc")
+	err := cmd.RunE(cmd, []string{"42"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if receivedPut["newsletter_list_id"] != "list-abc" {
+		t.Errorf("expected list id list-abc, got %v", receivedPut["newsletter_list_id"])
+	}
+	if receivedPut["newsletter_tags"] != "vip,beta" {
+		t.Errorf("expected existing tags to be preserved, got %v", receivedPut)
+	}
+}
+
+func TestProjectsNewsletterOmittingListIDPreservesExisting(t *testing.T) {
+	a := &app{}
+	cmd := projectsNewsletterCmd(a)
+	var receivedPut map[string]any
+	ts := setupProjectNewsletterMock(t, &receivedPut)
+	defer ts.Close()
+
+	var buf bytes.Buffer
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
+
+	_ = cmd.Flags().Set("tags", "new-tag")
+	err := cmd.RunE(cmd, []string{"42"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if receivedPut["newsletter_list_id"] != "list-existing" {
+		t.Errorf("expected existing list id to be preserved, got %v", receivedPut)
+	}
+	if receivedPut["newsletter_tags"] != "new-tag" {
+		t.Errorf("expected tags new-tag, got %v", receivedPut["newsletter_tags"])
+	}
+}
+
+func TestProjectsNewsletterClearTags(t *testing.T) {
+	a := &app{}
+	cmd := projectsNewsletterCmd(a)
+	var receivedPut map[string]any
+	ts := setupProjectNewsletterMock(t, &receivedPut)
+	defer ts.Close()
+
+	var buf bytes.Buffer
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
+
+	_ = cmd.Flags().Set("clear-tags", "true")
+	err := cmd.RunE(cmd, []string{"42"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if receivedPut["newsletter_list_id"] != "list-existing" {
+		t.Errorf("expected existing list id to be preserved, got %v", receivedPut)
+	}
+	tags, ok := receivedPut["newsletter_tags"]
+	if !ok || tags != nil {
+		t.Errorf("expected newsletter_tags to be sent as explicit null, got present=%v value=%v", ok, tags)
+	}
+}
+
+func TestProjectsNewsletterTagsAndClearTagsError(t *testing.T) {
+	a := &app{}
+	cmd := projectsNewsletterCmd(a)
+	_ = cmd.Flags().Set("tags", "vip")
+	_ = cmd.Flags().Set("clear-tags", "true")
+	err := cmd.RunE(cmd, []string{"42"})
+	if err == nil || !strings.Contains(err.Error(), "cannot specify both --tags and --clear-tags") {
+		t.Fatalf("expected mutually exclusive error, got: %v", err)
+	}
+}
+
+func TestProjectsNewsletterNoModificationError(t *testing.T) {
+	a := &app{}
+	cmd := projectsNewsletterCmd(a)
+	err := cmd.RunE(cmd, []string{"42"})
+	if err == nil || !strings.Contains(err.Error(), "specify --list-id, --tags, or --clear-tags") {
+		t.Fatalf("expected missing modification error, got: %v", err)
+	}
+}
+
+func TestProjectsNewsletterFetchError(t *testing.T) {
+	a := &app{}
+	cmd := projectsNewsletterCmd(a)
+	putCalled := false
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPut {
+			putCalled = true
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(map[string]any{"message": "success"})
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(`{"message":"boom"}`))
+	}))
+	defer ts.Close()
+
+	var buf bytes.Buffer
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
+
+	_ = cmd.Flags().Set("tags", "vip")
+	err := cmd.RunE(cmd, []string{"42"})
+	if err == nil || !strings.Contains(err.Error(), "500") {
+		t.Fatalf("expected fetch API error containing 500, got: %v", err)
+	}
+	if putCalled {
+		t.Fatal("expected PUT to be skipped when fetch fails")
+	}
+}
+
+func TestFetchExistingProjectInvalidJSON(t *testing.T) {
+	a := &app{}
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte("not valid json"))
+	}))
+	defer ts.Close()
+
+	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.apiCli = client.New(ts.URL, "test-token")
+
+	_, err := fetchExistingProject(a, "42")
+	if err == nil || !strings.Contains(err.Error(), "invalid character") {
+		t.Fatalf("expected json unmarshal error with 'invalid character', got: %v", err)
+	}
+}
+
 func TestProjectsNewsletterVariations(t *testing.T) {
 	a := &app{}
 	projectsNewsletterCmd := projectsNewsletterCmd(a)
@@ -576,10 +746,9 @@ func TestProjectsNewsletterVariations(t *testing.T) {
 	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
 	a.apiCli = client.New(ts.URL, "test-token")
 
-	// Missing list-id error
 	err := projectsNewsletterCmd.RunE(projectsNewsletterCmd, []string{"42"})
-	if err == nil || !strings.Contains(err.Error(), "--list-id is required") {
-		t.Fatalf("expected --list-id is required error, got: %v", err)
+	if err == nil || !strings.Contains(err.Error(), "specify --list-id, --tags, or --clear-tags") {
+		t.Fatalf("expected missing modification error, got: %v", err)
 	}
 
 	// With list-id and tags

@@ -17,6 +17,8 @@ type ProjectItem struct {
 	FilesCount       int    `json:"files_count"`
 	SignupLinksCount int    `json:"signup_links_count"`
 	CreatedAt        string `json:"created_at"`
+	NewsletterListID string `json:"newsletter_list_id"`
+	NewsletterTags   string `json:"newsletter_tags"`
 }
 
 type ProjectListResponse struct {
@@ -291,6 +293,42 @@ func projectsDeleteCmd(a *app) *cobra.Command {
 	return cmd
 }
 
+func fetchExistingProject(a *app, projectID string) (*ProjectItem, error) {
+	raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%s", projectID), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var response struct {
+		Data ProjectItem `json:"data"`
+	}
+	if err := json.Unmarshal(raw, &response); err != nil {
+		return nil, err
+	}
+	return &response.Data, nil
+}
+
+func projectNewsletterPayload(listID, tags string, clearTags bool, fetch func() (*ProjectItem, error)) (map[string]any, error) {
+	if listID == "" || (!clearTags && tags == "") {
+		existing, err := fetch()
+		if err != nil {
+			return nil, err
+		}
+		listID = firstNonEmpty(listID, existing.NewsletterListID)
+		if !clearTags {
+			tags = firstNonEmpty(tags, existing.NewsletterTags)
+		}
+	}
+
+	payload := map[string]any{"newsletter_list_id": listID}
+	if clearTags {
+		payload["newsletter_tags"] = nil
+	} else if tags != "" {
+		payload["newsletter_tags"] = tags
+	}
+	return payload, nil
+}
+
 func projectsNewsletterCmd(a *app) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "newsletter <project-id>",
@@ -300,16 +338,20 @@ func projectsNewsletterCmd(a *app) *cobra.Command {
 			projectID := args[0]
 			listID, _ := cmd.Flags().GetString("list-id")
 			tags, _ := cmd.Flags().GetString("tags")
+			clearTags, _ := cmd.Flags().GetBool("clear-tags")
 
-			if listID == "" {
-				return fmt.Errorf("--list-id is required")
+			if tags != "" && clearTags {
+				return fmt.Errorf("cannot specify both --tags and --clear-tags")
+			}
+			if listID == "" && tags == "" && !clearTags {
+				return fmt.Errorf("specify --list-id, --tags, or --clear-tags")
 			}
 
-			payload := map[string]any{
-				"newsletter_list_id": listID,
-			}
-			if tags != "" {
-				payload["newsletter_tags"] = tags
+			payload, err := projectNewsletterPayload(listID, tags, clearTags, func() (*ProjectItem, error) {
+				return fetchExistingProject(a, projectID)
+			})
+			if err != nil {
+				return err
 			}
 
 			raw, err := a.apiCli.Put(fmt.Sprintf("/api/v1/projects/%s/newsletter", projectID), payload)
@@ -325,7 +367,8 @@ func projectsNewsletterCmd(a *app) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().String("list-id", "", "Newsletter list ID (required)")
+	cmd.Flags().String("list-id", "", "Newsletter list ID")
 	cmd.Flags().String("tags", "", "Comma-separated newsletter tags")
+	cmd.Flags().Bool("clear-tags", false, "Clear newsletter tags")
 	return cmd
 }
