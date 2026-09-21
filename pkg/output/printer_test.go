@@ -18,72 +18,136 @@ func TestNewWritesToStdoutWithGivenModes(t *testing.T) {
 	}
 }
 
-func TestPrintJSONIndentsWithTwoSpaces(t *testing.T) {
-	var buf bytes.Buffer
-	p := &Printer{Out: &buf}
-	if err := p.PrintJSON(map[string]int{"a": 1}); err != nil {
-		t.Fatal(err)
-	}
-	if got, want := buf.String(), "{\n  \"a\": 1\n}\n"; got != want {
-		t.Fatalf("got %q, want %q", got, want)
-	}
-}
-
-func TestPrintJSONReturnsEncodingError(t *testing.T) {
-	var buf bytes.Buffer
-	p := &Printer{Out: &buf}
-	if err := p.PrintJSON(make(chan int)); err == nil {
-		t.Fatal("expected error for unencodable value")
-	}
-	if buf.Len() != 0 {
-		t.Fatalf("expected no output, got %q", buf.String())
-	}
-}
-
 type failingWriter struct{}
 
 func (failingWriter) Write([]byte) (int, error) { return 0, errors.New("write failed") }
 
-func TestPrintJSONReturnsWriteError(t *testing.T) {
-	p := &Printer{Out: failingWriter{}}
-	if err := p.PrintJSON(1); err == nil {
-		t.Fatal("expected write error")
+var sampleView = View{
+	Title:       "Things:",
+	Headers:     []string{"ID", "NAME"},
+	Rows:        [][]string{{"1", "Alpha"}, {"22", "B"}},
+	Footer:      "Page 1 of 1",
+	EmptyNotice: "Nothing here.",
+	Data:        map[string]any{"id": 1, "ok": true, "name": "Alpha"},
+}
+
+func TestDisplayTextFramesAlignedTable(t *testing.T) {
+	var buf bytes.Buffer
+	p := &Printer{Out: &buf}
+	if err := p.Display(sampleView); err != nil {
+		t.Fatal(err)
+	}
+	want := "Things:\nID   NAME\n1    Alpha\n22   B\nPage 1 of 1\n"
+	if buf.String() != want {
+		t.Fatalf("got %q, want %q", buf.String(), want)
 	}
 }
 
-func TestPrintRawJSONPrettyPrintsValidJSON(t *testing.T) {
+func TestDisplayTextWithoutTitleOrFooterPrintsOnlyTable(t *testing.T) {
 	var buf bytes.Buffer
 	p := &Printer{Out: &buf}
-	if err := p.PrintRawJSON([]byte(`{"a":[1]}`)); err != nil {
+	if err := p.Display(View{Headers: []string{"A"}, Rows: [][]string{{"x"}}}); err != nil {
 		t.Fatal(err)
 	}
-	if got, want := buf.String(), "{\n  \"a\": [\n    1\n  ]\n}\n"; got != want {
+	if got, want := buf.String(), "A\nx\n"; got != want {
 		t.Fatalf("got %q, want %q", got, want)
 	}
 }
 
-func TestPrintRawJSONPrintsInvalidJSONVerbatim(t *testing.T) {
+func TestDisplayTextWithoutRowsPrintsEmptyNoticeInsteadOfTable(t *testing.T) {
 	var buf bytes.Buffer
 	p := &Printer{Out: &buf}
-	if err := p.PrintRawJSON([]byte("not json")); err != nil {
+	v := sampleView
+	v.Rows = nil
+	if err := p.Display(v); err != nil {
 		t.Fatal(err)
 	}
-	if got, want := buf.String(), "not json\n"; got != want {
+	if got, want := buf.String(), "Nothing here.\n"; got != want {
 		t.Fatalf("got %q, want %q", got, want)
 	}
 }
 
-func TestPrintRawJSONReturnsWriteErrors(t *testing.T) {
-	p := &Printer{Out: failingWriter{}}
-	if err := p.PrintRawJSON([]byte(`{}`)); err == nil {
-		t.Fatal("expected write error for valid JSON")
+func TestDisplayJSONEncodesTypedDataWithTwoSpaceIndent(t *testing.T) {
+	var buf bytes.Buffer
+	p := &Printer{Out: &buf, JSON: true}
+	if err := p.Display(sampleView); err != nil {
+		t.Fatal(err)
 	}
-	if err := p.PrintRawJSON([]byte("bad")); err == nil {
-		t.Fatal("expected write error for invalid JSON")
+	want := "{\n  \"id\": 1,\n  \"name\": \"Alpha\",\n  \"ok\": true\n}\n"
+	if buf.String() != want {
+		t.Fatalf("got %q, want %q", buf.String(), want)
 	}
 }
 
-func TestPrintInfoOnlyInTextMode(t *testing.T) {
+func TestDisplayJSONWithEmptySliceEmitsEmptyArrayNotNotice(t *testing.T) {
+	var buf bytes.Buffer
+	p := &Printer{Out: &buf, JSON: true, Quiet: true}
+	if err := p.Display(View{EmptyNotice: "Nothing here.", Data: []int{}}); err != nil {
+		t.Fatal(err)
+	}
+	if got, want := buf.String(), "[]\n"; got != want {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+}
+
+func TestDisplayQuietKeepsTableButDropsInfoLines(t *testing.T) {
+	var buf bytes.Buffer
+	p := &Printer{Out: &buf, Quiet: true}
+	if err := p.Display(sampleView); err != nil {
+		t.Fatal(err)
+	}
+	if got, want := buf.String(), "ID   NAME\n1    Alpha\n22   B\n"; got != want {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+
+	buf.Reset()
+	v := sampleView
+	v.Rows = nil
+	if err := p.Display(v); err != nil || buf.Len() != 0 {
+		t.Fatalf("quiet empty notice: %v %q", err, buf.String())
+	}
+}
+
+func TestDisplayReturnsEncodingAndWriteErrors(t *testing.T) {
+	var buf bytes.Buffer
+	p := &Printer{Out: &buf, JSON: true}
+	if err := p.Display(View{Data: make(chan int)}); err == nil || buf.Len() != 0 {
+		t.Fatalf("unencodable data: %v %q", err, buf.String())
+	}
+	if err := (&Printer{Out: failingWriter{}, JSON: true}).Display(sampleView); err == nil {
+		t.Fatal("expected JSON write error")
+	}
+	if err := (&Printer{Out: failingWriter{}, Quiet: true}).Display(sampleView); err == nil {
+		t.Fatal("expected table write error")
+	}
+}
+
+func TestSuccessPrintsMessageOrData(t *testing.T) {
+	cases := []struct {
+		name        string
+		json, quiet bool
+		want        string
+	}{
+		{"text", false, false, "✓ Done\n"},
+		{"quiet", false, true, ""},
+		{"json", true, false, "{\n  \"id\": 7\n}\n"},
+		{"json quiet", true, true, "{\n  \"id\": 7\n}\n"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			p := &Printer{Out: &buf, JSON: tc.json, Quiet: tc.quiet}
+			if err := p.Success(map[string]int{"id": 7}, "✓ Done"); err != nil {
+				t.Fatal(err)
+			}
+			if buf.String() != tc.want {
+				t.Fatalf("got %q, want %q", buf.String(), tc.want)
+			}
+		})
+	}
+}
+
+func TestInfoOnlyInTextMode(t *testing.T) {
 	cases := []struct {
 		name        string
 		json, quiet bool
@@ -97,39 +161,10 @@ func TestPrintInfoOnlyInTextMode(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			var buf bytes.Buffer
 			p := &Printer{Out: &buf, JSON: tc.json, Quiet: tc.quiet}
-			p.PrintInfo("hello")
+			p.Info("hello")
 			if buf.String() != tc.want {
 				t.Fatalf("got %q, want %q", buf.String(), tc.want)
 			}
 		})
-	}
-}
-
-func TestTableTextAlignsColumns(t *testing.T) {
-	var buf bytes.Buffer
-	p := &Printer{Out: &buf}
-	p.Table([]string{"ID", "NAME"}, [][]string{{"1", "Alpha"}, {"22", "B"}})
-	want := "ID   NAME\n1    Alpha\n22   B\n"
-	if buf.String() != want {
-		t.Fatalf("got %q, want %q", buf.String(), want)
-	}
-}
-
-func TestTableJSONKeysCellsByHeaderAndDropsExtras(t *testing.T) {
-	var buf bytes.Buffer
-	p := &Printer{Out: &buf, JSON: true}
-	p.Table([]string{"ID", "NAME"}, [][]string{{"1", "Alpha", "extra"}})
-	want := "[\n  {\n    \"ID\": \"1\",\n    \"NAME\": \"Alpha\"\n  }\n]\n"
-	if buf.String() != want {
-		t.Fatalf("got %q, want %q", buf.String(), want)
-	}
-}
-
-func TestTableJSONWithNoRowsPrintsNull(t *testing.T) {
-	var buf bytes.Buffer
-	p := &Printer{Out: &buf, JSON: true}
-	p.Table([]string{"ID"}, nil)
-	if buf.String() != "null\n" {
-		t.Fatalf("got %q", buf.String())
 	}
 }

@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"encoding/json"
 	"net/url"
 	"strconv"
 	"strings"
 
+	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 	"github.com/spf13/cobra"
 )
 
@@ -52,24 +52,14 @@ func logsCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			if a.printer.JSON {
-				return a.printer.PrintRawJSON(raw)
-			}
-
 			var page ActivityLogPage
-			if err := json.Unmarshal(raw, &page); err != nil {
+			doc, err := decodeResponse(raw, &page)
+			if err != nil {
 				return err
 			}
 
-			items := logsOfType(page.Data, event)
-			if len(items) == 0 {
-				a.printer.PrintInfo("No activity logs recorded.")
-				return nil
-			}
-
-			headers := []string{"TIME", "TYPE", "READER", "BOOK", "FILE"}
 			var rows [][]string
-			for _, item := range items {
+			for _, item := range logsOfType(page.Data, event) {
 				rows = append(rows, []string{
 					item.OccurredAt,
 					item.Type,
@@ -79,8 +69,12 @@ func logsCmd(a *app) *cobra.Command {
 				})
 			}
 
-			a.printer.Table(headers, rows)
-			return nil
+			return a.printer.Display(output.View{
+				Headers:     []string{"TIME", "TYPE", "READER", "BOOK", "FILE"},
+				Rows:        rows,
+				EmptyNotice: "No activity logs recorded.",
+				Data:        doc,
+			})
 		},
 	}
 	cmd.Flags().IntP("limit", "n", 50, "Maximum number of log events to show (capped at 100)")
@@ -112,24 +106,22 @@ func metricsCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			if a.printer.JSON {
-				return a.printer.PrintRawJSON(raw)
-			}
-
 			var metrics DashboardMetricsResponse
-			if err := json.Unmarshal(raw, &metrics); err != nil {
+			doc, err := decodeResponse(raw, &metrics)
+			if err != nil {
 				return err
 			}
 
-			rows := [][]string{
-				{"Total Book Projects", strconv.Itoa(metrics.TotalProjects)},
-				{"Total Uploaded Files", strconv.Itoa(metrics.TotalFiles)},
-				{"Total Reader Downloads", strconv.Itoa(metrics.TotalDownloads)},
-				{"Total Landing Page Views", strconv.Itoa(metrics.TotalViews)},
-			}
-
-			a.printer.Table([]string{"Metric", "Total"}, rows)
-			return nil
+			return a.printer.Display(output.View{
+				Headers: []string{"Metric", "Total"},
+				Rows: [][]string{
+					{"Total Book Projects", strconv.Itoa(metrics.TotalProjects)},
+					{"Total Uploaded Files", strconv.Itoa(metrics.TotalFiles)},
+					{"Total Reader Downloads", strconv.Itoa(metrics.TotalDownloads)},
+					{"Total Landing Page Views", strconv.Itoa(metrics.TotalViews)},
+				},
+				Data: doc,
+			})
 		},
 	}
 }

@@ -10,6 +10,7 @@ import (
 
 	"github.com/jonbaldie/bookbeam-cli/pkg/client"
 	"github.com/jonbaldie/bookbeam-cli/pkg/config"
+	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 	"github.com/spf13/cobra"
 )
 
@@ -49,11 +50,11 @@ func loginCmd(a *app) *cobra.Command {
 				if err := saveToken(a, directToken); err != nil {
 					return err
 				}
-				a.printer.PrintInfo("✓ Authentication token saved successfully.")
+				a.printer.Info("✓ Authentication token saved successfully.")
 				return nil
 			}
 
-			a.printer.PrintInfo(fmt.Sprintf("Initiating device login with %s...", a.cfg.Host))
+			a.printer.Info(fmt.Sprintf("Initiating device login with %s...", a.cfg.Host))
 
 			codePayload := map[string]string{
 				"client_id": "bookbeam-cli",
@@ -68,14 +69,14 @@ func loginCmd(a *app) *cobra.Command {
 				return fmt.Errorf("invalid server response: %w", err)
 			}
 
-			a.printer.PrintInfo("")
-			a.printer.PrintInfo(fmt.Sprintf("! Your one-time verification code is: %s", deviceResp.UserCode))
-			a.printer.PrintInfo(fmt.Sprintf("- Open verification page: %s", deviceResp.VerificationURIComplete))
-			a.printer.PrintInfo("")
+			a.printer.Info("")
+			a.printer.Info(fmt.Sprintf("! Your one-time verification code is: %s", deviceResp.UserCode))
+			a.printer.Info(fmt.Sprintf("- Open verification page: %s", deviceResp.VerificationURIComplete))
+			a.printer.Info("")
 
 			a.openURL(deviceResp.VerificationURIComplete)
 
-			a.printer.PrintInfo("Waiting for authorization in browser...")
+			a.printer.Info("Waiting for authorization in browser...")
 
 			token, err := pollDeviceToken(a.apiCli, deviceResp, a.sleep)
 			if err != nil {
@@ -85,8 +86,8 @@ func loginCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			a.printer.PrintInfo("")
-			a.printer.PrintInfo("✓ Successfully authenticated! Logged in to BookBeam.")
+			a.printer.Info("")
+			a.printer.Info("✓ Successfully authenticated! Logged in to BookBeam.")
 			return nil
 		},
 	}
@@ -103,7 +104,7 @@ func logoutCmd(a *app) *cobra.Command {
 			if err := config.Save(a.cfg, ""); err != nil {
 				return fmt.Errorf("failed to update config file: %w", err)
 			}
-			a.printer.PrintInfo("✓ Logged out successfully.")
+			a.printer.Info("✓ Logged out successfully.")
 			return nil
 		},
 	}
@@ -124,12 +125,9 @@ func whoamiCmd(a *app) *cobra.Command {
 				return fmt.Errorf("failed to get user details: %w", err)
 			}
 
-			if a.printer.JSON {
-				return a.printer.PrintRawJSON(rawResp)
-			}
-
 			var profile UserProfileResponse
-			if err := json.Unmarshal(rawResp, &profile); err != nil {
+			doc, err := decodeResponse(rawResp, &profile)
+			if err != nil {
 				return fmt.Errorf("failed to parse profile response: %w", err)
 			}
 
@@ -138,15 +136,16 @@ func whoamiCmd(a *app) *cobra.Command {
 				teamName = profile.CurrentTeam.Name
 			}
 
-			rows := [][]string{
-				{"Name", profile.Name},
-				{"Email", profile.Email},
-				{"Active Team", teamName},
-				{"API Host", a.cfg.Host},
-			}
-
-			a.printer.Table([]string{"Property", "Value"}, rows)
-			return nil
+			return a.printer.Display(output.View{
+				Headers: []string{"Property", "Value"},
+				Rows: [][]string{
+					{"Name", profile.Name},
+					{"Email", profile.Email},
+					{"Active Team", teamName},
+					{"API Host", a.cfg.Host},
+				},
+				Data: doc,
+			})
 		},
 	}
 }

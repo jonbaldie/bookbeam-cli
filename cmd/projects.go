@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 	"github.com/spf13/cobra"
 )
 
@@ -69,21 +70,12 @@ func projectsListCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			if a.printer.JSON {
-				return a.printer.PrintRawJSON(raw)
-			}
-
 			var listResp ProjectListResponse
-			if err := json.Unmarshal(raw, &listResp); err != nil {
+			doc, err := decodeResponse(raw, &listResp)
+			if err != nil {
 				return err
 			}
 
-			if len(listResp.Data) == 0 {
-				a.printer.PrintInfo("No book projects found. Create one with 'bookbeam projects create'.")
-				return nil
-			}
-
-			headers := []string{"ID", "TITLE", "FILES", "LINKS", "CREATED"}
 			var rows [][]string
 			for _, p := range listResp.Data {
 				rows = append(rows, []string{
@@ -95,9 +87,13 @@ func projectsListCmd(a *app) *cobra.Command {
 				})
 			}
 
-			a.printer.Table(headers, rows)
-			a.printer.PrintInfo(fmt.Sprintf("\nPage %d of %d (Total: %d)", listResp.CurrentPage, listResp.LastPage, listResp.Total))
-			return nil
+			return a.printer.Display(output.View{
+				Headers:     []string{"ID", "TITLE", "FILES", "LINKS", "CREATED"},
+				Rows:        rows,
+				Footer:      fmt.Sprintf("\nPage %d of %d (Total: %d)", listResp.CurrentPage, listResp.LastPage, listResp.Total),
+				EmptyNotice: "No book projects found. Create one with 'bookbeam projects create'.",
+				Data:        doc,
+			})
 		},
 	}
 	cmd.Flags().Int("page", 1, "Page number")
@@ -116,30 +112,28 @@ func projectsGetCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			if a.printer.JSON {
-				return a.printer.PrintRawJSON(raw)
-			}
-
 			var response struct {
 				Data ProjectItem `json:"data"`
 			}
-			if err := json.Unmarshal(raw, &response); err != nil {
+			doc, err := decodeResponse(raw, &response)
+			if err != nil {
 				return err
 			}
 			p := response.Data
 
-			rows := [][]string{
-				{"ID", strconv.Itoa(p.ID)},
-				{"Title", p.Title},
-				{"Description", p.Description},
-				{"Cover URL", p.CoverImageURL},
-				{"Files Count", strconv.Itoa(p.FilesCount)},
-				{"Links Count", strconv.Itoa(p.SignupLinksCount)},
-				{"Created At", p.CreatedAt},
-			}
-
-			a.printer.Table([]string{"Field", "Value"}, rows)
-			return nil
+			return a.printer.Display(output.View{
+				Headers: []string{"Field", "Value"},
+				Rows: [][]string{
+					{"ID", strconv.Itoa(p.ID)},
+					{"Title", p.Title},
+					{"Description", p.Description},
+					{"Cover URL", p.CoverImageURL},
+					{"Files Count", strconv.Itoa(p.FilesCount)},
+					{"Links Count", strconv.Itoa(p.SignupLinksCount)},
+					{"Created At", p.CreatedAt},
+				},
+				Data: doc,
+			})
 		},
 	}
 }
@@ -182,19 +176,15 @@ func projectsCreateCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			if a.printer.JSON {
-				return a.printer.PrintRawJSON(raw)
-			}
-
 			var response struct {
 				Data ProjectItem `json:"data"`
 			}
-			if err := json.Unmarshal(raw, &response); err != nil {
+			doc, err := decodeResponse(raw, &response)
+			if err != nil {
 				return err
 			}
 			created := response.Data
-			a.printer.PrintInfo(fmt.Sprintf("✓ Created book project #%d: %s", created.ID, created.Title))
-			return nil
+			return a.printer.Success(doc, fmt.Sprintf("✓ Created book project #%d: %s", created.ID, created.Title))
 		},
 	}
 	cmd.Flags().String("title", "", "Book project title (required)")
@@ -245,12 +235,7 @@ func projectsUpdateCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			if a.printer.JSON {
-				return a.printer.PrintRawJSON(raw)
-			}
-
-			a.printer.PrintInfo(fmt.Sprintf("✓ Updated book project #%s", projectID))
-			return nil
+			return a.printer.Success(responseDocument(raw), fmt.Sprintf("✓ Updated book project #%s", projectID))
 		},
 	}
 	cmd.Flags().String("title", "", "Updated book project title")
@@ -271,7 +256,7 @@ func projectsDeleteCmd(a *app) *cobra.Command {
 
 			if !force && !a.printer.JSON {
 				if !confirm(cmd, fmt.Sprintf("Are you sure you want to delete project #%s?", projectID)) {
-					a.printer.PrintInfo("Cancelled.")
+					a.printer.Info("Cancelled.")
 					return nil
 				}
 			}
@@ -281,12 +266,7 @@ func projectsDeleteCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			if a.printer.JSON {
-				return a.printer.PrintRawJSON(raw)
-			}
-
-			a.printer.PrintInfo(fmt.Sprintf("✓ Deleted book project #%s", projectID))
-			return nil
+			return a.printer.Success(responseDocument(raw), fmt.Sprintf("✓ Deleted book project #%s", projectID))
 		},
 	}
 	cmd.Flags().BoolP("force", "f", false, "Skip confirmation prompt")
@@ -359,12 +339,7 @@ func projectsNewsletterCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			if a.printer.JSON {
-				return a.printer.PrintRawJSON(raw)
-			}
-
-			a.printer.PrintInfo(fmt.Sprintf("✓ Updated newsletter routing for project #%s", projectID))
-			return nil
+			return a.printer.Success(responseDocument(raw), fmt.Sprintf("✓ Updated newsletter routing for project #%s", projectID))
 		},
 	}
 	cmd.Flags().String("list-id", "", "Newsletter list ID")
