@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 	"github.com/spf13/cobra"
 )
 
@@ -40,26 +41,16 @@ func linksListCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			if a.printer.JSON {
-				return a.printer.PrintRawJSON(raw)
-			}
-
 			var response struct {
 				Data []SignupLinkItem `json:"data"`
 			}
-			if err := json.Unmarshal(raw, &response); err != nil {
+			doc, err := decodeWithDocument(raw, &response)
+			if err != nil {
 				return err
 			}
-			links := response.Data
 
-			if len(links) == 0 {
-				a.printer.PrintInfo("No signup links found for this project.")
-				return nil
-			}
-
-			headers := []string{"ID", "TITLE", "SLUG", "PUBLIC URL", "CREATED"}
 			var rows [][]string
-			for _, l := range links {
+			for _, l := range response.Data {
 				publicURL := fmt.Sprintf("%s/download/%s", strings.TrimRight(a.cfg.Host, "/"), l.Slug)
 				rows = append(rows, []string{
 					strconv.Itoa(l.ID),
@@ -70,8 +61,12 @@ func linksListCmd(a *app) *cobra.Command {
 				})
 			}
 
-			a.printer.Table(headers, rows)
-			return nil
+			return a.printer.Display(output.View{
+				Headers:     []string{"ID", "TITLE", "SLUG", "PUBLIC URL", "CREATED"},
+				Rows:        rows,
+				EmptyNotice: "No signup links found for this project.",
+				Data:        doc,
+			})
 		},
 	}
 }
@@ -122,20 +117,16 @@ func linksCreateCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			if a.printer.JSON {
-				return a.printer.PrintRawJSON(raw)
-			}
-
 			var response struct {
 				Data SignupLinkItem `json:"data"`
 			}
-			if err := json.Unmarshal(raw, &response); err != nil {
+			doc, err := decodeWithDocument(raw, &response)
+			if err != nil {
 				return err
 			}
 			created := response.Data
 			publicURL := fmt.Sprintf("%s/download/%s", strings.TrimRight(a.cfg.Host, "/"), created.Slug)
-			a.printer.PrintInfo(fmt.Sprintf("✓ Created signup link #%d: %s", created.ID, publicURL))
-			return nil
+			return a.printer.Success(doc, fmt.Sprintf("✓ Created signup link #%d: %s", created.ID, publicURL))
 		},
 	}
 	cmd.Flags().String("title", "", "Signup link title")
@@ -172,12 +163,7 @@ func linksUpdateCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			if a.printer.JSON {
-				return a.printer.PrintRawJSON(raw)
-			}
-
-			a.printer.PrintInfo(fmt.Sprintf("✓ Updated signup link #%s", linkID))
-			return nil
+			return a.printer.Success(responseDocument(raw), fmt.Sprintf("✓ Updated signup link #%s", linkID))
 		},
 	}
 	cmd.Flags().String("title", "", "Updated link title")
@@ -198,7 +184,7 @@ func linksDeleteCmd(a *app) *cobra.Command {
 
 			if !force && !a.printer.JSON {
 				if !confirm(cmd, fmt.Sprintf("Are you sure you want to delete link #%s?", linkID)) {
-					a.printer.PrintInfo("Cancelled.")
+					a.printer.Info("Cancelled.")
 					return nil
 				}
 			}
@@ -208,12 +194,7 @@ func linksDeleteCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			if a.printer.JSON {
-				return a.printer.PrintRawJSON(raw)
-			}
-
-			a.printer.PrintInfo(fmt.Sprintf("✓ Deleted signup link #%s", linkID))
-			return nil
+			return a.printer.Success(responseDocument(raw), fmt.Sprintf("✓ Deleted signup link #%s", linkID))
 		},
 	}
 	cmd.Flags().BoolP("force", "f", false, "Skip confirmation prompt")

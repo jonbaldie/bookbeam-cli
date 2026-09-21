@@ -92,6 +92,10 @@ func arbRun(t *testing.T, cmd *cobra.Command, args ...string) error {
 	return cmd.RunE(cmd, args)
 }
 
+type arbFailingWriter struct{}
+
+func (arbFailingWriter) Write([]byte) (int, error) { return 0, errors.New("write failed") }
+
 func arbWriteJSON(w http.ResponseWriter, status int, body string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -995,6 +999,20 @@ func TestARBBillingCheckout(t *testing.T) {
 	}
 	if h.out.String() != "{\n  \"active_offer\": {\n    \"checkout_url\": \"https://pay.example.com\"\n  }\n}\n" {
 		t.Errorf("got %q", h.out.String())
+	}
+	if len(h.opened) != 0 {
+		t.Errorf("--json must not open a browser, opened %v", h.opened)
+	}
+
+	h = arbNewHarness(t, func(w http.ResponseWriter, r *http.Request) {
+		arbWriteJSON(w, 200, `{"active_offer":{"checkout_url":"https://pay.example.com"}}`)
+	}, true)
+	h.a.printer.Out = arbFailingWriter{}
+	if err := arbRun(t, billingCheckoutCmd(h.a)); err == nil {
+		t.Error("expected write error")
+	}
+	if len(h.opened) != 0 {
+		t.Errorf("failed output must not open a browser, opened %v", h.opened)
 	}
 
 	for body, want := range map[string]string{

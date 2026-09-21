@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"os"
 	"strconv"
 
+	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 	"github.com/spf13/cobra"
 )
 
@@ -52,21 +52,12 @@ func downloadersListCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			if a.printer.JSON {
-				return a.printer.PrintRawJSON(raw)
-			}
-
 			var resp DownloaderListResponse
-			if err := json.Unmarshal(raw, &resp); err != nil {
+			doc, err := decodeWithDocument(raw, &resp)
+			if err != nil {
 				return err
 			}
 
-			if len(resp.Data) == 0 {
-				a.printer.PrintInfo("No downloaders found for this project.")
-				return nil
-			}
-
-			headers := []string{"EMAIL", "SIGNUP LINK", "SIGNUP DATE"}
 			var rows [][]string
 			for _, d := range resp.Data {
 				rows = append(rows, []string{
@@ -76,9 +67,13 @@ func downloadersListCmd(a *app) *cobra.Command {
 				})
 			}
 
-			a.printer.Table(headers, rows)
-			a.printer.PrintInfo(fmt.Sprintf("\nPage %d of %d (Total: %d)", resp.CurrentPage, resp.LastPage, resp.Total))
-			return nil
+			return a.printer.Display(output.View{
+				Headers:     []string{"EMAIL", "SIGNUP LINK", "SIGNUP DATE"},
+				Rows:        rows,
+				Footer:      fmt.Sprintf("\nPage %d of %d (Total: %d)", resp.CurrentPage, resp.LastPage, resp.Total),
+				EmptyNotice: "No downloaders found for this project.",
+				Data:        doc,
+			})
 		},
 	}
 	cmd.Flags().Int("page", 1, "Page number")
@@ -107,7 +102,7 @@ func downloadersExportCmd(a *app) *cobra.Command {
 				return fmt.Errorf("failed to save CSV file: %w", err)
 			}
 
-			a.printer.PrintInfo(fmt.Sprintf("✓ Exported %d bytes to %s", len(raw), destPath))
+			a.printer.Info(fmt.Sprintf("✓ Exported %d bytes to %s", len(raw), destPath))
 			return nil
 		},
 	}

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"mime"
@@ -12,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 	"github.com/spf13/cobra"
 )
 
@@ -47,26 +47,16 @@ func filesListCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			if a.printer.JSON {
-				return a.printer.PrintRawJSON(raw)
-			}
-
 			var response struct {
 				Data []BookFileItem `json:"data"`
 			}
-			if err := json.Unmarshal(raw, &response); err != nil {
+			doc, err := decodeWithDocument(raw, &response)
+			if err != nil {
 				return err
 			}
-			files := response.Data
 
-			if len(files) == 0 {
-				a.printer.PrintInfo("No files attached to this project.")
-				return nil
-			}
-
-			headers := []string{"ID", "FILENAME", "FORMAT", "SIZE (BYTES)", "DOWNLOADS", "CREATED"}
 			var rows [][]string
-			for _, f := range files {
+			for _, f := range response.Data {
 				rows = append(rows, []string{
 					strconv.Itoa(f.ID),
 					f.Filename,
@@ -77,8 +67,12 @@ func filesListCmd(a *app) *cobra.Command {
 				})
 			}
 
-			a.printer.Table(headers, rows)
-			return nil
+			return a.printer.Display(output.View{
+				Headers:     []string{"ID", "FILENAME", "FORMAT", "SIZE (BYTES)", "DOWNLOADS", "CREATED"},
+				Rows:        rows,
+				EmptyNotice: "No files attached to this project.",
+				Data:        doc,
+			})
 		},
 	}
 }
@@ -102,26 +96,22 @@ func filesUploadCmd(a *app) *cobra.Command {
 				return fmt.Errorf("unsupported file extension '%s'; allowed extensions are .epub, .mobi, .pdf", ext)
 			}
 
-			a.printer.PrintInfo(fmt.Sprintf("Uploading %s (%d bytes) to project #%s...", filepath.Base(filePath), stat.Size(), projectID))
+			a.printer.Info(fmt.Sprintf("Uploading %s (%d bytes) to project #%s...", filepath.Base(filePath), stat.Size(), projectID))
 
 			raw, err := a.apiCli.PostMultipart(fmt.Sprintf("/api/v1/projects/%s/files", projectID), nil, "file", filePath)
 			if err != nil {
 				return err
 			}
 
-			if a.printer.JSON {
-				return a.printer.PrintRawJSON(raw)
-			}
-
 			var response struct {
 				Data BookFileItem `json:"data"`
 			}
-			if err := json.Unmarshal(raw, &response); err != nil {
+			doc, err := decodeWithDocument(raw, &response)
+			if err != nil {
 				return err
 			}
 			created := response.Data
-			a.printer.PrintInfo(fmt.Sprintf("✓ Uploaded file #%d (%s) successfully.", created.ID, created.Filename))
-			return nil
+			return a.printer.Success(doc, fmt.Sprintf("✓ Uploaded file #%d (%s) successfully.", created.ID, created.Filename))
 		},
 	}
 }
@@ -144,7 +134,7 @@ func filesDownloadCmd(a *app) *cobra.Command {
 
 			destPath := resolveDownloadDestination(outputFlag, resp.Header.Get("Content-Disposition"), projectID, fileID)
 
-			a.printer.PrintInfo(fmt.Sprintf("Downloading file to %s...", destPath))
+			a.printer.Info(fmt.Sprintf("Downloading file to %s...", destPath))
 
 			outFile, err := os.Create(destPath)
 			if err != nil {
@@ -157,7 +147,7 @@ func filesDownloadCmd(a *app) *cobra.Command {
 				return fmt.Errorf("failed to write file contents: %w", err)
 			}
 
-			a.printer.PrintInfo(fmt.Sprintf("✓ Download complete (%d bytes written to %s).", n, destPath))
+			a.printer.Info(fmt.Sprintf("✓ Download complete (%d bytes written to %s).", n, destPath))
 			return nil
 		},
 	}
@@ -209,7 +199,7 @@ func filesDeleteCmd(a *app) *cobra.Command {
 
 			if !force && !a.printer.JSON {
 				if !confirm(cmd, fmt.Sprintf("Are you sure you want to delete file #%s from project #%s?", fileID, projectID)) {
-					a.printer.PrintInfo("Cancelled.")
+					a.printer.Info("Cancelled.")
 					return nil
 				}
 			}
@@ -219,12 +209,7 @@ func filesDeleteCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			if a.printer.JSON {
-				return a.printer.PrintRawJSON(raw)
-			}
-
-			a.printer.PrintInfo(fmt.Sprintf("✓ Deleted file #%s from project #%s", fileID, projectID))
-			return nil
+			return a.printer.Success(responseDocument(raw), fmt.Sprintf("✓ Deleted file #%s from project #%s", fileID, projectID))
 		},
 	}
 	cmd.Flags().BoolP("force", "f", false, "Skip confirmation prompt")

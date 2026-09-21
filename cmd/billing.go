@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 	"github.com/spf13/cobra"
 )
 
@@ -79,12 +80,9 @@ func billingStatusCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			if a.printer.JSON {
-				return a.printer.PrintRawJSON(raw)
-			}
-
 			var b BillingStatusResponse
-			if err := json.Unmarshal(raw, &b); err != nil {
+			doc, err := decodeWithDocument(raw, &b)
+			if err != nil {
 				return err
 			}
 
@@ -96,16 +94,17 @@ func billingStatusCmd(a *app) *cobra.Command {
 			subName, subStatus := formatSubscription(b.Subscription)
 			offerStr, checkoutURL := formatActiveOffer(b.ActiveOffer)
 
-			rows := [][]string{
-				{"Access Status", accessStr},
-				{"Subscription", subName},
-				{"Subscription Status", subStatus},
-				{"Active Offer", offerStr},
-				{"Checkout Link", checkoutURL},
-			}
-
-			a.printer.Table([]string{"Field", "Value"}, rows)
-			return nil
+			return a.printer.Display(output.View{
+				Headers: []string{"Field", "Value"},
+				Rows: [][]string{
+					{"Access Status", accessStr},
+					{"Subscription", subName},
+					{"Subscription Status", subStatus},
+					{"Active Offer", offerStr},
+					{"Checkout Link", checkoutURL},
+				},
+				Data: doc,
+			})
 		},
 	}
 }
@@ -125,13 +124,8 @@ func billingCheckoutCmd(a *app) *cobra.Command {
 				return fmt.Errorf("checkout unavailable: %s", string(raw))
 			}
 
-			if a.printer.JSON {
-				return a.printer.PrintRawJSON(raw)
-			}
-
-			a.printer.PrintInfo(fmt.Sprintf("Checkout URL: %s", b.ActiveOffer.CheckoutURL))
-			a.openURL(b.ActiveOffer.CheckoutURL)
-			return nil
+			url := b.ActiveOffer.CheckoutURL
+			return a.printer.Launch(responseDocument(raw), fmt.Sprintf("Checkout URL: %s", url), func() { a.openURL(url) })
 		},
 	}
 }
