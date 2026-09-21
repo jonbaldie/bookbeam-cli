@@ -70,6 +70,15 @@ func (p *Printer) Success(data any, msg string) error {
 	return nil
 }
 
+// Launch reports like Success, then runs open only for a person: --json callers are scripts.
+func (p *Printer) Launch(data any, msg string, open func()) error {
+	if err := p.Success(data, msg); err != nil || p.JSON {
+		return err
+	}
+	open()
+	return nil
+}
+
 // Info prints msg for people; --quiet and --json suppress it.
 func (p *Printer) Info(msg string) {
 	if !p.Quiet && !p.JSON {

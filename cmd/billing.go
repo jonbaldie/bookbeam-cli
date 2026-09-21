@@ -81,7 +81,7 @@ func billingStatusCmd(a *app) *cobra.Command {
 			}
 
 			var b BillingStatusResponse
-			doc, err := decodeResponse(raw, &b)
+			doc, err := decodeWithDocument(raw, &b)
 			if err != nil {
 				return err
 			}
@@ -124,14 +124,8 @@ func billingCheckoutCmd(a *app) *cobra.Command {
 				return fmt.Errorf("checkout unavailable: %s", string(raw))
 			}
 
-			if err := a.printer.Success(responseDocument(raw), fmt.Sprintf("Checkout URL: %s", b.ActiveOffer.CheckoutURL)); err != nil {
-				return err
-			}
-			// --json callers are scripts, so only a human run opens the browser.
-			if !a.printer.JSON {
-				a.openURL(b.ActiveOffer.CheckoutURL)
-			}
-			return nil
+			url := b.ActiveOffer.CheckoutURL
+			return a.printer.Launch(responseDocument(raw), fmt.Sprintf("Checkout URL: %s", url), func() { a.openURL(url) })
 		},
 	}
 }

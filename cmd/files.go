@@ -50,7 +50,7 @@ func filesListCmd(a *app) *cobra.Command {
 			var response struct {
 				Data []BookFileItem `json:"data"`
 			}
-			doc, err := decodeResponse(raw, &response)
+			doc, err := decodeWithDocument(raw, &response)
 			if err != nil {
 				return err
 			}
@@ -106,7 +106,7 @@ func filesUploadCmd(a *app) *cobra.Command {
 			var response struct {
 				Data BookFileItem `json:"data"`
 			}
-			doc, err := decodeResponse(raw, &response)
+			doc, err := decodeWithDocument(raw, &response)
 			if err != nil {
 				return err
 			}

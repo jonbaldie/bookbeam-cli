@@ -44,7 +44,7 @@ func linksListCmd(a *app) *cobra.Command {
 			var response struct {
 				Data []SignupLinkItem `json:"data"`
 			}
-			doc, err := decodeResponse(raw, &response)
+			doc, err := decodeWithDocument(raw, &response)
 			if err != nil {
 				return err
 			}
@@ -120,7 +120,7 @@ func linksCreateCmd(a *app) *cobra.Command {
 			var response struct {
 				Data SignupLinkItem `json:"data"`
 			}
-			doc, err := decodeResponse(raw, &response)
+			doc, err := decodeWithDocument(raw, &response)
 			if err != nil {
 				return err
 			}

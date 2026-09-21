@@ -126,7 +126,7 @@ func whoamiCmd(a *app) *cobra.Command {
 			}
 
 			var profile UserProfileResponse
-			doc, err := decodeResponse(rawResp, &profile)
+			doc, err := decodeWithDocument(rawResp, &profile)
 			if err != nil {
 				return fmt.Errorf("failed to parse profile response: %w", err)
 			}

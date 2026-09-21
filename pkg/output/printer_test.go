@@ -2,6 +2,7 @@ package output
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"os"
 	"testing"
@@ -74,6 +75,19 @@ func TestDisplayJSONEncodesTypedDataWithTwoSpaceIndent(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := "{\n  \"id\": 1,\n  \"name\": \"Alpha\",\n  \"ok\": true\n}\n"
+	if buf.String() != want {
+		t.Fatalf("got %q, want %q", buf.String(), want)
+	}
+}
+
+func TestDisplayJSONKeepsDecodedNumbersExact(t *testing.T) {
+	var buf bytes.Buffer
+	p := &Printer{Out: &buf, JSON: true}
+	data := map[string]any{"big": json.Number("12345678901234567"), "price": json.Number("1.50")}
+	if err := p.Display(View{Data: data}); err != nil {
+		t.Fatal(err)
+	}
+	want := "{\n  \"big\": 12345678901234567,\n  \"price\": 1.50\n}\n"
 	if buf.String() != want {
 		t.Fatalf("got %q, want %q", buf.String(), want)
 	}
@@ -166,5 +180,37 @@ func TestInfoOnlyInTextMode(t *testing.T) {
 				t.Fatalf("got %q, want %q", buf.String(), tc.want)
 			}
 		})
+	}
+}
+
+func TestLaunchOpensOnlyForPeopleAfterReporting(t *testing.T) {
+	cases := []struct {
+		name        string
+		json, quiet bool
+		want        string
+		opened      bool
+	}{
+		{"text", false, false, "Go\nopened\n", true},
+		{"quiet", false, true, "opened\n", true},
+		{"json", true, false, "{\n  \"id\": 7\n}\n", false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			p := &Printer{Out: &buf, JSON: tc.json, Quiet: tc.quiet}
+			opened := false
+			err := p.Launch(map[string]int{"id": 7}, "Go", func() { opened = true; buf.WriteString("opened\n") })
+			if err != nil || opened != tc.opened || buf.String() != tc.want {
+				t.Fatalf("err=%v opened=%v got %q, want %q", err, opened, buf.String(), tc.want)
+			}
+		})
+	}
+}
+
+func TestLaunchSkipsOpenWhenReportFails(t *testing.T) {
+	p := &Printer{Out: failingWriter{}, JSON: true}
+	opened := false
+	if err := p.Launch(map[string]int{"id": 7}, "Go", func() { opened = true }); err == nil || opened {
+		t.Fatalf("err=%v opened=%v", err, opened)
 	}
 }

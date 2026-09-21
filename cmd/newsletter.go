@@ -47,7 +47,7 @@ func newsletterStatusCmd(a *app) *cobra.Command {
 			}
 
 			var settings NewsletterSettingsResponse
-			doc, err := decodeResponse(raw, &settings)
+			doc, err := decodeWithDocument(raw, &settings)
 			if err != nil {
 				return err
 			}
@@ -169,7 +169,7 @@ func newsletterListsCmd(a *app) *cobra.Command {
 			}
 
 			var listsResp NewsletterListsResponse
-			doc, err := decodeResponse(raw, &listsResp)
+			doc, err := decodeWithDocument(raw, &listsResp)
 			if err != nil {
 				return err
 			}

@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 )
 
-// decodeResponse fills typed from an API response and returns the whole response as the --json document.
-func decodeResponse(raw []byte, typed any) (any, error) {
+// decodeWithDocument fills typed from an API response and also returns the whole response as the --json document.
+func decodeWithDocument(raw []byte, typed any) (any, error) {
 	if err := json.Unmarshal(raw, typed); err != nil {
 		return nil, err
 	}

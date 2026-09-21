@@ -9,7 +9,7 @@ func TestDecodeResponseFillsTypedAndKeepsFullDocument(t *testing.T) {
 	var typed struct {
 		ID int `json:"id"`
 	}
-	doc, err := decodeResponse([]byte(`{"id":12345678901234567,"ratio":1.50,"ok":true,"extra":"kept"}`), &typed)
+	doc, err := decodeWithDocument([]byte(`{"id":12345678901234567,"ratio":1.50,"ok":true,"extra":"kept"}`), &typed)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -30,7 +30,7 @@ func TestDecodeResponseRejectsBodiesTheTypeCannotHold(t *testing.T) {
 		Data []int `json:"data"`
 	}
 	for _, body := range []string{`not json`, `{"data":"nope"}`} {
-		if doc, err := decodeResponse([]byte(body), &typed); err == nil || doc != nil {
+		if doc, err := decodeWithDocument([]byte(body), &typed); err == nil || doc != nil {
 			t.Fatalf("%s: got %v %v", body, doc, err)
 		}
 	}

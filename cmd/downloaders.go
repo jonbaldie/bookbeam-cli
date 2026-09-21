@@ -53,7 +53,7 @@ func downloadersListCmd(a *app) *cobra.Command {
 			}
 
 			var resp DownloaderListResponse
-			doc, err := decodeResponse(raw, &resp)
+			doc, err := decodeWithDocument(raw, &resp)
 			if err != nil {
 				return err
 			}

@@ -71,7 +71,7 @@ func projectsListCmd(a *app) *cobra.Command {
 			}
 
 			var listResp ProjectListResponse
-			doc, err := decodeResponse(raw, &listResp)
+			doc, err := decodeWithDocument(raw, &listResp)
 			if err != nil {
 				return err
 			}
@@ -115,7 +115,7 @@ func projectsGetCmd(a *app) *cobra.Command {
 			var response struct {
 				Data ProjectItem `json:"data"`
 			}
-			doc, err := decodeResponse(raw, &response)
+			doc, err := decodeWithDocument(raw, &response)
 			if err != nil {
 				return err
 			}
@@ -179,7 +179,7 @@ func projectsCreateCmd(a *app) *cobra.Command {
 			var response struct {
 				Data ProjectItem `json:"data"`
 			}
-			doc, err := decodeResponse(raw, &response)
+			doc, err := decodeWithDocument(raw, &response)
 			if err != nil {
 				return err
 			}

@@ -53,7 +53,7 @@ func logsCmd(a *app) *cobra.Command {
 			}
 
 			var page ActivityLogPage
-			doc, err := decodeResponse(raw, &page)
+			doc, err := decodeWithDocument(raw, &page)
 			if err != nil {
 				return err
 			}
@@ -107,7 +107,7 @@ func metricsCmd(a *app) *cobra.Command {
 			}
 
 			var metrics DashboardMetricsResponse
-			doc, err := decodeResponse(raw, &metrics)
+			doc, err := decodeWithDocument(raw, &metrics)
 			if err != nil {
 				return err
 			}
