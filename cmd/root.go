@@ -3,6 +3,7 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -14,15 +15,21 @@ import (
 
 // app holds the state every command shares once the root flags are parsed.
 type app struct {
-	cfg     *config.Config
-	apiCli  *client.Client
-	printer *output.Printer
-	openURL func(url string)
-	sleep   func(d time.Duration)
+	settings *config.Settings
+	apiCli   *client.Client
+	printer  *output.Printer
+	openURL  func(url string)
+	sleep    func(d time.Duration)
 }
 
-// NewRootCmd builds the full bookbeam command tree.
+// NewRootCmd builds the full bookbeam command tree over the process
+// environment and home directory.
 func NewRootCmd() *cobra.Command {
+	return newRootCmd(os.Getenv, os.UserHomeDir)
+}
+
+// newRootCmd builds the command tree, resolving settings from getenv and home.
+func newRootCmd(getenv func(string) string, home func() (string, error)) *cobra.Command {
 	a := &app{openURL: openBrowser, sleep: time.Sleep}
 	var host, token string
 	var jsonOutput, quiet bool
@@ -34,7 +41,8 @@ func NewRootCmd() *cobra.Command {
 signup links, newsletters, downloaders, and telemetry directly from the terminal.`,
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			return a.load(config.Load, host, token, output.New(jsonOutput, quiet))
+			overrides := config.Overrides{Host: host, Token: token}
+			return a.load(getenv, home, overrides, output.New(jsonOutput, quiet))
 		},
 	}
 
@@ -59,24 +67,25 @@ signup links, newsletters, downloaders, and telemetry directly from the terminal
 	return root
 }
 
-// load resolves configuration, applying the --host and --token overrides.
-func (a *app) load(loadConfig func(path string) (*config.Config, error), host, token string, printer *output.Printer) error {
-	cfg, err := loadConfig("")
+// load resolves settings, layering the --host and --token overrides on top.
+func (a *app) load(getenv func(string) string, home func() (string, error), flags config.Overrides, printer *output.Printer) error {
+	settings, err := resolveSettings(getenv, home, flags)
 	if err != nil {
 		return fmt.Errorf("failed to load configuration: %w", err)
 	}
 
-	if host != "" {
-		cfg.Host = host
-	}
-	if token != "" {
-		cfg.Token = token
-	}
-
-	a.cfg = cfg
-	a.apiCli = client.New(cfg.Host, cfg.Token)
+	a.settings = settings
+	a.apiCli = client.New(settings.Host(), settings.Token())
 	a.printer = printer
 	return nil
+}
+
+func resolveSettings(getenv func(string) string, home func() (string, error), flags config.Overrides) (*config.Settings, error) {
+	dir, err := config.Dir(getenv, home)
+	if err != nil {
+		return nil, err
+	}
+	return config.Resolve(dir, getenv, flags)
 }
 
 // confirm asks a yes/no question on the command's streams; anything but y/yes cancels.

@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/jonbaldie/bookbeam-cli/pkg/client"
-	"github.com/jonbaldie/bookbeam-cli/pkg/config"
 	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 )
 
@@ -86,7 +85,7 @@ func TestNewsletterTelemetryBillingCommands(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	err := newsletterStatusCmd.RunE(newsletterStatusCmd, []string{})
@@ -138,9 +137,9 @@ func TestNewsletterStatusUsesProviderAndToken(t *testing.T) {
 
 	var buf bytes.Buffer
 	a := &app{
-		printer: &output.Printer{Out: &buf, JSON: false},
-		cfg:     &config.Config{Host: ts.URL, Token: "test-token"},
-		apiCli:  client.New(ts.URL, "test-token"),
+		printer:  &output.Printer{Out: &buf, JSON: false},
+		settings: testSettings(t, ts.URL, "test-token"),
+		apiCli:   client.New(ts.URL, "test-token"),
 	}
 	cmd := newsletterStatusCmd(a)
 	if err := cmd.RunE(cmd, nil); err != nil {
@@ -171,9 +170,9 @@ func TestNewsletterListsUsesDataArray(t *testing.T) {
 
 	var buf bytes.Buffer
 	a := &app{
-		printer: &output.Printer{Out: &buf, JSON: false},
-		cfg:     &config.Config{Host: ts.URL, Token: "test-token"},
-		apiCli:  client.New(ts.URL, "test-token"),
+		printer:  &output.Printer{Out: &buf, JSON: false},
+		settings: testSettings(t, ts.URL, "test-token"),
+		apiCli:   client.New(ts.URL, "test-token"),
 	}
 	cmd := newsletterListsCmd(a)
 	if err := cmd.RunE(cmd, nil); err != nil {
@@ -216,9 +215,9 @@ func TestNewsletterConfigureMatchesProviderAPIContract(t *testing.T) {
 	ts, validated := newsletterProviderValidator(t)
 	var buf bytes.Buffer
 	a := &app{
-		printer: &output.Printer{Out: &buf, JSON: false},
-		cfg:     &config.Config{Host: ts.URL, Token: "test-token"},
-		apiCli:  client.New(ts.URL, "test-token"),
+		printer:  &output.Printer{Out: &buf, JSON: false},
+		settings: testSettings(t, ts.URL, "test-token"),
+		apiCli:   client.New(ts.URL, "test-token"),
 	}
 	cmd := newsletterConfigureCmd(a)
 	_ = cmd.Flags().Set("provider", "MailCoach")
@@ -247,9 +246,9 @@ func TestNewsletterConfigureOmitsAPIURLWithoutEndpoint(t *testing.T) {
 	ts, validated := newsletterProviderValidator(t)
 	var buf bytes.Buffer
 	a := &app{
-		printer: &output.Printer{Out: &buf, JSON: false},
-		cfg:     &config.Config{Host: ts.URL, Token: "test-token"},
-		apiCli:  client.New(ts.URL, "test-token"),
+		printer:  &output.Printer{Out: &buf, JSON: false},
+		settings: testSettings(t, ts.URL, "test-token"),
+		apiCli:   client.New(ts.URL, "test-token"),
 	}
 	cmd := newsletterConfigureCmd(a)
 	_ = cmd.Flags().Set("provider", "mailerlite")

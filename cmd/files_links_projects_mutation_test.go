@@ -15,7 +15,6 @@ import (
 	"testing"
 
 	"github.com/jonbaldie/bookbeam-cli/pkg/client"
-	"github.com/jonbaldie/bookbeam-cli/pkg/config"
 	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 	"github.com/spf13/cobra"
 )
@@ -64,9 +63,9 @@ func flpServe(t *testing.T, status int, body string, reqs *[]flpRequest) (*app, 
 	t.Cleanup(ts.Close)
 	var buf bytes.Buffer
 	a := &app{
-		printer: &output.Printer{Out: &buf},
-		cfg:     &config.Config{Host: "https://beam.example.com/", Token: "tok"},
-		apiCli:  client.New(ts.URL, "tok"),
+		printer:  &output.Printer{Out: &buf},
+		settings: testSettings(t, "https://beam.example.com/", "tok"),
+		apiCli:   client.New(ts.URL, "tok"),
 	}
 	return a, &buf
 }
@@ -325,7 +324,7 @@ func TestFlpFilesDownload(t *testing.T) {
 	}))
 	t.Cleanup(ts.Close)
 	var buf bytes.Buffer
-	a := &app{printer: &output.Printer{Out: &buf}, cfg: &config.Config{}, apiCli: client.New(ts.URL, "tok")}
+	a := &app{printer: &output.Printer{Out: &buf}, settings: testSettings(t, "", ""), apiCli: client.New(ts.URL, "tok")}
 
 	dir := flpChdirTemp(t)
 	var err error
@@ -394,7 +393,7 @@ func TestFlpFilesDownloadErrors(t *testing.T) {
 	}))
 	t.Cleanup(ts.Close)
 	var buf bytes.Buffer
-	a := &app{printer: &output.Printer{Out: &buf}, cfg: &config.Config{}, apiCli: client.New(ts.URL, "tok")}
+	a := &app{printer: &output.Printer{Out: &buf}, settings: testSettings(t, "", ""), apiCli: client.New(ts.URL, "tok")}
 	dest := filepath.Join(flpChdirTemp(t), "partial.epub")
 
 	err := flpRun(t, filesDownloadCmd(a), map[string]string{"output": dest}, "4", "9")

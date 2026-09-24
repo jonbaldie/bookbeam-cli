@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"github.com/jonbaldie/bookbeam-cli/pkg/client"
-	"github.com/jonbaldie/bookbeam-cli/pkg/config"
 	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 )
 
@@ -52,7 +51,7 @@ func TestFilesListAndUpload(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	err := filesListCmd.RunE(filesListCmd, []string{"10"})

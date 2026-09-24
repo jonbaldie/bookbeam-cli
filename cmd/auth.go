@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/jonbaldie/bookbeam-cli/pkg/client"
-	"github.com/jonbaldie/bookbeam-cli/pkg/config"
 	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 	"github.com/spf13/cobra"
 )
@@ -54,7 +53,7 @@ func loginCmd(a *app) *cobra.Command {
 				return nil
 			}
 
-			a.printer.Info(fmt.Sprintf("Initiating device login with %s...", a.cfg.Host))
+			a.printer.Info(fmt.Sprintf("Initiating device login with %s...", a.settings.Host()))
 
 			codePayload := map[string]string{
 				"client_id": "bookbeam-cli",
@@ -100,8 +99,7 @@ func logoutCmd(a *app) *cobra.Command {
 		Use:   "logout",
 		Short: "Log out of BookBeam and remove saved credentials",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			a.cfg.Token = ""
-			if err := config.Save(a.cfg, ""); err != nil {
+			if err := a.settings.StoreToken(""); err != nil {
 				return fmt.Errorf("failed to update config file: %w", err)
 			}
 			a.printer.Info("✓ Logged out successfully.")
@@ -115,7 +113,7 @@ func whoamiCmd(a *app) *cobra.Command {
 		Use:   "whoami",
 		Short: "Display the currently authenticated user and team",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if a.cfg.Token == "" {
+			if a.settings.Token() == "" {
 				cmd.SilenceUsage = true
 				return errors.New("Not authenticated. Run 'bookbeam auth login' to authenticate.")
 			}
@@ -142,7 +140,7 @@ func whoamiCmd(a *app) *cobra.Command {
 					{"Name", profile.Name},
 					{"Email", profile.Email},
 					{"Active Team", teamName},
-					{"API Host", a.cfg.Host},
+					{"API Host", a.settings.Host()},
 				},
 				Data: doc,
 			})
@@ -175,8 +173,7 @@ func authCmd(a *app) *cobra.Command {
 }
 
 func saveToken(a *app, token string) error {
-	a.cfg.Token = token
-	if err := config.Save(a.cfg, ""); err != nil {
+	if err := a.settings.StoreToken(token); err != nil {
 		return fmt.Errorf("failed to save token to config: %w", err)
 	}
 	return nil
