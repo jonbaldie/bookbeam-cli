@@ -15,7 +15,6 @@ import (
 	"testing"
 
 	"github.com/jonbaldie/bookbeam-cli/pkg/client"
-	"github.com/jonbaldie/bookbeam-cli/pkg/config"
 	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 )
 
@@ -45,7 +44,6 @@ func ntdServer(t *testing.T, status int, body string) (*httptest.Server, *[]ntdR
 func ntdApp(serverURL string, jsonOutput bool) (*app, *bytes.Buffer) {
 	var buf bytes.Buffer
 	return &app{
-		cfg:     &config.Config{Host: serverURL, Token: "tok"},
 		apiCli:  client.New(serverURL, "tok"),
 		printer: &output.Printer{Out: &buf, JSON: jsonOutput},
 	}, &buf

@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"github.com/jonbaldie/bookbeam-cli/pkg/client"
-	"github.com/jonbaldie/bookbeam-cli/pkg/config"
 	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 )
 
@@ -65,7 +64,7 @@ func TestLinksAndDownloadersCommands(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	err := linksListCmd.RunE(linksListCmd, []string{"5"})
@@ -165,7 +164,7 @@ func TestLinksUpdateOnlyConsent(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = linksUpdateCmd.Flags().Set("consent", "Updated consent text")
@@ -192,7 +191,7 @@ func TestLinksUpdateOnlyTitlePreservesConsent(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = linksUpdateCmd.Flags().Set("title", "New Magnet Title")
@@ -219,7 +218,7 @@ func TestLinksUpdateClearConsent(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = linksUpdateCmd.Flags().Set("clear-consent", "true")
@@ -263,7 +262,7 @@ func TestLinksUpdateLinkNotFound(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = linksUpdateCmd.Flags().Set("consent", "New consent")
@@ -300,7 +299,7 @@ func TestLinksUpdateBothTitleAndConsentExplicit(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = linksUpdateCmd.Flags().Set("title", "Explicit Title")
@@ -328,7 +327,7 @@ func TestLinksUpdateNoFlagsPreservesAll(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	err := linksUpdateCmd.RunE(linksUpdateCmd, []string{"5", "201"})
@@ -384,7 +383,7 @@ func TestLinksCreateAndForceDelete(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	// Verify flag defaults
@@ -427,7 +426,7 @@ func TestLinksUpdateJSONOutput(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: true}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	defer func() {
@@ -475,7 +474,7 @@ func TestLinksUpdateEmptyExistingConsent(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = linksUpdateCmd.Flags().Set("title", "Updated Title Only")
@@ -500,7 +499,7 @@ func TestLinksUpdateAPIErrors(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	// Should fail fetching existing
@@ -526,7 +525,7 @@ func TestFetchExistingLinkInvalidJSON(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	_, err := fetchExistingLink(a, "5", "201")
@@ -554,7 +553,7 @@ func TestLinksCreateVariations(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: true}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	defer func() {
@@ -589,7 +588,7 @@ func TestLinksDeleteJSONOutput(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: true}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	defer func() {

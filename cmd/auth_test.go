@@ -5,47 +5,21 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/jonbaldie/bookbeam-cli/pkg/client"
-	"github.com/jonbaldie/bookbeam-cli/pkg/config"
 	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 )
-
-func setupTestEnv(t *testing.T) (string, func()) {
-	tempDir, err := os.MkdirTemp("", "bookbeam-cmd-test-*")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	configPath := filepath.Join(tempDir, "config.json")
-	_ = config.Save(&config.Config{Host: "http://localhost:8000"}, configPath)
-
-	oldHome := os.Getenv("HOME")
-	oldConfigDir := os.Getenv(config.ConfigDirEnv)
-	os.Setenv("HOME", tempDir)
-	os.Setenv(config.ConfigDirEnv, filepath.Join(tempDir, ".config", "bookbeam"))
-
-	return tempDir, func() {
-		os.Setenv("HOME", oldHome)
-		os.Setenv(config.ConfigDirEnv, oldConfigDir)
-		_ = os.RemoveAll(tempDir)
-	}
-}
 
 func TestDirectTokenLoginAndLogout(t *testing.T) {
 	a := &app{}
 	loginCmd := loginCmd(a)
 	logoutCmd := logoutCmd(a)
-	_, cleanup := setupTestEnv(t)
-	defer cleanup()
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf}
-	a.cfg = &config.Config{Host: "http://localhost:8000"}
+	a.settings = testSettings(t, "http://localhost:8000", "")
 	_ = loginCmd.Flags().Set("token", "direct-token-abc")
 
 	err := loginCmd.RunE(loginCmd, []string{})
@@ -57,8 +31,8 @@ func TestDirectTokenLoginAndLogout(t *testing.T) {
 		t.Errorf("expected success message, got %s", buf.String())
 	}
 
-	if a.cfg.Token != "direct-token-abc" {
-		t.Errorf("expected token direct-token-abc, got %s", a.cfg.Token)
+	if a.settings.Token() != "direct-token-abc" {
+		t.Errorf("expected token direct-token-abc, got %s", a.settings.Token())
 	}
 
 	buf.Reset()
@@ -71,8 +45,8 @@ func TestDirectTokenLoginAndLogout(t *testing.T) {
 		t.Errorf("expected logout message, got %s", buf.String())
 	}
 
-	if a.cfg.Token != "" {
-		t.Errorf("expected empty token after logout, got %s", a.cfg.Token)
+	if a.settings.Token() != "" {
+		t.Errorf("expected empty token after logout, got %s", a.settings.Token())
 	}
 }
 
@@ -104,7 +78,7 @@ func TestWhoamiCommand(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "valid-token"}
+	a.settings = testSettings(t, ts.URL, "valid-token")
 	a.apiCli = client.New(ts.URL, "valid-token")
 
 	err := whoamiCmd.RunE(whoamiCmd, []string{})

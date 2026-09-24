@@ -51,7 +51,7 @@ func linksListCmd(a *app) *cobra.Command {
 
 			var rows [][]string
 			for _, l := range response.Data {
-				publicURL := fmt.Sprintf("%s/download/%s", strings.TrimRight(a.cfg.Host, "/"), l.Slug)
+				publicURL := fmt.Sprintf("%s/download/%s", strings.TrimRight(a.settings.Host(), "/"), l.Slug)
 				rows = append(rows, []string{
 					strconv.Itoa(l.ID),
 					l.Title,
@@ -125,7 +125,7 @@ func linksCreateCmd(a *app) *cobra.Command {
 				return err
 			}
 			created := response.Data
-			publicURL := fmt.Sprintf("%s/download/%s", strings.TrimRight(a.cfg.Host, "/"), created.Slug)
+			publicURL := fmt.Sprintf("%s/download/%s", strings.TrimRight(a.settings.Host(), "/"), created.Slug)
 			return a.printer.Success(doc, fmt.Sprintf("✓ Created signup link #%d: %s", created.ID, publicURL))
 		},
 	}

@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"github.com/jonbaldie/bookbeam-cli/pkg/client"
-	"github.com/jonbaldie/bookbeam-cli/pkg/config"
 	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 )
 
@@ -56,7 +55,7 @@ func TestProjectsListAndCreate(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	err := projectsListCmd.RunE(projectsListCmd, []string{})
@@ -99,7 +98,7 @@ func TestProjectsUpdateConflictingCoverFlags(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = projectsUpdateCmd.Flags().Set("cover", coverFile)
@@ -135,7 +134,7 @@ func TestProjectsUpdateRemoveCoverJSON(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = projectsUpdateCmd.Flags().Set("remove-cover", "true")
@@ -245,7 +244,7 @@ func TestProjectsUpdateCoverMethodSpoofing(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = projectsUpdateCmd.Flags().Set("cover", coverFile)
@@ -284,7 +283,7 @@ func TestProjectsListVariations(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	// Test page flag
@@ -346,7 +345,7 @@ func TestProjectsGetVariations(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	err := projectsGetCmd.RunE(projectsGetCmd, []string{"42"})
@@ -400,7 +399,7 @@ func TestProjectsCreateVariations(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	// Missing title error
@@ -473,7 +472,7 @@ func TestProjectsUpdateVariations(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	// Update title and description
@@ -531,7 +530,7 @@ func TestProjectsDeleteVariations(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	// Delete with force
@@ -595,7 +594,7 @@ func TestProjectsNewsletterOmittingTagsPreservesExisting(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = cmd.Flags().Set("list-id", "list-abc")
@@ -620,7 +619,7 @@ func TestProjectsNewsletterOmittingListIDPreservesExisting(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = cmd.Flags().Set("tags", "new-tag")
@@ -645,7 +644,7 @@ func TestProjectsNewsletterClearTags(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = cmd.Flags().Set("clear-tags", "true")
@@ -700,7 +699,7 @@ func TestProjectsNewsletterFetchError(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = cmd.Flags().Set("tags", "vip")
@@ -721,7 +720,7 @@ func TestFetchExistingProjectInvalidJSON(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	_, err := fetchExistingProject(a, "42")
@@ -743,7 +742,7 @@ func TestProjectsNewsletterVariations(t *testing.T) {
 
 	var buf bytes.Buffer
 	a.printer = &output.Printer{Out: &buf, JSON: false}
-	a.cfg = &config.Config{Host: ts.URL, Token: "test-token"}
+	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	err := projectsNewsletterCmd.RunE(projectsNewsletterCmd, []string{"42"})

@@ -29,13 +29,22 @@ func arbIsolate(t *testing.T) string {
 	return home
 }
 
-// arbBreakHome makes config saves fail by placing a file where the config dir must go.
-func arbBreakHome(t *testing.T) {
+// arbBreakSaves makes the harness's config saves fail by putting a directory
+// where config.json must be written.
+func arbBreakSaves(t *testing.T, h *arbHarness) {
 	t.Helper()
-	home := arbIsolate(t)
-	if err := os.WriteFile(filepath.Join(home, ".config"), []byte("x"), 0600); err != nil {
+	path := filepath.Join(h.configDir, "config.json")
+	if err := os.Remove(path); err != nil {
 		t.Fatal(err)
 	}
+	if err := os.Mkdir(path, 0700); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// arbHomeConfigDir is where the root command keeps config.json under home.
+func arbHomeConfigDir(home string) string {
+	return filepath.Join(home, ".config", "bookbeam")
 }
 
 // arbAssertWrapped fails unless err keeps its cause reachable via errors.Unwrap.
@@ -46,9 +55,9 @@ func arbAssertWrapped(t *testing.T, err error) {
 	}
 }
 
-func arbSavedConfig(t *testing.T, home string) config.Config {
+func arbSavedConfig(t *testing.T, dir string) config.Config {
 	t.Helper()
-	data, err := os.ReadFile(filepath.Join(home, ".config", "bookbeam", "config.json"))
+	data, err := os.ReadFile(filepath.Join(dir, "config.json"))
 	if err != nil {
 		t.Fatalf("reading saved config: %v", err)
 	}
@@ -60,16 +69,17 @@ func arbSavedConfig(t *testing.T, home string) config.Config {
 }
 
 type arbHarness struct {
-	a       *app
-	out     *bytes.Buffer
-	opened  []string
-	sleeps  []time.Duration
-	baseURL string
+	a         *app
+	out       *bytes.Buffer
+	opened    []string
+	sleeps    []time.Duration
+	baseURL   string
+	configDir string
 }
 
 func arbNewHarness(t *testing.T, handler http.HandlerFunc, jsonOut bool) *arbHarness {
 	t.Helper()
-	h := &arbHarness{out: &bytes.Buffer{}}
+	h := &arbHarness{out: &bytes.Buffer{}, configDir: t.TempDir()}
 	base := "http://127.0.0.1:1"
 	if handler != nil {
 		ts := httptest.NewServer(handler)
@@ -78,11 +88,11 @@ func arbNewHarness(t *testing.T, handler http.HandlerFunc, jsonOut bool) *arbHar
 	}
 	h.baseURL = base
 	h.a = &app{
-		cfg:     &config.Config{Host: base, Token: "tok"},
-		apiCli:  client.New(base, "tok"),
-		printer: &output.Printer{Out: h.out, JSON: jsonOut},
-		openURL: func(url string) { h.opened = append(h.opened, url) },
-		sleep:   func(d time.Duration) { h.sleeps = append(h.sleeps, d) },
+		settings: testSettingsIn(t, h.configDir, base, "tok"),
+		apiCli:   client.New(base, "tok"),
+		printer:  &output.Printer{Out: h.out, JSON: jsonOut},
+		openURL:  func(url string) { h.opened = append(h.opened, url) },
+		sleep:    func(d time.Duration) { h.sleeps = append(h.sleeps, d) },
 	}
 	return h
 }
@@ -219,7 +229,7 @@ func TestARBRootQuietSuppressesInfo(t *testing.T) {
 	if stdout != "" {
 		t.Errorf("quiet should suppress output, got %q", stdout)
 	}
-	if cfg := arbSavedConfig(t, home); cfg.Host != "https://bookbeam.app" || cfg.Token != "" {
+	if cfg := arbSavedConfig(t, arbHomeConfigDir(home)); cfg.Host != "https://bookbeam.app" || cfg.Token != "" {
 		t.Errorf("unexpected saved config %+v", cfg)
 	}
 }
@@ -236,7 +246,7 @@ func TestARBRootUsesConfigWithoutFlags(t *testing.T) {
 	if stdout != "✓ Logged out successfully.\n" {
 		t.Errorf("got %q", stdout)
 	}
-	if cfg := arbSavedConfig(t, home); cfg.Host != "https://bookbeam.app" {
+	if cfg := arbSavedConfig(t, arbHomeConfigDir(home)); cfg.Host != "https://bookbeam.app" {
 		t.Errorf("host should default, got %+v", cfg)
 	}
 }
@@ -280,21 +290,30 @@ func arbCaptureStdout(t *testing.T, fn func()) string {
 	return <-done
 }
 
+func arbEnv(vars map[string]string) func(string) string {
+	return func(key string) string { return vars[key] }
+}
+
 func TestARBLoad(t *testing.T) {
 	printer := &output.Printer{}
-	t.Run("overrides", func(t *testing.T) {
-		a := &app{}
-		err := a.load(func(path string) (*config.Config, error) {
-			if path != "" {
-				t.Errorf("load path = %q, want default", path)
-			}
-			return &config.Config{Host: "https://file.example.com", Token: "file-token"}, nil
-		}, "https://flag.example.com", "flag-token", printer)
-		if err != nil {
+	fileDir := func(t *testing.T) string {
+		dir := t.TempDir()
+		stored := `{"host":"https://file.example.com","token":"file-token"}`
+		if err := os.WriteFile(filepath.Join(dir, "config.json"), []byte(stored), 0600); err != nil {
 			t.Fatal(err)
 		}
-		if a.cfg.Host != "https://flag.example.com" || a.cfg.Token != "flag-token" {
-			t.Errorf("cfg = %+v", a.cfg)
+		return dir
+	}
+	noHome := func() (string, error) { return "", errors.New("no home") }
+	t.Run("overrides", func(t *testing.T) {
+		a := &app{}
+		env := arbEnv(map[string]string{config.ConfigDirEnv: fileDir(t)})
+		flags := config.Overrides{Host: "https://flag.example.com", Token: "flag-token"}
+		if err := a.load(env, noHome, flags, printer); err != nil {
+			t.Fatal(err)
+		}
+		if a.settings.Host() != "https://flag.example.com" || a.settings.Token() != "flag-token" {
+			t.Errorf("settings = %s %s", a.settings.Host(), a.settings.Token())
 		}
 		if a.apiCli.BaseURL != "https://flag.example.com" || a.apiCli.Token != "flag-token" {
 			t.Errorf("client = %+v", a.apiCli)
@@ -305,29 +324,43 @@ func TestARBLoad(t *testing.T) {
 	})
 	t.Run("no overrides", func(t *testing.T) {
 		a := &app{}
-		err := a.load(func(string) (*config.Config, error) {
-			return &config.Config{Host: "https://file.example.com", Token: "file-token"}, nil
-		}, "", "", printer)
-		if err != nil {
+		env := arbEnv(map[string]string{config.ConfigDirEnv: fileDir(t)})
+		if err := a.load(env, noHome, config.Overrides{}, printer); err != nil {
 			t.Fatal(err)
 		}
 		if a.apiCli.BaseURL != "https://file.example.com" || a.apiCli.Token != "file-token" {
 			t.Errorf("client = %+v", a.apiCli)
 		}
 	})
+	t.Run("home directory", func(t *testing.T) {
+		a := &app{}
+		home := t.TempDir()
+		stored := filepath.Join(home, ".config", "bookbeam")
+		if err := os.MkdirAll(stored, 0700); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.Rename(filepath.Join(fileDir(t), "config.json"), filepath.Join(stored, "config.json")); err != nil {
+			t.Fatal(err)
+		}
+		homeLookup := func() (string, error) { return home, nil }
+		if err := a.load(arbEnv(nil), homeLookup, config.Overrides{}, printer); err != nil {
+			t.Fatal(err)
+		}
+		if a.settings.Token() != "file-token" {
+			t.Errorf("token = %q", a.settings.Token())
+		}
+	})
 	t.Run("error", func(t *testing.T) {
 		a := &app{}
 		cause := errors.New("boom")
-		err := a.load(func(string) (*config.Config, error) {
-			return nil, cause
-		}, "", "", printer)
+		err := a.load(arbEnv(nil), func() (string, error) { return "", cause }, config.Overrides{}, printer)
 		if !errors.Is(err, cause) {
 			t.Errorf("load error should wrap its cause")
 		}
 		if err == nil || err.Error() != "failed to load configuration: boom" {
 			t.Fatalf("got %v", err)
 		}
-		if a.cfg != nil || a.apiCli != nil || a.printer != nil {
+		if a.settings != nil || a.apiCli != nil || a.printer != nil {
 			t.Error("app should be untouched on error")
 		}
 	})
@@ -462,7 +495,7 @@ func TestARBBrowserCommand(t *testing.T) {
 }
 
 func TestARBDirectTokenLogin(t *testing.T) {
-	home := arbIsolate(t)
+	arbIsolate(t)
 	h := arbNewHarness(t, nil, false)
 	cmd := loginCmd(h.a)
 	_ = cmd.Flags().Set("token", "direct-123")
@@ -472,7 +505,7 @@ func TestARBDirectTokenLogin(t *testing.T) {
 	if h.out.String() != "✓ Authentication token saved successfully.\n" {
 		t.Errorf("got %q", h.out.String())
 	}
-	if cfg := arbSavedConfig(t, home); cfg.Token != "direct-123" {
+	if cfg := arbSavedConfig(t, h.configDir); cfg.Token != "direct-123" {
 		t.Errorf("saved %+v", cfg)
 	}
 	if len(h.opened) != 0 {
@@ -481,8 +514,8 @@ func TestARBDirectTokenLogin(t *testing.T) {
 }
 
 func TestARBDirectTokenLoginSaveFailure(t *testing.T) {
-	arbBreakHome(t)
 	h := arbNewHarness(t, nil, false)
+	arbBreakSaves(t, h)
 	cmd := loginCmd(h.a)
 	_ = cmd.Flags().Set("token", "direct-123")
 	err := arbRun(t, cmd)
@@ -540,7 +573,7 @@ func (s *arbDeviceServer) reply(status int, body string) {
 const arbDeviceCode = `{"device_code":"dev-1","user_code":"ABCD-EFGH","verification_uri":"https://v.example.com","verification_uri_complete":"https://v.example.com/?code=ABCD-EFGH","expires_in":600,"interval":3}`
 
 func TestARBDeviceLoginSuccessAfterPendingAndSlowDown(t *testing.T) {
-	home := arbIsolate(t)
+	arbIsolate(t)
 	s := &arbDeviceServer{codeStatus: 200, codeBody: arbDeviceCode}
 	s.reply(400, `{"error":"authorization_pending"}`)
 	s.reply(400, `{"error":"slow_down"}`)
@@ -580,10 +613,10 @@ func TestARBDeviceLoginSuccessAfterPendingAndSlowDown(t *testing.T) {
 	if len(s.tokenPayloads) != 3 || !reflect.DeepEqual(s.tokenPayloads[2], wantToken) {
 		t.Errorf("token payloads %v", s.tokenPayloads)
 	}
-	if h.a.cfg.Token != "device-token" {
-		t.Errorf("cfg token %q", h.a.cfg.Token)
+	if h.a.settings.Token() != "device-token" {
+		t.Errorf("settings token %q", h.a.settings.Token())
 	}
-	if cfg := arbSavedConfig(t, home); cfg.Token != "device-token" {
+	if cfg := arbSavedConfig(t, h.configDir); cfg.Token != "device-token" {
 		t.Errorf("saved %+v", cfg)
 	}
 }
@@ -681,18 +714,18 @@ func TestARBDeviceLoginFailures(t *testing.T) {
 			if !strings.HasPrefix(tc.wantExact, "authorization failed") {
 				arbAssertWrapped(t, err)
 			}
-			if h.a.cfg.Token != "tok" {
-				t.Errorf("token should be unchanged, got %q", h.a.cfg.Token)
+			if h.a.settings.Token() != "tok" {
+				t.Errorf("token should be unchanged, got %q", h.a.settings.Token())
 			}
 		})
 	}
 }
 
 func TestARBDeviceLoginSaveFailure(t *testing.T) {
-	arbBreakHome(t)
 	s := &arbDeviceServer{codeStatus: 200, codeBody: arbDeviceCode}
 	s.reply(200, `{"access_token":"device-token"}`)
 	h := arbNewHarness(t, s.handler(t), false)
+	arbBreakSaves(t, h)
 	err := arbRun(t, loginCmd(h.a))
 	if err == nil || !strings.HasPrefix(err.Error(), "failed to save token to config: ") {
 		t.Fatalf("got %v", err)
@@ -745,26 +778,26 @@ func TestARBParseDeviceToken(t *testing.T) {
 }
 
 func TestARBLogout(t *testing.T) {
-	home := arbIsolate(t)
+	arbIsolate(t)
 	h := arbNewHarness(t, nil, false)
-	h.a.cfg = &config.Config{Host: "https://h.example.com", Token: "secret"}
+	h.a.settings = testSettingsIn(t, h.configDir, "https://h.example.com", "secret")
 	if err := arbRun(t, logoutCmd(h.a)); err != nil {
 		t.Fatal(err)
 	}
 	if h.out.String() != "✓ Logged out successfully.\n" {
 		t.Errorf("got %q", h.out.String())
 	}
-	if cfg := arbSavedConfig(t, home); cfg.Token != "" || cfg.Host != "https://h.example.com" {
+	if cfg := arbSavedConfig(t, h.configDir); cfg.Token != "" || cfg.Host != "https://h.example.com" {
 		t.Errorf("saved %+v", cfg)
 	}
-	if h.a.cfg.Token != "" {
+	if h.a.settings.Token() != "" {
 		t.Error("in-memory token should be cleared")
 	}
 }
 
 func TestARBLogoutSaveFailure(t *testing.T) {
-	arbBreakHome(t)
 	h := arbNewHarness(t, nil, false)
+	arbBreakSaves(t, h)
 	err := arbRun(t, logoutCmd(h.a))
 	if err == nil || !strings.HasPrefix(err.Error(), "failed to update config file: ") {
 		t.Fatalf("got %v", err)
@@ -777,7 +810,7 @@ func TestARBLogoutSaveFailure(t *testing.T) {
 
 func TestARBWhoamiNotAuthenticated(t *testing.T) {
 	h := arbNewHarness(t, nil, false)
-	h.a.cfg.Token = ""
+	h.a.settings = testSettings(t, h.baseURL, "")
 	cmd := whoamiCmd(h.a)
 	err := arbRun(t, cmd)
 	if err == nil || err.Error() != "Not authenticated. Run 'bookbeam auth login' to authenticate." {
@@ -803,7 +836,7 @@ func TestARBWhoamiText(t *testing.T) {
 				path, auth = r.URL.Path, r.Header.Get("Authorization")
 				arbWriteJSON(w, 200, tc.body)
 			}, false)
-			h.a.cfg.Host = "https://h.example.com"
+			h.a.settings = testSettings(t, "https://h.example.com", "tok")
 			cmd := whoamiCmd(h.a)
 			if err := arbRun(t, cmd); err != nil {
 				t.Fatal(err)
