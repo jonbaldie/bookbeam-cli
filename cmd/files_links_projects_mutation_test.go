@@ -873,7 +873,7 @@ func TestFlpProjectNewsletterPayloadSkipsFetchWhenComplete(t *testing.T) {
 	calls := 0
 	fetch := func() (*ProjectItem, error) {
 		calls++
-		return &ProjectItem{NewsletterListID: "old-list", NewsletterTags: "old-tags"}, nil
+		return &ProjectItem{NewsletterListID: "old-list", NewsletterTags: []string{"old-tags"}}, nil
 	}
 	got, err := projectNewsletterPayload("L1", "a,b", false, fetch)
 	if err != nil || calls != 0 || !reflect.DeepEqual(got, map[string]any{"newsletter_list_id": "L1", "newsletter_tags": "a,b"}) {
