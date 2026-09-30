@@ -5,21 +5,22 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 	"github.com/spf13/cobra"
 )
 
 type ProjectItem struct {
-	ID               int    `json:"id"`
-	Title            string `json:"title"`
-	Description      string `json:"description"`
-	CoverImageURL    string `json:"cover_image_url"`
-	FilesCount       int    `json:"files_count"`
-	SignupLinksCount int    `json:"signup_links_count"`
-	CreatedAt        string `json:"created_at"`
-	NewsletterListID string `json:"newsletter_list_id"`
-	NewsletterTags   string `json:"newsletter_tags"`
+	ID               int      `json:"id"`
+	Title            string   `json:"title"`
+	Description      string   `json:"description"`
+	CoverImageURL    string   `json:"cover_image_url"`
+	FilesCount       int      `json:"files_count"`
+	SignupLinksCount int      `json:"signup_links_count"`
+	CreatedAt        string   `json:"created_at"`
+	NewsletterListID string   `json:"newsletter_list_id"`
+	NewsletterTags   []string `json:"newsletter_tags"`
 }
 
 type ProjectListResponse struct {
@@ -296,7 +297,7 @@ func projectNewsletterPayload(listID, tags string, clearTags bool, fetch func() 
 		}
 		listID = firstNonEmpty(listID, existing.NewsletterListID)
 		if !clearTags {
-			tags = firstNonEmpty(tags, existing.NewsletterTags)
+			tags = firstNonEmpty(tags, strings.Join(existing.NewsletterTags, ","))
 		}
 	}
 

@@ -568,7 +568,7 @@ func setupProjectNewsletterMock(t *testing.T, putBodyCapture *map[string]any) *h
 				"id":                 42,
 				"title":              "The Quantum Paradox",
 				"newsletter_list_id": "list-existing",
-				"newsletter_tags":    "vip,beta",
+				"newsletter_tags":    []string{"vip", "beta"},
 			}})
 			return
 		}
@@ -772,3 +772,127 @@ func TestProjectsNewsletterVariations(t *testing.T) {
 		t.Errorf("expected JSON output, got %s", buf.String())
 	}
 }
+
+func TestProjectsNewsletterArrayTags(t *testing.T) {
+	a := &app{}
+	var receivedPut map[string]any
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if r.URL.Path == "/api/v1/projects" && r.Method == http.MethodGet {
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"data": []map[string]any{
+					{
+						"id":                 22,
+						"title":              "Tags Bug Demo",
+						"newsletter_list_id": "572cf516-2430-44cc-84c0-9165cf34299d",
+						"newsletter_tags":    []string{"vip", "beta"},
+					},
+					{
+						"id":                 23,
+						"title":              "No Tags Project",
+						"newsletter_list_id": "572cf516-2430-44cc-84c0-9165cf34299d",
+						"newsletter_tags":    nil,
+					},
+				},
+				"current_page": 1,
+				"last_page":    1,
+				"total":        2,
+			})
+			return
+		}
+		if r.URL.Path == "/api/v1/projects/22" && r.Method == http.MethodGet {
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"data": map[string]any{
+					"id":                 22,
+					"title":              "Tags Bug Demo",
+					"newsletter_list_id": "572cf516-2430-44cc-84c0-9165cf34299d",
+					"newsletter_tags":    []string{"vip", "beta"},
+				},
+			})
+			return
+		}
+		if r.URL.Path == "/api/v1/projects/23" && r.Method == http.MethodGet {
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"data": map[string]any{
+					"id":                 23,
+					"title":              "No Tags Project",
+					"newsletter_list_id": "572cf516-2430-44cc-84c0-9165cf34299d",
+					"newsletter_tags":    nil,
+				},
+			})
+			return
+		}
+		if r.URL.Path == "/api/v1/projects/22/newsletter" && r.Method == http.MethodPut {
+			_ = json.NewDecoder(r.Body).Decode(&receivedPut)
+			_ = json.NewEncoder(w).Encode(map[string]any{"message": "success"})
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer ts.Close()
+
+	var buf bytes.Buffer
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.settings = testSettings(t, ts.URL, "test-token")
+	a.apiCli = client.New(ts.URL, "test-token")
+
+	// 1. projects list succeeds when projects have tags array or null
+	listCmd := projectsListCmd(a)
+	err := listCmd.RunE(listCmd, []string{})
+	if err != nil {
+		t.Fatalf("projects list failed: %v", err)
+	}
+	if !strings.Contains(buf.String(), "Tags Bug Demo") || !strings.Contains(buf.String(), "No Tags Project") {
+		t.Errorf("expected list to show projects, got %s", buf.String())
+	}
+
+	// 2. projects get succeeds for tagged project and untagged project
+	buf.Reset()
+	getCmd := projectsGetCmd(a)
+	err = getCmd.RunE(getCmd, []string{"22"})
+	if err != nil {
+		t.Fatalf("projects get 22 failed: %v", err)
+	}
+	if !strings.Contains(buf.String(), "Tags Bug Demo") {
+		t.Errorf("expected project details, got %s", buf.String())
+	}
+
+	buf.Reset()
+	err = getCmd.RunE(getCmd, []string{"23"})
+	if err != nil {
+		t.Fatalf("projects get 23 failed: %v", err)
+	}
+	if !strings.Contains(buf.String(), "No Tags Project") {
+		t.Errorf("expected project details, got %s", buf.String())
+	}
+
+	// 3. projects newsletter --clear-tags clears tags on project with existing tags
+	newsletterCmd1 := projectsNewsletterCmd(a)
+	_ = newsletterCmd1.Flags().Set("clear-tags", "true")
+	err = newsletterCmd1.RunE(newsletterCmd1, []string{"22"})
+	if err != nil {
+		t.Fatalf("projects newsletter --clear-tags failed: %v", err)
+	}
+	if receivedPut["newsletter_tags"] != nil {
+		t.Errorf("expected newsletter_tags to be nil, got %v", receivedPut["newsletter_tags"])
+	}
+	if receivedPut["newsletter_list_id"] != "572cf516-2430-44cc-84c0-9165cf34299d" {
+		t.Errorf("expected existing list id preserved, got %v", receivedPut["newsletter_list_id"])
+	}
+
+	// 4. projects newsletter --list-id preserves existing array tags
+	receivedPut = nil
+	newsletterCmd2 := projectsNewsletterCmd(a)
+	_ = newsletterCmd2.Flags().Set("list-id", "new-list-id")
+	err = newsletterCmd2.RunE(newsletterCmd2, []string{"22"})
+	if err != nil {
+		t.Fatalf("projects newsletter --list-id failed: %v", err)
+	}
+	if receivedPut["newsletter_tags"] != "vip,beta" {
+		t.Errorf("expected newsletter_tags to be preserved as 'vip,beta', got %v", receivedPut["newsletter_tags"])
+	}
+	if receivedPut["newsletter_list_id"] != "new-list-id" {
+		t.Errorf("expected list id to be updated, got %v", receivedPut["newsletter_list_id"])
+	}
+}
+
