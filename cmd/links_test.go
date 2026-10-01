@@ -528,7 +528,7 @@ func TestFetchExistingLinkInvalidJSON(t *testing.T) {
 	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
-	_, err := fetchExistingLink(a, "5", "201")
+	_, err := fetchExistingLink(a, 5, 201)
 	if err == nil || !strings.Contains(err.Error(), "invalid character") {
 		t.Fatalf("expected json unmarshal error with 'invalid character', got: %v", err)
 	}

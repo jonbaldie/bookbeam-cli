@@ -40,14 +40,17 @@ func downloadersListCmd(a *app) *cobra.Command {
 		Short: "List downloader subscribers for a book project",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			projectID := args[0]
+			projectID, err := resourceID(args[0], "project")
+			if err != nil {
+				return err
+			}
 			query := url.Values{}
 			page, _ := cmd.Flags().GetInt("page")
 			if page > 0 {
 				query.Set("page", strconv.Itoa(page))
 			}
 
-			raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%s/downloaders", projectID), query)
+			raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%d/downloaders", projectID), query)
 			if err != nil {
 				return err
 			}
@@ -86,16 +89,19 @@ func downloadersExportCmd(a *app) *cobra.Command {
 		Short: "Export sanitized CSV list of downloader subscribers",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			projectID := args[0]
+			projectID, err := resourceID(args[0], "project")
+			if err != nil {
+				return err
+			}
 
-			raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%s/export-downloaders", projectID), nil)
+			raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%d/export-downloaders", projectID), nil)
 			if err != nil {
 				return err
 			}
 
 			destPath, _ := cmd.Flags().GetString("output")
 			if destPath == "" {
-				destPath = fmt.Sprintf("downloaders-project-%s.csv", projectID)
+				destPath = fmt.Sprintf("downloaders-project-%d.csv", projectID)
 			}
 
 			if err := os.WriteFile(destPath, raw, 0644); err != nil {

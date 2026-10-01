@@ -41,8 +41,11 @@ func filesListCmd(a *app) *cobra.Command {
 		Short: "List all files attached to a book project",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			projectID := args[0]
-			raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%s/files", projectID), nil)
+			projectID, err := resourceID(args[0], "project")
+			if err != nil {
+				return err
+			}
+			raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%d/files", projectID), nil)
 			if err != nil {
 				return err
 			}
@@ -83,7 +86,10 @@ func filesUploadCmd(a *app) *cobra.Command {
 		Short: "Upload a book file (EPUB, MOBI, PDF) to a project",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			projectID := args[0]
+			projectID, err := resourceID(args[0], "project")
+			if err != nil {
+				return err
+			}
 			filePath := args[1]
 
 			stat, err := os.Stat(filePath)
@@ -96,9 +102,9 @@ func filesUploadCmd(a *app) *cobra.Command {
 				return fmt.Errorf("unsupported file extension '%s'; allowed extensions are .epub, .mobi, .pdf", ext)
 			}
 
-			a.printer.Info(fmt.Sprintf("Uploading %s (%d bytes) to project #%s...", filepath.Base(filePath), stat.Size(), projectID))
+			a.printer.Info(fmt.Sprintf("Uploading %s (%d bytes) to project #%d...", filepath.Base(filePath), stat.Size(), projectID))
 
-			raw, err := a.apiCli.PostMultipart(fmt.Sprintf("/api/v1/projects/%s/files", projectID), nil, "file", filePath)
+			raw, err := a.apiCli.PostMultipart(fmt.Sprintf("/api/v1/projects/%d/files", projectID), nil, "file", filePath)
 			if err != nil {
 				return err
 			}
@@ -122,11 +128,13 @@ func filesDownloadCmd(a *app) *cobra.Command {
 		Short: "Download a book file to your local disk",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			projectID := args[0]
-			fileID := args[1]
+			projectID, fileID, err := projectAndChildIDs(args, "file")
+			if err != nil {
+				return err
+			}
 			outputFlag, _ := cmd.Flags().GetString("output")
 
-			resp, err := a.apiCli.Request(http.MethodGet, fmt.Sprintf("/api/v1/projects/%s/files/%s/download", projectID, fileID), nil, "")
+			resp, err := a.apiCli.Request(http.MethodGet, fmt.Sprintf("/api/v1/projects/%d/files/%d/download", projectID, fileID), nil, "")
 			if err != nil {
 				return err
 			}
@@ -155,7 +163,7 @@ func filesDownloadCmd(a *app) *cobra.Command {
 	return cmd
 }
 
-func resolveDownloadDestination(outputFlag, dispositionHeader, projectID, fileID string) string {
+func resolveDownloadDestination(outputFlag, dispositionHeader string, projectID, fileID int) string {
 	if outputFlag != "" {
 		return outputFlag
 	}
@@ -166,7 +174,7 @@ func resolveDownloadDestination(outputFlag, dispositionHeader, projectID, fileID
 		}
 	}
 
-	return fmt.Sprintf("project-%s-file-%s", projectID, fileID)
+	return fmt.Sprintf("project-%d-file-%d", projectID, fileID)
 }
 
 func extractDispositionFilename(header string) string {
@@ -193,23 +201,25 @@ func filesDeleteCmd(a *app) *cobra.Command {
 		Short: "Delete a book file from a project",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			projectID := args[0]
-			fileID := args[1]
+			projectID, fileID, err := projectAndChildIDs(args, "file")
+			if err != nil {
+				return err
+			}
 			force, _ := cmd.Flags().GetBool("force")
 
 			if !force && !a.printer.JSON {
-				if !confirm(cmd, fmt.Sprintf("Are you sure you want to delete file #%s from project #%s?", fileID, projectID)) {
+				if !confirm(cmd, fmt.Sprintf("Are you sure you want to delete file #%d from project #%d?", fileID, projectID)) {
 					a.printer.Info("Cancelled.")
 					return nil
 				}
 			}
 
-			raw, err := a.apiCli.Delete(fmt.Sprintf("/api/v1/projects/%s/files/%s", projectID, fileID))
+			raw, err := a.apiCli.Delete(fmt.Sprintf("/api/v1/projects/%d/files/%d", projectID, fileID))
 			if err != nil {
 				return err
 			}
 
-			return a.printer.Success(responseDocument(raw), fmt.Sprintf("✓ Deleted file #%s from project #%s", fileID, projectID))
+			return a.printer.Success(responseDocument(raw), fmt.Sprintf("✓ Deleted file #%d from project #%d", fileID, projectID))
 		},
 	}
 	cmd.Flags().BoolP("force", "f", false, "Skip confirmation prompt")
