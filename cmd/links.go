@@ -35,8 +35,11 @@ func linksListCmd(a *app) *cobra.Command {
 		Short: "List all signup links for a book project",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			projectID := args[0]
-			raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%s/links", projectID), nil)
+			projectID, err := resourceID(args[0], "project")
+			if err != nil {
+				return err
+			}
+			raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%d/links", projectID), nil)
 			if err != nil {
 				return err
 			}
@@ -71,8 +74,8 @@ func linksListCmd(a *app) *cobra.Command {
 	}
 }
 
-func fetchExistingLink(a *app, projectID, linkID string) (*SignupLinkItem, error) {
-	raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%s/links", projectID), nil)
+func fetchExistingLink(a *app, projectID, linkID int) (*SignupLinkItem, error) {
+	raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%d/links", projectID), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -84,14 +87,13 @@ func fetchExistingLink(a *app, projectID, linkID string) (*SignupLinkItem, error
 		return nil, err
 	}
 
-	trimmedLinkID := strings.TrimSpace(linkID)
 	for _, link := range response.Data {
-		if strconv.Itoa(link.ID) == trimmedLinkID {
+		if link.ID == linkID {
 			return &link, nil
 		}
 	}
 
-	return nil, fmt.Errorf("signup link #%s not found in project %s", linkID, projectID)
+	return nil, fmt.Errorf("signup link #%d not found in project %d", linkID, projectID)
 }
 
 func linksCreateCmd(a *app) *cobra.Command {
@@ -100,7 +102,10 @@ func linksCreateCmd(a *app) *cobra.Command {
 		Short: "Create a new reader signup link for a project",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			projectID := args[0]
+			projectID, err := resourceID(args[0], "project")
+			if err != nil {
+				return err
+			}
 			title, _ := cmd.Flags().GetString("title")
 			consent, _ := cmd.Flags().GetString("consent")
 
@@ -112,7 +117,7 @@ func linksCreateCmd(a *app) *cobra.Command {
 				payload["opt_in_text"] = consent
 			}
 
-			raw, err := a.apiCli.Post(fmt.Sprintf("/api/v1/projects/%s/links", projectID), payload)
+			raw, err := a.apiCli.Post(fmt.Sprintf("/api/v1/projects/%d/links", projectID), payload)
 			if err != nil {
 				return err
 			}
@@ -140,8 +145,10 @@ func linksUpdateCmd(a *app) *cobra.Command {
 		Short: "Update an existing signup link",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			projectID := args[0]
-			linkID := args[1]
+			projectID, linkID, err := projectAndChildIDs(args, "link")
+			if err != nil {
+				return err
+			}
 
 			title, _ := cmd.Flags().GetString("title")
 			consent, _ := cmd.Flags().GetString("consent")
@@ -158,12 +165,12 @@ func linksUpdateCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			raw, err := a.apiCli.Put(fmt.Sprintf("/api/v1/projects/%s/links/%s", projectID, linkID), payload)
+			raw, err := a.apiCli.Put(fmt.Sprintf("/api/v1/projects/%d/links/%d", projectID, linkID), payload)
 			if err != nil {
 				return err
 			}
 
-			return a.printer.Success(responseDocument(raw), fmt.Sprintf("✓ Updated signup link #%s", linkID))
+			return a.printer.Success(responseDocument(raw), fmt.Sprintf("✓ Updated signup link #%d", linkID))
 		},
 	}
 	cmd.Flags().String("title", "", "Updated link title")
@@ -178,23 +185,25 @@ func linksDeleteCmd(a *app) *cobra.Command {
 		Short: "Delete a signup link",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			projectID := args[0]
-			linkID := args[1]
+			projectID, linkID, err := projectAndChildIDs(args, "link")
+			if err != nil {
+				return err
+			}
 			force, _ := cmd.Flags().GetBool("force")
 
 			if !force && !a.printer.JSON {
-				if !confirm(cmd, fmt.Sprintf("Are you sure you want to delete link #%s?", linkID)) {
+				if !confirm(cmd, fmt.Sprintf("Are you sure you want to delete link #%d?", linkID)) {
 					a.printer.Info("Cancelled.")
 					return nil
 				}
 			}
 
-			raw, err := a.apiCli.Delete(fmt.Sprintf("/api/v1/projects/%s/links/%s", projectID, linkID))
+			raw, err := a.apiCli.Delete(fmt.Sprintf("/api/v1/projects/%d/links/%d", projectID, linkID))
 			if err != nil {
 				return err
 			}
 
-			return a.printer.Success(responseDocument(raw), fmt.Sprintf("✓ Deleted signup link #%s", linkID))
+			return a.printer.Success(responseDocument(raw), fmt.Sprintf("✓ Deleted signup link #%d", linkID))
 		},
 	}
 	cmd.Flags().BoolP("force", "f", false, "Skip confirmation prompt")

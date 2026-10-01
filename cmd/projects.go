@@ -107,8 +107,11 @@ func projectsGetCmd(a *app) *cobra.Command {
 		Short: "Get details for a single book project",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			projectID := args[0]
-			raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%s", projectID), nil)
+			projectID, err := resourceID(args[0], "project")
+			if err != nil {
+				return err
+			}
+			raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%d", projectID), nil)
 			if err != nil {
 				return err
 			}
@@ -200,7 +203,10 @@ func projectsUpdateCmd(a *app) *cobra.Command {
 		Short: "Update an existing book project",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			projectID := args[0]
+			projectID, err := resourceID(args[0], "project")
+			if err != nil {
+				return err
+			}
 			title, _ := cmd.Flags().GetString("title")
 			description, _ := cmd.Flags().GetString("description")
 			cover, _ := cmd.Flags().GetString("cover")
@@ -223,20 +229,19 @@ func projectsUpdateCmd(a *app) *cobra.Command {
 			}
 
 			var raw []byte
-			var err error
 
 			if cover != "" {
 				fields := buildProjectUpdateMultipartFields(title, description, removeCover)
-				raw, err = a.apiCli.PostMultipart(fmt.Sprintf("/api/v1/projects/%s", projectID), fields, "cover_image", cover)
+				raw, err = a.apiCli.PostMultipart(fmt.Sprintf("/api/v1/projects/%d", projectID), fields, "cover_image", cover)
 			} else {
-				raw, err = a.apiCli.Put(fmt.Sprintf("/api/v1/projects/%s", projectID), payload)
+				raw, err = a.apiCli.Put(fmt.Sprintf("/api/v1/projects/%d", projectID), payload)
 			}
 
 			if err != nil {
 				return err
 			}
 
-			return a.printer.Success(responseDocument(raw), fmt.Sprintf("✓ Updated book project #%s", projectID))
+			return a.printer.Success(responseDocument(raw), fmt.Sprintf("✓ Updated book project #%d", projectID))
 		},
 	}
 	cmd.Flags().String("title", "", "Updated book project title")
@@ -252,30 +257,33 @@ func projectsDeleteCmd(a *app) *cobra.Command {
 		Short: "Delete a book project and its attached files",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			projectID := args[0]
+			projectID, err := resourceID(args[0], "project")
+			if err != nil {
+				return err
+			}
 			force, _ := cmd.Flags().GetBool("force")
 
 			if !force && !a.printer.JSON {
-				if !confirm(cmd, fmt.Sprintf("Are you sure you want to delete project #%s?", projectID)) {
+				if !confirm(cmd, fmt.Sprintf("Are you sure you want to delete project #%d?", projectID)) {
 					a.printer.Info("Cancelled.")
 					return nil
 				}
 			}
 
-			raw, err := a.apiCli.Delete(fmt.Sprintf("/api/v1/projects/%s", projectID))
+			raw, err := a.apiCli.Delete(fmt.Sprintf("/api/v1/projects/%d", projectID))
 			if err != nil {
 				return err
 			}
 
-			return a.printer.Success(responseDocument(raw), fmt.Sprintf("✓ Deleted book project #%s", projectID))
+			return a.printer.Success(responseDocument(raw), fmt.Sprintf("✓ Deleted book project #%d", projectID))
 		},
 	}
 	cmd.Flags().BoolP("force", "f", false, "Skip confirmation prompt")
 	return cmd
 }
 
-func fetchExistingProject(a *app, projectID string) (*ProjectItem, error) {
-	raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%s", projectID), nil)
+func fetchExistingProject(a *app, projectID int) (*ProjectItem, error) {
+	raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%d", projectID), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -316,7 +324,10 @@ func projectsNewsletterCmd(a *app) *cobra.Command {
 		Short: "Set project newsletter list and tags routing",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			projectID := args[0]
+			projectID, err := resourceID(args[0], "project")
+			if err != nil {
+				return err
+			}
 			listID, _ := cmd.Flags().GetString("list-id")
 			tags, _ := cmd.Flags().GetString("tags")
 			clearTags, _ := cmd.Flags().GetBool("clear-tags")
@@ -335,12 +346,12 @@ func projectsNewsletterCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			raw, err := a.apiCli.Put(fmt.Sprintf("/api/v1/projects/%s/newsletter", projectID), payload)
+			raw, err := a.apiCli.Put(fmt.Sprintf("/api/v1/projects/%d/newsletter", projectID), payload)
 			if err != nil {
 				return err
 			}
 
-			return a.printer.Success(responseDocument(raw), fmt.Sprintf("✓ Updated newsletter routing for project #%s", projectID))
+			return a.printer.Success(responseDocument(raw), fmt.Sprintf("✓ Updated newsletter routing for project #%d", projectID))
 		},
 	}
 	cmd.Flags().String("list-id", "", "Newsletter list ID")

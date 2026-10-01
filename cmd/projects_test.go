@@ -723,7 +723,7 @@ func TestFetchExistingProjectInvalidJSON(t *testing.T) {
 	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
-	_, err := fetchExistingProject(a, "42")
+	_, err := fetchExistingProject(a, 42)
 	if err == nil || !strings.Contains(err.Error(), "invalid character") {
 		t.Fatalf("expected json unmarshal error with 'invalid character', got: %v", err)
 	}
