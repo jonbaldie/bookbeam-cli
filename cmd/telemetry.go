@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"net/url"
 	"strconv"
 	"strings"
@@ -25,7 +26,10 @@ type ActivityLogItem struct {
 
 // ActivityLogPage is the paginator GET /api/v1/logs wraps its events in.
 type ActivityLogPage struct {
-	Data []ActivityLogItem `json:"data"`
+	Data        []ActivityLogItem `json:"data"`
+	CurrentPage int               `json:"current_page"`
+	LastPage    int               `json:"last_page"`
+	Total       int               `json:"total"`
 }
 
 type DashboardMetricsResponse struct {
@@ -42,7 +46,11 @@ func logsCmd(a *app) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			query := url.Values{}
 			limit, _ := cmd.Flags().GetInt("limit")
+			pageNum, _ := cmd.Flags().GetInt("page")
 			event, _ := cmd.Flags().GetString("event")
+			if pageNum > 0 {
+				query.Set("page", strconv.Itoa(pageNum))
+			}
 			if limit > 0 {
 				query.Set("per_page", strconv.Itoa(min(limit, maxLogsPerPage)))
 			}
@@ -72,14 +80,24 @@ func logsCmd(a *app) *cobra.Command {
 			return a.printer.Display(output.View{
 				Headers:     []string{"TIME", "TYPE", "READER", "BOOK", "FILE"},
 				Rows:        rows,
+				Footer:      logsFooter(page),
 				EmptyNotice: "No activity logs recorded.",
 				Data:        doc,
 			})
 		},
 	}
+	cmd.Flags().Int("page", 1, "Page number")
 	cmd.Flags().IntP("limit", "n", 50, "Maximum number of log events to show (capped at 100)")
 	cmd.Flags().String("event", "", "Filter table rows by event type (e.g. signup, download); --json stays unfiltered")
 	return cmd
+}
+
+// logsFooter shows where this page sits, but only when there is more than one.
+func logsFooter(page ActivityLogPage) string {
+	if page.LastPage <= 1 {
+		return ""
+	}
+	return fmt.Sprintf("\nPage %d of %d (total: %d)", page.CurrentPage, page.LastPage, page.Total)
 }
 
 // logsOfType keeps the events matching event, which the API has no filter for.

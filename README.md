@@ -157,7 +157,7 @@ bookbeam newsletter disconnect
 
 ```bash
 # View chronological reader activity feed (limit is capped at 100)
-bookbeam logs [--limit 50] [--event signup]
+bookbeam logs [--page 1] [--limit 50] [--event signup]
 
 # View catalog metrics and download totals
 bookbeam metrics

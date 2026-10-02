@@ -609,13 +609,13 @@ func TestNtdLogsQueryFlags(t *testing.T) {
 	cases := []struct {
 		name, limit, event, query string
 	}{
-		{"defaults", "", "", "per_page=50"},
-		{"limit and event", "5", "signup", "per_page=5"},
-		{"zero limit omitted", "0", "", ""},
-		{"negative limit omitted", "-3", "download", ""},
-		{"limit one", "1", "", "per_page=1"},
-		{"limit at cap", "100", "", "per_page=100"},
-		{"limit above cap", "101", "", "per_page=100"},
+		{"defaults", "", "", "page=1&per_page=50"},
+		{"limit and event", "5", "signup", "page=1&per_page=5"},
+		{"zero limit omitted", "0", "", "page=1"},
+		{"negative limit omitted", "-3", "download", "page=1"},
+		{"limit one", "1", "", "page=1&per_page=1"},
+		{"limit at cap", "100", "", "page=1&per_page=100"},
+		{"limit above cap", "101", "", "page=1&per_page=100"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
