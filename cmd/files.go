@@ -25,6 +25,14 @@ type BookFileItem struct {
 	CreatedAt string `json:"created_at"`
 }
 
+// downloadResult is the --json document for a completed download.
+type downloadResult struct {
+	ProjectID    int    `json:"project_id"`
+	FileID       int    `json:"file_id"`
+	Path         string `json:"path"`
+	BytesWritten int64  `json:"bytes_written"`
+}
+
 func filesCmd(a *app) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "files",
@@ -155,8 +163,8 @@ func filesDownloadCmd(a *app) *cobra.Command {
 				return fmt.Errorf("failed to write file contents: %w", err)
 			}
 
-			a.printer.Info(fmt.Sprintf("✓ Download complete (%d bytes written to %s).", n, destPath))
-			return nil
+			result := downloadResult{ProjectID: projectID, FileID: fileID, Path: destPath, BytesWritten: n}
+			return a.printer.Success(result, fmt.Sprintf("✓ Download complete (%d bytes written to %s).", n, destPath))
 		},
 	}
 	cmd.Flags().StringP("output", "o", "", "Destination file path")
