@@ -51,7 +51,7 @@ func TestLogsPaginationFooter(t *testing.T) {
 	}
 	want := "TIME                          TYPE       READER               BOOK                     FILE\n" +
 		"2026-09-15T08:00:01.000000Z   download   reader@example.com   Reader Magnet Playbook   playbook.pdf\n" +
-		"\nPage 2 of 6 (Total: 58)\n"
+		"\nPage 2 of 6 (total: 58)\n"
 	if buf.String() != want {
 		t.Errorf("got %q, want %q", buf.String(), want)
 	}
@@ -86,7 +86,7 @@ func TestLogsJSONKeepsPagination(t *testing.T) {
 
 // Two pages is the smallest result that needs the footer.
 func TestLogsFooterBoundary(t *testing.T) {
-	if got := logsFooter(ActivityLogPage{CurrentPage: 1, LastPage: 2, Total: 12}); got != "\nPage 1 of 2 (Total: 12)" {
+	if got := logsFooter(ActivityLogPage{CurrentPage: 1, LastPage: 2, Total: 12}); got != "\nPage 1 of 2 (total: 12)" {
 		t.Errorf("got %q", got)
 	}
 	if got := logsFooter(ActivityLogPage{CurrentPage: 1, LastPage: 1, Total: 3}); got != "" {

@@ -97,7 +97,7 @@ func logsFooter(page ActivityLogPage) string {
 	if page.LastPage <= 1 {
 		return ""
 	}
-	return fmt.Sprintf("\nPage %d of %d (Total: %d)", page.CurrentPage, page.LastPage, page.Total)
+	return fmt.Sprintf("\nPage %d of %d (total: %d)", page.CurrentPage, page.LastPage, page.Total)
 }
 
 // logsOfType keeps the events matching event, which the API has no filter for.
