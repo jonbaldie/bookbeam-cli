@@ -3,10 +3,12 @@ package cmd
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -362,6 +364,59 @@ func TestFilesDownloadCmd(t *testing.T) {
 		data, err := os.ReadFile(customDest)
 		if err != nil || string(data) != "book content bytes" {
 			t.Fatalf("custom file not written properly: %v", err)
+		}
+	})
+
+	t.Run("download JSON output reports the written file", func(t *testing.T) {
+		tempDir := t.TempDir()
+
+		var buf bytes.Buffer
+		a.printer = &output.Printer{Out: &buf, JSON: true}
+		a.apiCli = client.New(ts.URL, "test-token")
+
+		customDest := filepath.Join(tempDir, "custom.epub")
+		filesDownloadCmd.Flags().Set("output", customDest)
+		defer filesDownloadCmd.Flags().Set("output", "")
+
+		err := filesDownloadCmd.RunE(filesDownloadCmd, []string{"7", "16"})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		var got map[string]any
+		if err := json.Unmarshal(buf.Bytes(), &got); err != nil {
+			t.Fatalf("expected JSON document on stdout, got %q: %v", buf.String(), err)
+		}
+		want := map[string]any{
+			"project_id":    float64(7),
+			"file_id":       float64(16),
+			"path":          customDest,
+			"bytes_written": float64(len("book content bytes")),
+		}
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("JSON output = %v, want %v", got, want)
+		}
+	})
+
+	t.Run("download human output confirms completion", func(t *testing.T) {
+		tempDir := t.TempDir()
+
+		var buf bytes.Buffer
+		a.printer = &output.Printer{Out: &buf, JSON: false}
+		a.apiCli = client.New(ts.URL, "test-token")
+
+		customDest := filepath.Join(tempDir, "custom.epub")
+		filesDownloadCmd.Flags().Set("output", customDest)
+		defer filesDownloadCmd.Flags().Set("output", "")
+
+		err := filesDownloadCmd.RunE(filesDownloadCmd, []string{"7", "16"})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		want := fmt.Sprintf("Downloading file to %s...\n✓ Download complete (18 bytes written to %s).\n", customDest, customDest)
+		if buf.String() != want {
+			t.Errorf("human output = %q, want %q", buf.String(), want)
 		}
 	})
 
