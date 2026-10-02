@@ -157,7 +157,7 @@ func TestProjectsUpdateRemoveCoverJSON(t *testing.T) {
 }
 
 func TestProjectsUpdateMultipartFieldsWithRemoveCover(t *testing.T) {
-	fields := buildProjectUpdateMultipartFields("My Title", "My Description", true)
+	fields := buildProjectUpdateMultipartFields("My Title", "My Description", false, true)
 	if fields["title"] != "My Title" {
 		t.Errorf("expected title 'My Title', got %q", fields["title"])
 	}
@@ -190,7 +190,7 @@ func TestProjectsUpdateMultipartRemoveCoverServer(t *testing.T) {
 	defer ts.Close()
 
 	c := client.New(ts.URL, "test-token")
-	fields := buildProjectUpdateMultipartFields("Sample", "", true)
+	fields := buildProjectUpdateMultipartFields("Sample", "", false, true)
 	_, err := c.PostMultipart("/api/v1/projects/42", fields, "cover_image", dummyFile)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -896,3 +896,117 @@ func TestProjectsNewsletterArrayTags(t *testing.T) {
 	}
 }
 
+// The API keeps fields a PUT omits, so clearing the description must send an
+// explicit null rather than dropping the key.
+func TestProjectsUpdateClearDescriptionJSON(t *testing.T) {
+	a := &app{}
+	projectsUpdateCmd := projectsUpdateCmd(a)
+	var receivedBody map[string]any
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api/v1/projects/42" && r.Method == http.MethodPut {
+			_ = json.NewDecoder(r.Body).Decode(&receivedBody)
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(map[string]any{"data": map[string]any{"id": 42}})
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer ts.Close()
+
+	var buf bytes.Buffer
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.settings = testSettings(t, ts.URL, "test-token")
+	a.apiCli = client.New(ts.URL, "test-token")
+
+	_ = projectsUpdateCmd.Flags().Set("clear-description", "true")
+
+	err := projectsUpdateCmd.RunE(projectsUpdateCmd, []string{"42"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	val, ok := receivedBody["description"]
+	if !ok || val != nil {
+		t.Errorf("expected description to be sent as explicit null, got present=%v value=%v", ok, val)
+	}
+	if !strings.Contains(buf.String(), "Updated book project #42") {
+		t.Errorf("expected success message, got %s", buf.String())
+	}
+}
+
+// Multipart cannot carry a null, so clearing sends an empty description field,
+// which the API's empty-string-to-null input handling stores as null.
+func TestProjectsUpdateClearDescriptionMultipart(t *testing.T) {
+	a := &app{}
+	projectsUpdateCmd := projectsUpdateCmd(a)
+	coverFile := filepath.Join(t.TempDir(), "cover.jpg")
+	if err := os.WriteFile(coverFile, []byte("fake-cover-content"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	var hasDescription bool
+	var description string
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api/v1/projects/42" && r.Method == http.MethodPost {
+			_ = r.ParseMultipartForm(10 << 20)
+			values, ok := r.MultipartForm.Value["description"]
+			hasDescription = ok
+			if ok {
+				description = values[0]
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(map[string]any{"data": map[string]any{"id": 42}})
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer ts.Close()
+
+	var buf bytes.Buffer
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.settings = testSettings(t, ts.URL, "test-token")
+	a.apiCli = client.New(ts.URL, "test-token")
+
+	_ = projectsUpdateCmd.Flags().Set("cover", coverFile)
+	_ = projectsUpdateCmd.Flags().Set("clear-description", "true")
+
+	err := projectsUpdateCmd.RunE(projectsUpdateCmd, []string{"42"})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if !hasDescription || description != "" {
+		t.Errorf("expected an empty description field in the multipart body, got present=%v value=%q", hasDescription, description)
+	}
+}
+
+func TestProjectsUpdateConflictingDescriptionFlags(t *testing.T) {
+	a := &app{}
+	projectsUpdateCmd := projectsUpdateCmd(a)
+	requestReceived := false
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestReceived = true
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"data": map[string]any{"id": 42}})
+	}))
+	defer ts.Close()
+
+	var buf bytes.Buffer
+	a.printer = &output.Printer{Out: &buf, JSON: false}
+	a.settings = testSettings(t, ts.URL, "test-token")
+	a.apiCli = client.New(ts.URL, "test-token")
+
+	_ = projectsUpdateCmd.Flags().Set("description", "New synopsis")
+	_ = projectsUpdateCmd.Flags().Set("clear-description", "true")
+
+	err := projectsUpdateCmd.RunE(projectsUpdateCmd, []string{"42"})
+	if err == nil {
+		t.Fatal("expected error when passing both --description and --clear-description, but got nil")
+	}
+	if !strings.Contains(err.Error(), "cannot specify both --description and --clear-description") {
+		t.Errorf("expected conflict message, got: %v", err)
+	}
+	if requestReceived {
+		t.Errorf("expected no HTTP request to be sent when flags conflict, but request was received")
+	}
+}

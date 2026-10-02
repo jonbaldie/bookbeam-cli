@@ -824,11 +824,15 @@ func TestFlpProjectsUpdate(t *testing.T) {
 }
 
 func TestFlpBuildProjectUpdateMultipartFields(t *testing.T) {
-	if got := buildProjectUpdateMultipartFields("", "", false); !reflect.DeepEqual(got, map[string]string{"_method": "PUT"}) {
+	if got := buildProjectUpdateMultipartFields("", "", false, false); !reflect.DeepEqual(got, map[string]string{"_method": "PUT"}) {
 		t.Fatalf("got %v", got)
 	}
 	want := map[string]string{"title": "A", "description": "B", "remove_cover_image": "true", "_method": "PUT"}
-	if got := buildProjectUpdateMultipartFields("A", "B", true); !reflect.DeepEqual(got, want) {
+	if got := buildProjectUpdateMultipartFields("A", "B", false, true); !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %v", got)
+	}
+	cleared := map[string]string{"description": "", "_method": "PUT"}
+	if got := buildProjectUpdateMultipartFields("", "", true, false); !reflect.DeepEqual(got, cleared) {
 		t.Fatalf("got %v", got)
 	}
 }

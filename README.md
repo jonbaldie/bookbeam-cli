@@ -83,7 +83,7 @@ bookbeam projects get <project-id>
 bookbeam projects create --title "The Quantum Paradox" --description "Sci-fi novel" [--cover ./cover.jpg]
 
 # Update an existing project
-bookbeam projects update <project-id> --title "New Title" [--remove-cover]
+bookbeam projects update <project-id> --title "New Title" [--remove-cover] [--clear-description]
 
 # Assign mailing list and tags
 bookbeam projects newsletter <project-id> --list-id "lst_123" --tags "sci-fi,readers"
