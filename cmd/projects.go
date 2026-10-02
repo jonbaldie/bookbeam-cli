@@ -30,12 +30,42 @@ type ProjectListResponse struct {
 	Total       int           `json:"total"`
 }
 
-func buildProjectUpdateMultipartFields(title, description string, removeCover bool) map[string]string {
+func validateProjectUpdateFlags(description, cover string, clearDescription, removeCover bool) error {
+	if cover != "" && removeCover {
+		return fmt.Errorf("cannot specify both --cover and --remove-cover")
+	}
+	if description != "" && clearDescription {
+		return fmt.Errorf("cannot specify both --description and --clear-description")
+	}
+	return nil
+}
+
+func buildProjectUpdatePayload(title, description string, clearDescription, removeCover bool) map[string]any {
+	payload := make(map[string]any)
+	if title != "" {
+		payload["title"] = title
+	}
+	if clearDescription {
+		// The API keeps fields a PUT omits, so clearing needs an explicit null.
+		payload["description"] = nil
+	} else if description != "" {
+		payload["description"] = description
+	}
+	if removeCover {
+		payload["remove_cover_image"] = true
+	}
+	return payload
+}
+
+func buildProjectUpdateMultipartFields(title, description string, clearDescription, removeCover bool) map[string]string {
 	fields := make(map[string]string)
 	if title != "" {
 		fields["title"] = title
 	}
-	if description != "" {
+	if clearDescription {
+		// Multipart cannot carry a null; the API stores an empty field as null.
+		fields["description"] = ""
+	} else if description != "" {
 		fields["description"] = description
 	}
 	if removeCover {
@@ -211,29 +241,19 @@ func projectsUpdateCmd(a *app) *cobra.Command {
 			description, _ := cmd.Flags().GetString("description")
 			cover, _ := cmd.Flags().GetString("cover")
 			removeCover, _ := cmd.Flags().GetBool("remove-cover")
+			clearDescription, _ := cmd.Flags().GetBool("clear-description")
 
-			if cover != "" && removeCover {
-				return fmt.Errorf("cannot specify both --cover and --remove-cover")
-			}
-
-			payload := make(map[string]any)
-
-			if title != "" {
-				payload["title"] = title
-			}
-			if description != "" {
-				payload["description"] = description
-			}
-			if removeCover {
-				payload["remove_cover_image"] = true
+			if err := validateProjectUpdateFlags(description, cover, clearDescription, removeCover); err != nil {
+				return err
 			}
 
 			var raw []byte
 
 			if cover != "" {
-				fields := buildProjectUpdateMultipartFields(title, description, removeCover)
+				fields := buildProjectUpdateMultipartFields(title, description, clearDescription, removeCover)
 				raw, err = a.apiCli.PostMultipart(fmt.Sprintf("/api/v1/projects/%d", projectID), fields, "cover_image", cover)
 			} else {
+				payload := buildProjectUpdatePayload(title, description, clearDescription, removeCover)
 				raw, err = a.apiCli.Put(fmt.Sprintf("/api/v1/projects/%d", projectID), payload)
 			}
 
@@ -246,6 +266,7 @@ func projectsUpdateCmd(a *app) *cobra.Command {
 	}
 	cmd.Flags().String("title", "", "Updated book project title")
 	cmd.Flags().String("description", "", "Updated book project description")
+	cmd.Flags().Bool("clear-description", false, "Clear the book project description")
 	cmd.Flags().String("cover", "", "Path to new cover image file")
 	cmd.Flags().Bool("remove-cover", false, "Remove current cover image")
 	return cmd
