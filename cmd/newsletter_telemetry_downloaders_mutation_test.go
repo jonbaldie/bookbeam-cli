@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"strings"
 	"testing"
@@ -791,5 +792,25 @@ func TestNtdMetrics(t *testing.T) {
 	}
 	if buf.Len() != 0 {
 		t.Errorf("expected no output, got %q", buf.String())
+	}
+}
+
+func TestNtdDownloadersExportJSON(t *testing.T) {
+	ts, _ := ntdServer(t, 200, "Email\nx@example.com\n")
+	a, buf := ntdApp(ts.URL, true)
+	cmd := downloadersExportCmd(a)
+	dest := filepath.Join(t.TempDir(), "out.csv")
+	_ = cmd.Flags().Set("output", dest)
+
+	if err := cmd.RunE(cmd, []string{"12"}); err != nil {
+		t.Fatal(err)
+	}
+	var got map[string]any
+	if err := json.Unmarshal(buf.Bytes(), &got); err != nil {
+		t.Fatalf("expected JSON document on stdout, got %q: %v", buf.String(), err)
+	}
+	want := map[string]any{"project_id": float64(12), "path": dest, "bytes_written": float64(20)}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("JSON output = %v, want %v", got, want)
 	}
 }
