@@ -83,6 +83,13 @@ func downloadersListCmd(a *app) *cobra.Command {
 	return cmd
 }
 
+// exportResult is the --json document for a completed CSV export.
+type exportResult struct {
+	ProjectID    int    `json:"project_id"`
+	Path         string `json:"path"`
+	BytesWritten int    `json:"bytes_written"`
+}
+
 func downloadersExportCmd(a *app) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "export <project-id>",
@@ -108,8 +115,8 @@ func downloadersExportCmd(a *app) *cobra.Command {
 				return fmt.Errorf("failed to save CSV file: %w", err)
 			}
 
-			a.printer.Info(fmt.Sprintf("✓ Exported %d bytes to %s", len(raw), destPath))
-			return nil
+			result := exportResult{ProjectID: projectID, Path: destPath, BytesWritten: len(raw)}
+			return a.printer.Success(result, fmt.Sprintf("✓ Exported %d bytes to %s", len(raw), destPath))
 		},
 	}
 	cmd.Flags().StringP("output", "o", "", "Destination CSV file path")

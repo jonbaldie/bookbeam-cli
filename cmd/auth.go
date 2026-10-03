@@ -39,6 +39,12 @@ type UserProfileResponse struct {
 	} `json:"current_team,omitempty"`
 }
 
+// authResult is the --json document for a completed login or logout.
+type authResult struct {
+	LoggedIn bool   `json:"logged_in"`
+	Host     string `json:"host"`
+}
+
 func loginCmd(a *app) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "login",
@@ -49,8 +55,7 @@ func loginCmd(a *app) *cobra.Command {
 				if err := saveToken(a, directToken); err != nil {
 					return err
 				}
-				a.printer.Info("✓ Authentication token saved successfully.")
-				return nil
+				return a.printer.Success(authResult{LoggedIn: true, Host: a.settings.Host()}, "✓ Authentication token saved successfully.")
 			}
 
 			a.printer.Info(fmt.Sprintf("Initiating device login with %s...", a.settings.Host()))
@@ -86,8 +91,7 @@ func loginCmd(a *app) *cobra.Command {
 			}
 
 			a.printer.Info("")
-			a.printer.Info("✓ Successfully authenticated! Logged in to BookBeam.")
-			return nil
+			return a.printer.Success(authResult{LoggedIn: true, Host: a.settings.Host()}, "✓ Successfully authenticated! Logged in to BookBeam.")
 		},
 	}
 	cmd.Flags().String("token", "", "Authenticate directly with an API personal access token")
@@ -102,8 +106,7 @@ func logoutCmd(a *app) *cobra.Command {
 			if err := a.settings.StoreToken(""); err != nil {
 				return fmt.Errorf("failed to update config file: %w", err)
 			}
-			a.printer.Info("✓ Logged out successfully.")
-			return nil
+			return a.printer.Success(authResult{LoggedIn: false, Host: a.settings.Host()}, "✓ Logged out successfully.")
 		},
 	}
 }

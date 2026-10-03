@@ -1086,3 +1086,56 @@ func TestARBBillingCheckoutTextOpensBrowser(t *testing.T) {
 		t.Errorf("opened %v", h.opened)
 	}
 }
+
+func arbDecodeJSON(t *testing.T, h *arbHarness) map[string]any {
+	t.Helper()
+	var got map[string]any
+	if err := json.Unmarshal(h.out.Bytes(), &got); err != nil {
+		t.Fatalf("expected JSON document on stdout, got %q: %v", h.out.String(), err)
+	}
+	return got
+}
+
+func TestARBDirectTokenLoginJSON(t *testing.T) {
+	arbIsolate(t)
+	h := arbNewHarness(t, nil, true)
+	cmd := loginCmd(h.a)
+	_ = cmd.Flags().Set("token", "direct-123")
+	if err := arbRun(t, cmd); err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]any{"logged_in": true, "host": h.baseURL}
+	if got := arbDecodeJSON(t, h); !reflect.DeepEqual(got, want) {
+		t.Errorf("JSON output = %v, want %v", got, want)
+	}
+	if strings.Contains(h.out.String(), "direct-123") {
+		t.Error("JSON output must not echo the token")
+	}
+}
+
+func TestARBDeviceLoginJSON(t *testing.T) {
+	arbIsolate(t)
+	s := &arbDeviceServer{codeStatus: 200, codeBody: arbDeviceCode}
+	s.reply(200, `{"access_token":"device-token","token_type":"Bearer","token_id":7,"team_id":3}`)
+	h := arbNewHarness(t, s.handler(t), true)
+	if err := arbRun(t, loginCmd(h.a)); err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]any{"logged_in": true, "host": h.baseURL}
+	if got := arbDecodeJSON(t, h); !reflect.DeepEqual(got, want) {
+		t.Errorf("JSON output = %v, want %v", got, want)
+	}
+}
+
+func TestARBLogoutJSON(t *testing.T) {
+	arbIsolate(t)
+	h := arbNewHarness(t, nil, true)
+	h.a.settings = testSettingsIn(t, h.configDir, "https://h.example.com", "secret")
+	if err := arbRun(t, logoutCmd(h.a)); err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]any{"logged_in": false, "host": "https://h.example.com"}
+	if got := arbDecodeJSON(t, h); !reflect.DeepEqual(got, want) {
+		t.Errorf("JSON output = %v, want %v", got, want)
+	}
+}
