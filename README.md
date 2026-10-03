@@ -209,7 +209,7 @@ bookbeam completion fish | source
 
 ## Documentation
 
-See [`docs/`](docs/README.md) for project documentation, including the [2026-09-17 Exploratory Testing Pass](docs/exploratory-testing/2026-09-17-bookbeam-cli.md).
+See [`docs/`](docs/README.md) for project documentation, including the [2026-09-17](docs/exploratory-testing/2026-09-17-bookbeam-cli.md) and [2026-10-03](docs/exploratory-testing/2026-10-03-bookbeam-cli.md) exploratory testing passes.
 
 ## License
 
