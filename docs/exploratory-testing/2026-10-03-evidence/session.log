@@ -1,0 +1,1722 @@
+$ bookbeam projects list
+ID   TITLE                                    FILES   LINKS   CREATED
+21   Exploratory Journey 2 Links              0       0       2026-09-26T02:01:41.000000Z
+6    Reader Magnet Playbook                   1       1       2026-03-26T11:27:38.000000Z
+5    Ashes of the Waterfall                   2       1       2026-03-25T19:58:11.000000Z
+4    D.W. Stein Sci-fi Starter Library        6       1       2026-03-17T19:58:41.000000Z
+3    Test for Lemon Squeezy                   0       0       2026-01-31T16:43:16.000000Z
+2    The Deep Blue                            2       1       2026-01-15T16:36:49.000000Z
+1    Tark: A Half-Serious Magical Adventure   1       1       2026-01-15T09:10:44.000000Z
+
+Page 1 of 1 (Total: 7)
+[exit 0]
+
+$ bookbeam metrics
+Metric                     Total
+Total Book Projects        7
+Total Uploaded Files       12
+Total Reader Downloads     8
+Total Landing Page Views   1483
+[exit 0]
+
+$ bookbeam projects --help
+Manage book projects in your catalog
+
+Usage:
+  bookbeam projects [command]
+
+Aliases:
+  projects, project
+
+Available Commands:
+  create      Create a new book project
+  delete      Delete a book project and its attached files
+  get         Get details for a single book project
+  list        List book projects for your active team
+  newsletter  Set project newsletter list and tags routing
+  update      Update an existing book project
+
+Flags:
+  -h, --help   help for projects
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Use "bookbeam projects [command] --help" for more information about a command.
+[exit 0]
+
+$ bookbeam projects create --help
+Create a new book project
+
+Usage:
+  bookbeam projects create [flags]
+
+Flags:
+      --cover string         Path to cover image file
+      --description string   Book project description
+  -h, --help                 help for create
+      --title string         Book project title (required)
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+[exit 0]
+
+$ bookbeam projects create --title ET 2026-10-03 Lifecycle --description Exploratory pass --cover cover.png
+✓ Created book project #26: ET 2026-10-03 Lifecycle
+[exit 0]
+
+$ bookbeam projects get 26
+Field         Value
+ID            26
+Title         ET 2026-10-03 Lifecycle
+Description   Exploratory pass
+Cover URL     https://dml7kyyqr0izx.cloudfront.net/cover-images/<key>.png
+Files Count   0
+Links Count   0
+Created At    2026-10-03T01:55:57.000000Z
+[exit 0]
+
+$ bookbeam projects get 26 --json
+{
+  "data": {
+    "cover_image_path": "cover-images/<key>.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/<key>.png",
+    "created_at": "2026-10-03T01:55:57.000000Z",
+    "description": "Exploratory pass",
+    "files_count": 0,
+    "id": 26,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "ET 2026-10-03 Lifecycle",
+    "updated_at": "2026-10-03T01:55:57.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam projects update --help
+Update an existing book project
+
+Usage:
+  bookbeam projects update <project-id> [flags]
+
+Flags:
+      --clear-description    Clear the book project description
+      --cover string         Path to new cover image file
+      --description string   Updated book project description
+  -h, --help                 help for update
+      --remove-cover         Remove current cover image
+      --title string         Updated book project title
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+[exit 0]
+
+$ bookbeam projects update 26 --title ET Lifecycle v2
+✓ Updated book project #26
+[exit 0]
+
+$ bookbeam projects get 26 --json
+{
+  "data": {
+    "cover_image_path": "cover-images/<key>.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/<key>.png",
+    "created_at": "2026-10-03T01:55:57.000000Z",
+    "description": "Exploratory pass",
+    "files_count": 0,
+    "id": 26,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "ET Lifecycle v2",
+    "updated_at": "2026-10-03T01:56:04.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam projects update 26 --description New desc
+✓ Updated book project #26
+[exit 0]
+
+$ bookbeam projects get 26 --json
+{
+  "data": {
+    "cover_image_path": "cover-images/<key>.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/<key>.png",
+    "created_at": "2026-10-03T01:55:57.000000Z",
+    "description": "New desc",
+    "files_count": 0,
+    "id": 26,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "ET Lifecycle v2",
+    "updated_at": "2026-10-03T01:56:04.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam projects update 26 --cover cover.png
+✓ Updated book project #26
+[exit 0]
+
+$ bookbeam projects get 26 --json
+{
+  "data": {
+    "cover_image_path": "cover-images/<key>.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/<key>.png",
+    "created_at": "2026-10-03T01:55:57.000000Z",
+    "description": "New desc",
+    "files_count": 0,
+    "id": 26,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "ET Lifecycle v2",
+    "updated_at": "2026-10-03T01:56:05.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam projects update 26 --title ET Lifecycle v3 --cover cover.png
+✓ Updated book project #26
+[exit 0]
+
+$ bookbeam projects get 26 --json
+{
+  "data": {
+    "cover_image_path": "cover-images/<key>.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/<key>.png",
+    "created_at": "2026-10-03T01:55:57.000000Z",
+    "description": "New desc",
+    "files_count": 0,
+    "id": 26,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "ET Lifecycle v3",
+    "updated_at": "2026-10-03T01:56:05.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam projects update 26 --clear-description
+✓ Updated book project #26
+[exit 0]
+
+$ bookbeam projects get 26 --json
+{
+  "data": {
+    "cover_image_path": "cover-images/<key>.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/<key>.png",
+    "created_at": "2026-10-03T01:55:57.000000Z",
+    "description": null,
+    "files_count": 0,
+    "id": 26,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "ET Lifecycle v3",
+    "updated_at": "2026-10-03T01:56:06.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam projects update 26 --clear-description --description x
+
+[stderr] Usage:
+[stderr]   bookbeam projects update <project-id> [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]       --clear-description    Clear the book project description
+[stderr]       --cover string         Path to new cover image file
+[stderr]       --description string   Updated book project description
+[stderr]   -h, --help                 help for update
+[stderr]       --remove-cover         Remove current cover image
+[stderr]       --title string         Updated book project title
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: cannot specify both --description and --clear-description
+[exit 1]
+
+$ bookbeam projects get 26 --json
+{
+  "data": {
+    "cover_image_path": "cover-images/<key>.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/<key>.png",
+    "created_at": "2026-10-03T01:55:57.000000Z",
+    "description": null,
+    "files_count": 0,
+    "id": 26,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "ET Lifecycle v3",
+    "updated_at": "2026-10-03T01:56:06.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam projects update 26 --remove-cover
+✓ Updated book project #26
+[exit 0]
+
+$ bookbeam projects get 26 --json
+{
+  "data": {
+    "cover_image_path": null,
+    "cover_image_url": null,
+    "created_at": "2026-10-03T01:55:57.000000Z",
+    "description": null,
+    "files_count": 0,
+    "id": 26,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "ET Lifecycle v3",
+    "updated_at": "2026-10-03T01:56:06.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam projects update 26
+✓ Updated book project #26
+[exit 0]
+
+$ bookbeam projects get 26 --json
+{
+  "data": {
+    "cover_image_path": null,
+    "cover_image_url": null,
+    "created_at": "2026-10-03T01:55:57.000000Z",
+    "description": null,
+    "files_count": 0,
+    "id": 26,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "ET Lifecycle v3",
+    "updated_at": "2026-10-03T01:56:06.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam projects update 26 --description Has desc
+✓ Updated book project #26
+[exit 0]
+
+$ bookbeam projects update 26 --clear-description --cover cover.png
+✓ Updated book project #26
+[exit 0]
+
+$ bookbeam projects get 26 --json
+{
+  "data": {
+    "cover_image_path": "cover-images/<key>.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/<key>.png",
+    "created_at": "2026-10-03T01:55:57.000000Z",
+    "description": null,
+    "files_count": 0,
+    "id": 26,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "ET Lifecycle v3",
+    "updated_at": "2026-10-03T01:56:12.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam projects update 26 --remove-cover --cover cover.png
+
+[stderr] Usage:
+[stderr]   bookbeam projects update <project-id> [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]       --clear-description    Clear the book project description
+[stderr]       --cover string         Path to new cover image file
+[stderr]       --description string   Updated book project description
+[stderr]   -h, --help                 help for update
+[stderr]       --remove-cover         Remove current cover image
+[stderr]       --title string         Updated book project title
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: cannot specify both --cover and --remove-cover
+[exit 1]
+
+$ bookbeam projects get 26 --json
+{
+  "data": {
+    "cover_image_path": "cover-images/<key>.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/<key>.png",
+    "created_at": "2026-10-03T01:55:57.000000Z",
+    "description": null,
+    "files_count": 0,
+    "id": 26,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "ET Lifecycle v3",
+    "updated_at": "2026-10-03T01:56:12.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam newsletter status
+Setting            Value
+Active Provider    MAILCOACH
+Configured         Yes
+Webhook Endpoint   None
+[exit 0]
+
+$ bookbeam newsletter lists
+Mailing Lists:
+LIST ID                                NAME
+572cf516-2430-44cc-84c0-9165cf34299d   Anna Koplin Readers
+18c50c64-242c-4127-ad48-d2fac6321bce   Anna’s Justice ARC List
+6ca38df7-a87d-4c93-889e-7c73f486b2ca   Ashes of the Waterfall
+dd9ec39f-4dc6-41b8-8771-1bcaba5a77a9   Be Cruel to Your Characters ARC List
+f360d073-6b24-404e-bb01-c8d9d1e1cf16   BookBeam
+2bd57387-35c0-496e-babb-5885caa8953a   D.W. Stein
+08037ed9-97a8-4dfb-9459-e5485be9fa97   Fiction Mailing List
+18e267b2-81b2-41c2-ad9b-f1d4bee98ccb   Frontier Chronicles
+c6ca4cc0-e643-43e7-9a6d-2aba6e7e07e5   Heroes of the ADF
+ceeccba5-0094-4ceb-b30a-6af3e846e6f3   Jack Russell Advice
+86f944c7-17b4-4f54-b9df-63befc28ec91   Laws of Storytelling
+dd2e2db7-270a-42cd-9d40-25b1c578b626   Social Intelligence
+91621f5b-b4ca-4d0d-856b-f55597710472   Valeria’s Victim
+[exit 0]
+
+$ bookbeam projects newsletter --help
+Set project newsletter list and tags routing
+
+Usage:
+  bookbeam projects newsletter <project-id> [flags]
+
+Flags:
+      --clear-tags       Clear newsletter tags
+  -h, --help             help for newsletter
+      --list-id string   Newsletter list ID
+      --tags string      Comma-separated newsletter tags
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+[exit 0]
+
+$ bookbeam projects newsletter 26 --list-id f360d073-6b24-404e-bb01-c8d9d1e1cf16 --tags sci-fi, readers ,et
+✓ Updated newsletter routing for project #26
+[exit 0]
+
+$ bookbeam projects get 26 --json
+{
+  "data": {
+    "cover_image_path": "cover-images/<key>.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/<key>.png",
+    "created_at": "2026-10-03T01:55:57.000000Z",
+    "description": null,
+    "files_count": 0,
+    "id": 26,
+    "newsletter_list_id": "f360d073-6b24-404e-bb01-c8d9d1e1cf16",
+    "newsletter_tags": [
+      "sci-fi",
+      "readers",
+      "et"
+    ],
+    "signup_links_count": 0,
+    "title": "ET Lifecycle v3",
+    "updated_at": "2026-10-03T01:56:18.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam projects get 26
+Field         Value
+ID            26
+Title         ET Lifecycle v3
+Description   
+Cover URL     https://dml7kyyqr0izx.cloudfront.net/cover-images/<key>.png
+Files Count   0
+Links Count   0
+Created At    2026-10-03T01:55:57.000000Z
+[exit 0]
+
+$ bookbeam projects newsletter 26 --tags only-tags
+✓ Updated newsletter routing for project #26
+[exit 0]
+
+$ bookbeam projects get 26 --json
+{
+  "data": {
+    "cover_image_path": "cover-images/<key>.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/<key>.png",
+    "created_at": "2026-10-03T01:55:57.000000Z",
+    "description": null,
+    "files_count": 0,
+    "id": 26,
+    "newsletter_list_id": "f360d073-6b24-404e-bb01-c8d9d1e1cf16",
+    "newsletter_tags": [
+      "only-tags"
+    ],
+    "signup_links_count": 0,
+    "title": "ET Lifecycle v3",
+    "updated_at": "2026-10-03T01:56:18.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam projects newsletter 26 --list-id f360d073-6b24-404e-bb01-c8d9d1e1cf16
+✓ Updated newsletter routing for project #26
+[exit 0]
+
+$ bookbeam projects get 26 --json
+{
+  "data": {
+    "cover_image_path": "cover-images/<key>.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/<key>.png",
+    "created_at": "2026-10-03T01:55:57.000000Z",
+    "description": null,
+    "files_count": 0,
+    "id": 26,
+    "newsletter_list_id": "f360d073-6b24-404e-bb01-c8d9d1e1cf16",
+    "newsletter_tags": [
+      "only-tags"
+    ],
+    "signup_links_count": 0,
+    "title": "ET Lifecycle v3",
+    "updated_at": "2026-10-03T01:56:18.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam projects newsletter 26 --clear-tags
+✓ Updated newsletter routing for project #26
+[exit 0]
+
+$ bookbeam projects get 26 --json
+{
+  "data": {
+    "cover_image_path": "cover-images/<key>.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/<key>.png",
+    "created_at": "2026-10-03T01:55:57.000000Z",
+    "description": null,
+    "files_count": 0,
+    "id": 26,
+    "newsletter_list_id": "f360d073-6b24-404e-bb01-c8d9d1e1cf16",
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "ET Lifecycle v3",
+    "updated_at": "2026-10-03T01:56:19.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam projects newsletter 26 --tags 
+
+[stderr] Usage:
+[stderr]   bookbeam projects newsletter <project-id> [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]       --clear-tags       Clear newsletter tags
+[stderr]   -h, --help             help for newsletter
+[stderr]       --list-id string   Newsletter list ID
+[stderr]       --tags string      Comma-separated newsletter tags
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: specify --list-id, --tags, or --clear-tags
+[exit 1]
+
+$ bookbeam projects get 26 --json
+{
+  "data": {
+    "cover_image_path": "cover-images/<key>.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/<key>.png",
+    "created_at": "2026-10-03T01:55:57.000000Z",
+    "description": null,
+    "files_count": 0,
+    "id": 26,
+    "newsletter_list_id": "f360d073-6b24-404e-bb01-c8d9d1e1cf16",
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "ET Lifecycle v3",
+    "updated_at": "2026-10-03T01:56:19.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam projects newsletter 26
+
+[stderr] Usage:
+[stderr]   bookbeam projects newsletter <project-id> [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]       --clear-tags       Clear newsletter tags
+[stderr]   -h, --help             help for newsletter
+[stderr]       --list-id string   Newsletter list ID
+[stderr]       --tags string      Comma-separated newsletter tags
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: specify --list-id, --tags, or --clear-tags
+[exit 1]
+
+$ bookbeam projects get 26 --json
+{
+  "data": {
+    "cover_image_path": "cover-images/<key>.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/<key>.png",
+    "created_at": "2026-10-03T01:55:57.000000Z",
+    "description": null,
+    "files_count": 0,
+    "id": 26,
+    "newsletter_list_id": "f360d073-6b24-404e-bb01-c8d9d1e1cf16",
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "ET Lifecycle v3",
+    "updated_at": "2026-10-03T01:56:19.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam projects newsletter 26 --list-id 
+
+[stderr] Usage:
+[stderr]   bookbeam projects newsletter <project-id> [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]       --clear-tags       Clear newsletter tags
+[stderr]   -h, --help             help for newsletter
+[stderr]       --list-id string   Newsletter list ID
+[stderr]       --tags string      Comma-separated newsletter tags
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: specify --list-id, --tags, or --clear-tags
+[exit 1]
+
+$ bookbeam projects get 26 --json
+{
+  "data": {
+    "cover_image_path": "cover-images/<key>.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/<key>.png",
+    "created_at": "2026-10-03T01:55:57.000000Z",
+    "description": null,
+    "files_count": 0,
+    "id": 26,
+    "newsletter_list_id": "f360d073-6b24-404e-bb01-c8d9d1e1cf16",
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "ET Lifecycle v3",
+    "updated_at": "2026-10-03T01:56:19.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam projects list
+ID   TITLE                                    FILES   LINKS   CREATED
+26   ET Lifecycle v3                          0       0       2026-10-03T01:55:57.000000Z
+21   Exploratory Journey 2 Links              0       0       2026-09-26T02:01:41.000000Z
+6    Reader Magnet Playbook                   1       1       2026-03-26T11:27:38.000000Z
+5    Ashes of the Waterfall                   2       1       2026-03-25T19:58:11.000000Z
+4    D.W. Stein Sci-fi Starter Library        6       1       2026-03-17T19:58:41.000000Z
+3    Test for Lemon Squeezy                   0       0       2026-01-31T16:43:16.000000Z
+2    The Deep Blue                            2       1       2026-01-15T16:36:49.000000Z
+1    Tark: A Half-Serious Magical Adventure   1       1       2026-01-15T09:10:44.000000Z
+
+Page 1 of 1 (Total: 8)
+[exit 0]
+
+$ bookbeam projects newsletter 26 --list-id bogus-list
+✓ Updated newsletter routing for project #26
+[exit 0]
+
+$ bookbeam projects get 26 --json
+{
+  "data": {
+    "cover_image_path": "cover-images/<key>.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/<key>.png",
+    "created_at": "2026-10-03T01:55:57.000000Z",
+    "description": null,
+    "files_count": 0,
+    "id": 26,
+    "newsletter_list_id": "bogus-list",
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "ET Lifecycle v3",
+    "updated_at": "2026-10-03T01:56:26.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam projects get 26abc
+
+[stderr] Usage:
+[stderr]   bookbeam projects get <project-id> [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]   -h, --help   help for get
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: invalid project id "26abc"
+[exit 1]
+
+$ bookbeam projects get -- -5
+
+[stderr] Usage:
+[stderr]   bookbeam projects get <project-id> [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]   -h, --help   help for get
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: invalid project id "-5"
+[exit 1]
+
+$ bookbeam projects get 0
+
+[stderr] Usage:
+[stderr]   bookbeam projects get <project-id> [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]   -h, --help   help for get
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: invalid project id "0"
+[exit 1]
+
+$ bookbeam projects get 99999999999999999999
+
+[stderr] Usage:
+[stderr]   bookbeam projects get <project-id> [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]   -h, --help   help for get
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: invalid project id "99999999999999999999"
+[exit 1]
+
+$ bookbeam projects get  26
+
+[stderr] Usage:
+[stderr]   bookbeam projects get <project-id> [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]   -h, --help   help for get
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: invalid project id " 26"
+[exit 1]
+
+$ bookbeam projects get 026
+
+[stderr] Usage:
+[stderr]   bookbeam projects get <project-id> [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]   -h, --help   help for get
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: invalid project id "026"
+[exit 1]
+
+$ bookbeam files upload 26 book.epub
+Uploading book.epub (559 bytes) to project #26...
+✓ Uploaded file #25 (book.epub) successfully.
+[exit 0]
+
+$ bookbeam files upload 26 book.epub --json
+{
+  "data": {
+    "book_project_id": 26,
+    "created_at": "2026-10-03T01:56:29.000000Z",
+    "downloads_count": 0,
+    "file_size": 559,
+    "file_type": "epub",
+    "filename": "book.epub",
+    "id": 26,
+    "updated_at": "2026-10-03T01:56:29.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam files list 26
+ID   FILENAME    FORMAT   SIZE (BYTES)   DOWNLOADS   CREATED
+25   book.epub   EPUB     559            0           2026-10-03T01:56:29.000000Z
+26   book.epub   EPUB     559            0           2026-10-03T01:56:29.000000Z
+[exit 0]
+
+$ bookbeam files list 26 --json
+{
+  "data": [
+    {
+      "book_project_id": 26,
+      "created_at": "2026-10-03T01:56:29.000000Z",
+      "downloads_count": 0,
+      "file_size": 559,
+      "file_type": "epub",
+      "filename": "book.epub",
+      "id": 25,
+      "updated_at": "2026-10-03T01:56:29.000000Z"
+    },
+    {
+      "book_project_id": 26,
+      "created_at": "2026-10-03T01:56:29.000000Z",
+      "downloads_count": 0,
+      "file_size": 559,
+      "file_type": "epub",
+      "filename": "book.epub",
+      "id": 26,
+      "updated_at": "2026-10-03T01:56:29.000000Z"
+    }
+  ]
+}
+[exit 0]
+
+$ bookbeam files download 26 25
+Downloading file to book.epub...
+✓ Download complete (559 bytes written to book.epub).
+[exit 0]
+
+$ bookbeam files download 26 26
+Downloading file to book.epub...
+✓ Download complete (559 bytes written to book.epub).
+[exit 0]
+
+$ bookbeam files download 26 25 --json
+{
+  "project_id": 26,
+  "file_id": 25,
+  "path": "book.epub",
+  "bytes_written": 559
+}
+[exit 0]
+
+$ bookbeam files download 26 25 -o out/x.epub
+Downloading file to out/x.epub...
+[stderr] Usage:
+[stderr]   bookbeam files download <project-id> <file-id> [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]   -h, --help            help for download
+[stderr]   -o, --output string   Destination file path
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: failed to create destination file: open out/x.epub: no such file or directory
+[exit 1]
+
+$ bookbeam files download 26 25 -o -
+Downloading file to -...
+✓ Download complete (559 bytes written to -).
+[exit 0]
+
+$ bookbeam files upload 26 Mÿ Böök (final).EPUB
+Uploading Mÿ Böök (final).EPUB (559 bytes) to project #26...
+✓ Uploaded file #27 (Mÿ Böök (final).EPUB) successfully.
+[exit 0]
+
+$ bookbeam files upload 26 two words.epub
+Uploading two words.epub (559 bytes) to project #26...
+✓ Uploaded file #28 (two words.epub) successfully.
+[exit 0]
+
+$ bookbeam files list 26
+ID   FILENAME               FORMAT   SIZE (BYTES)   DOWNLOADS   CREATED
+25   book.epub              EPUB     559            0           2026-10-03T01:56:29.000000Z
+26   book.epub              EPUB     559            0           2026-10-03T01:56:29.000000Z
+27   Mÿ Böök (final).EPUB   EPUB     559            0           2026-10-03T01:56:43.000000Z
+28   two words.epub         EPUB     559            0           2026-10-03T01:56:43.000000Z
+[exit 0]
+
+$ bookbeam files download 26 27
+Downloading file to M Bk final.EPUB...
+✓ Download complete (559 bytes written to M Bk final.EPUB).
+[exit 0]
+
+$ bookbeam files download 26 28
+Downloading file to two words.epub...
+✓ Download complete (559 bytes written to two words.epub).
+[exit 0]
+
+$ bookbeam links create 26 --title ET Magnet --consent Join my list
+✓ Created signup link #21: https://bookbeam.app/download/GZ1BPD8vry
+[exit 0]
+
+$ bookbeam links list 26
+ID   TITLE       SLUG         PUBLIC URL                                 CREATED
+21   ET Magnet   GZ1BPD8vry   https://bookbeam.app/download/GZ1BPD8vry   2026-10-03T01:56:52.000000Z
+[exit 0]
+
+$ bookbeam links list 26 --json
+{
+  "data": [
+    {
+      "book_project_id": 26,
+      "created_at": "2026-10-03T01:56:52.000000Z",
+      "id": 21,
+      "opt_in_text": "Join my list",
+      "signups_count": 0,
+      "slug": "GZ1BPD8vry",
+      "title": "ET Magnet",
+      "updated_at": "2026-10-03T01:56:52.000000Z"
+    }
+  ]
+}
+[exit 0]
+
+$ bookbeam links update --help
+Update an existing signup link
+
+Usage:
+  bookbeam links update <project-id> <link-id> [flags]
+
+Flags:
+      --clear-consent    Clear newsletter consent text
+      --consent string   Updated newsletter consent text
+  -h, --help             help for update
+      --title string     Updated link title
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+[exit 0]
+
+$ bookbeam links update 26 21 --title ET Magnet 2
+✓ Updated signup link #21
+[exit 0]
+
+$ bookbeam links update 26 21 --consent New consent
+✓ Updated signup link #21
+[exit 0]
+
+$ bookbeam links update 26 21 --clear-consent
+✓ Updated signup link #21
+[exit 0]
+
+$ bookbeam links update 26 21 --clear-consent --consent x
+
+[stderr] Usage:
+[stderr]   bookbeam links update <project-id> <link-id> [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]       --clear-consent    Clear newsletter consent text
+[stderr]       --consent string   Updated newsletter consent text
+[stderr]   -h, --help             help for update
+[stderr]       --title string     Updated link title
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: cannot specify both --consent and --clear-consent
+[exit 1]
+
+$ bookbeam links update 26 21
+✓ Updated signup link #21
+[exit 0]
+
+$ bookbeam links update 26 21 --title 
+✓ Updated signup link #21
+[exit 0]
+
+$ bookbeam links update 26 9999 --title zz
+
+[stderr] Usage:
+[stderr]   bookbeam links update <project-id> <link-id> [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]       --clear-consent    Clear newsletter consent text
+[stderr]       --consent string   Updated newsletter consent text
+[stderr]   -h, --help             help for update
+[stderr]       --title string     Updated link title
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: signup link #9999 not found in project 26
+[exit 1]
+
+$ bookbeam links update 1 21 --title cross-project
+
+[stderr] Usage:
+[stderr]   bookbeam links update <project-id> <link-id> [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]       --clear-consent    Clear newsletter consent text
+[stderr]       --consent string   Updated newsletter consent text
+[stderr]   -h, --help             help for update
+[stderr]       --title string     Updated link title
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: signup link #21 not found in project 1
+[exit 1]
+
+$ bookbeam links create 26 --json
+{
+  "data": {
+    "book_project_id": 26,
+    "created_at": "2026-10-03T01:57:01.000000Z",
+    "id": 22,
+    "opt_in_text": null,
+    "signups_count": 0,
+    "slug": "81A1UapRhg",
+    "title": "Untitled Link",
+    "updated_at": "2026-10-03T01:57:01.000000Z"
+  }
+}
+[exit 0]
+
+$ bookbeam links create 26 --title No consent
+✓ Created signup link #23: https://bookbeam.app/download/UrAa7RTV5h
+[exit 0]
+
+$ bookbeam logs --help
+View chronological telemetry activity logs
+
+Usage:
+  bookbeam logs [flags]
+
+Flags:
+      --event string   Filter table rows by event type (e.g. signup, download); --json stays unfiltered
+  -h, --help           help for logs
+  -n, --limit int      Maximum number of log events to show (capped at 100) (default 50)
+      --page int       Page number (default 1)
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+[exit 0]
+
+$ bookbeam logs --limit 3
+TIME                          TYPE       READER                                 BOOK                     FILE
+2026-09-15T08:00:01.000000Z   download   <email>   Reader Magnet Playbook   the-reader-magnet-playbook.pdf
+2026-09-15T07:59:59.000000Z   signup     <email>   Reader Magnet Playbook   
+2026-03-28T06:46:33.000000Z   download   <email>                  Ashes of the Waterfall   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+
+Page 1 of 4 (total: 11)
+[exit 0]
+
+$ bookbeam logs --limit 3 --page 2
+TIME                          TYPE       READER                  BOOK                     FILE
+2026-03-28T06:46:32.000000Z   download   <email>   Ashes of the Waterfall   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:31.000000Z   download   <email>   Ashes of the Waterfall   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:03.000000Z   signup     <email>   Ashes of the Waterfall   
+
+Page 2 of 4 (total: 11)
+[exit 0]
+
+$ bookbeam logs --limit 3 --json
+{
+  "current_page": 1,
+  "data": [
+    {
+      "book_title": "Reader Magnet Playbook",
+      "filename": "the-reader-magnet-playbook.pdf",
+      "id": 5,
+      "occurred_at": "2026-09-15T08:00:01.000000Z",
+      "reader_email": "<email>",
+      "signup_link_slug": "iNS2rgt9RS",
+      "type": "download"
+    },
+    {
+      "book_title": "Reader Magnet Playbook",
+      "id": 6,
+      "newsletter_provider": "mailcoach",
+      "newsletter_provider_success": true,
+      "occurred_at": "2026-09-15T07:59:59.000000Z",
+      "reader_email": "<email>",
+      "signup_link_slug": "iNS2rgt9RS",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    },
+    {
+      "book_title": "Ashes of the Waterfall",
+      "filename": "Ashes-of-the-Waterfall-Print-2026-03-25.pdf",
+      "id": 4,
+      "occurred_at": "2026-03-28T06:46:33.000000Z",
+      "reader_email": "<email>",
+      "signup_link_slug": "cUBRJ6yugg",
+      "type": "download"
+    }
+  ],
+  "first_page_url": "https://bookbeam.app/api/v1/logs?page=1",
+  "from": 1,
+  "last_page": 4,
+  "last_page_url": "https://bookbeam.app/api/v1/logs?page=4",
+  "links": [
+    {
+      "active": false,
+      "label": "\u0026laquo; Previous",
+      "page": null,
+      "url": null
+    },
+    {
+      "active": true,
+      "label": "1",
+      "page": 1,
+      "url": "https://bookbeam.app/api/v1/logs?page=1"
+    },
+    {
+      "active": false,
+      "label": "2",
+      "page": 2,
+      "url": "https://bookbeam.app/api/v1/logs?page=2"
+    },
+    {
+      "active": false,
+      "label": "3",
+      "page": 3,
+      "url": "https://bookbeam.app/api/v1/logs?page=3"
+    },
+    {
+      "active": false,
+      "label": "4",
+      "page": 4,
+      "url": "https://bookbeam.app/api/v1/logs?page=4"
+    },
+    {
+      "active": false,
+      "label": "Next \u0026raquo;",
+      "page": 2,
+      "url": "https://bookbeam.app/api/v1/logs?page=2"
+    }
+  ],
+  "next_page_url": "https://bookbeam.app/api/v1/logs?page=2",
+  "path": "https://bookbeam.app/api/v1/logs",
+  "per_page": 3,
+  "prev_page_url": null,
+  "to": 3,
+  "total": 11
+}
+[exit 0]
+
+$ bookbeam logs --limit 0
+TIME                          TYPE       READER                                   BOOK                                     FILE
+2026-09-15T08:00:01.000000Z   download   <email>     Reader Magnet Playbook                   the-reader-magnet-playbook.pdf
+2026-09-15T07:59:59.000000Z   signup     <email>     Reader Magnet Playbook                   
+2026-03-28T06:46:33.000000Z   download   <email>                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:32.000000Z   download   <email>                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:31.000000Z   download   <email>                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:03.000000Z   signup     <email>                    Ashes of the Waterfall                   
+2026-03-25T20:50:04.000000Z   signup     <email>              Ashes of the Waterfall                   
+2026-03-18T14:13:12.000000Z   signup     <email>     D.W. Stein Sci-fi Starter Library        
+2026-03-18T13:25:59.000000Z   signup     <email>   D.W. Stein Sci-fi Starter Library        
+2026-02-09T17:42:19.000000Z   download   <email>            Tark: A Half-Serious Magical Adventure   Tark-Kindle-2026-01-09.epub
+2026-02-09T17:42:14.000000Z   signup     <email>            Tark: A Half-Serious Magical Adventure   
+[exit 0]
+
+$ bookbeam logs --limit 500
+TIME                          TYPE       READER                                   BOOK                                     FILE
+2026-09-15T08:00:01.000000Z   download   <email>     Reader Magnet Playbook                   the-reader-magnet-playbook.pdf
+2026-09-15T07:59:59.000000Z   signup     <email>     Reader Magnet Playbook                   
+2026-03-28T06:46:33.000000Z   download   <email>                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:32.000000Z   download   <email>                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:31.000000Z   download   <email>                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:03.000000Z   signup     <email>                    Ashes of the Waterfall                   
+2026-03-25T20:50:04.000000Z   signup     <email>              Ashes of the Waterfall                   
+2026-03-18T14:13:12.000000Z   signup     <email>     D.W. Stein Sci-fi Starter Library        
+2026-03-18T13:25:59.000000Z   signup     <email>   D.W. Stein Sci-fi Starter Library        
+2026-02-09T17:42:19.000000Z   download   <email>            Tark: A Half-Serious Magical Adventure   Tark-Kindle-2026-01-09.epub
+2026-02-09T17:42:14.000000Z   signup     <email>            Tark: A Half-Serious Magical Adventure   
+[exit 0]
+
+$ bookbeam logs --limit -1
+TIME                          TYPE       READER                                   BOOK                                     FILE
+2026-09-15T08:00:01.000000Z   download   <email>     Reader Magnet Playbook                   the-reader-magnet-playbook.pdf
+2026-09-15T07:59:59.000000Z   signup     <email>     Reader Magnet Playbook                   
+2026-03-28T06:46:33.000000Z   download   <email>                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:32.000000Z   download   <email>                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:31.000000Z   download   <email>                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:03.000000Z   signup     <email>                    Ashes of the Waterfall                   
+2026-03-25T20:50:04.000000Z   signup     <email>              Ashes of the Waterfall                   
+2026-03-18T14:13:12.000000Z   signup     <email>     D.W. Stein Sci-fi Starter Library        
+2026-03-18T13:25:59.000000Z   signup     <email>   D.W. Stein Sci-fi Starter Library        
+2026-02-09T17:42:19.000000Z   download   <email>            Tark: A Half-Serious Magical Adventure   Tark-Kindle-2026-01-09.epub
+2026-02-09T17:42:14.000000Z   signup     <email>            Tark: A Half-Serious Magical Adventure   
+[exit 0]
+
+$ bookbeam logs --page 0
+TIME                          TYPE       READER                                   BOOK                                     FILE
+2026-09-15T08:00:01.000000Z   download   <email>     Reader Magnet Playbook                   the-reader-magnet-playbook.pdf
+2026-09-15T07:59:59.000000Z   signup     <email>     Reader Magnet Playbook                   
+2026-03-28T06:46:33.000000Z   download   <email>                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:32.000000Z   download   <email>                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:31.000000Z   download   <email>                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:03.000000Z   signup     <email>                    Ashes of the Waterfall                   
+2026-03-25T20:50:04.000000Z   signup     <email>              Ashes of the Waterfall                   
+2026-03-18T14:13:12.000000Z   signup     <email>     D.W. Stein Sci-fi Starter Library        
+2026-03-18T13:25:59.000000Z   signup     <email>   D.W. Stein Sci-fi Starter Library        
+2026-02-09T17:42:19.000000Z   download   <email>            Tark: A Half-Serious Magical Adventure   Tark-Kindle-2026-01-09.epub
+2026-02-09T17:42:14.000000Z   signup     <email>            Tark: A Half-Serious Magical Adventure   
+[exit 0]
+
+$ bookbeam logs --page 99
+No activity logs recorded.
+[exit 0]
+
+$ bookbeam logs --event signup
+TIME                          TYPE     READER                                   BOOK                                     FILE
+2026-09-15T07:59:59.000000Z   signup   <email>     Reader Magnet Playbook                   
+2026-03-28T06:46:03.000000Z   signup   <email>                    Ashes of the Waterfall                   
+2026-03-25T20:50:04.000000Z   signup   <email>              Ashes of the Waterfall                   
+2026-03-18T14:13:12.000000Z   signup   <email>     D.W. Stein Sci-fi Starter Library        
+2026-03-18T13:25:59.000000Z   signup   <email>   D.W. Stein Sci-fi Starter Library        
+2026-02-09T17:42:14.000000Z   signup   <email>            Tark: A Half-Serious Magical Adventure   
+[exit 0]
+
+$ bookbeam logs --event SIGNUP
+TIME                          TYPE     READER                                   BOOK                                     FILE
+2026-09-15T07:59:59.000000Z   signup   <email>     Reader Magnet Playbook                   
+2026-03-28T06:46:03.000000Z   signup   <email>                    Ashes of the Waterfall                   
+2026-03-25T20:50:04.000000Z   signup   <email>              Ashes of the Waterfall                   
+2026-03-18T14:13:12.000000Z   signup   <email>     D.W. Stein Sci-fi Starter Library        
+2026-03-18T13:25:59.000000Z   signup   <email>   D.W. Stein Sci-fi Starter Library        
+2026-02-09T17:42:14.000000Z   signup   <email>            Tark: A Half-Serious Magical Adventure   
+[exit 0]
+
+$ bookbeam logs --event bogus
+No activity logs recorded.
+[exit 0]
+
+$ bookbeam logs --limit 0
+TIME                          TYPE       READER                                   BOOK                                     FILE
+2026-09-15T08:00:01.000000Z   download   <email>     Reader Magnet Playbook                   the-reader-magnet-playbook.pdf
+2026-09-15T07:59:59.000000Z   signup     <email>     Reader Magnet Playbook                   
+2026-03-28T06:46:33.000000Z   download   <email>                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:32.000000Z   download   <email>                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:31.000000Z   download   <email>                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:03.000000Z   signup     <email>                    Ashes of the Waterfall                   
+2026-03-25T20:50:04.000000Z   signup     <email>              Ashes of the Waterfall                   
+2026-03-18T14:13:12.000000Z   signup     <email>     D.W. Stein Sci-fi Starter Library        
+2026-03-18T13:25:59.000000Z   signup     <email>   D.W. Stein Sci-fi Starter Library        
+2026-02-09T17:42:19.000000Z   download   <email>            Tark: A Half-Serious Magical Adventure   Tark-Kindle-2026-01-09.epub
+2026-02-09T17:42:14.000000Z   signup     <email>            Tark: A Half-Serious Magical Adventure   
+[exit 0]
+
+$ bookbeam logs --page 0 --limit 3
+TIME                          TYPE       READER                                 BOOK                     FILE
+2026-09-15T08:00:01.000000Z   download   <email>   Reader Magnet Playbook   the-reader-magnet-playbook.pdf
+2026-09-15T07:59:59.000000Z   signup     <email>   Reader Magnet Playbook   
+2026-03-28T06:46:33.000000Z   download   <email>                  Ashes of the Waterfall   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+
+Page 1 of 4 (total: 11)
+[exit 0]
+
+$ bookbeam logs --limit -5
+TIME                          TYPE       READER                                   BOOK                                     FILE
+2026-09-15T08:00:01.000000Z   download   <email>     Reader Magnet Playbook                   the-reader-magnet-playbook.pdf
+2026-09-15T07:59:59.000000Z   signup     <email>     Reader Magnet Playbook                   
+2026-03-28T06:46:33.000000Z   download   <email>                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:32.000000Z   download   <email>                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:31.000000Z   download   <email>                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:03.000000Z   signup     <email>                    Ashes of the Waterfall                   
+2026-03-25T20:50:04.000000Z   signup     <email>              Ashes of the Waterfall                   
+2026-03-18T14:13:12.000000Z   signup     <email>     D.W. Stein Sci-fi Starter Library        
+2026-03-18T13:25:59.000000Z   signup     <email>   D.W. Stein Sci-fi Starter Library        
+2026-02-09T17:42:19.000000Z   download   <email>            Tark: A Half-Serious Magical Adventure   Tark-Kindle-2026-01-09.epub
+2026-02-09T17:42:14.000000Z   signup     <email>            Tark: A Half-Serious Magical Adventure   
+[exit 0]
+
+$ bookbeam logs --event signup --limit 3 --page 4
+TIME                          TYPE     READER                          BOOK                                     FILE
+2026-02-09T17:42:14.000000Z   signup   <email>   Tark: A Half-Serious Magical Adventure   
+
+Page 4 of 4 (total: 11)
+[exit 0]
+
+$ bookbeam downloaders list 5
+EMAIL                         SIGNUP LINK              SIGNUP DATE
+<email>         Ashes of the Waterfall   2026-03-28 06:46:03
+<email>   Ashes of the Waterfall   2026-03-25 20:50:04
+
+Page 1 of 1 (Total: 2)
+[exit 0]
+
+$ bookbeam downloaders list 5 --json
+{
+  "current_page": 1,
+  "data": [
+    {
+      "email": "<email>",
+      "reader_id": 9,
+      "signed_up_at": "2026-03-28 06:46:03",
+      "signup_link_id": 7,
+      "signup_link_slug": "cUBRJ6yugg",
+      "signup_link_title": "Ashes of the Waterfall"
+    },
+    {
+      "email": "<email>",
+      "reader_id": 8,
+      "signed_up_at": "2026-03-25 20:50:04",
+      "signup_link_id": 7,
+      "signup_link_slug": "cUBRJ6yugg",
+      "signup_link_title": "Ashes of the Waterfall"
+    }
+  ],
+  "first_page_url": "https://bookbeam.app/api/v1/projects/5/downloaders?page=1",
+  "from": 1,
+  "last_page": 1,
+  "last_page_url": "https://bookbeam.app/api/v1/projects/5/downloaders?page=1",
+  "links": [
+    {
+      "active": false,
+      "label": "\u0026laquo; Previous",
+      "page": null,
+      "url": null
+    },
+    {
+      "active": true,
+      "label": "1",
+      "page": 1,
+      "url": "https://bookbeam.app/api/v1/projects/5/downloaders?page=1"
+    },
+    {
+      "active": false,
+      "label": "Next \u0026raquo;",
+      "page": null,
+      "url": null
+    }
+  ],
+  "next_page_url": null,
+  "path": "https://bookbeam.app/api/v1/projects/5/downloaders",
+  "per_page": 15,
+  "prev_page_url": null,
+  "to": 2,
+  "total": 2
+}
+[exit 0]
+
+$ bookbeam downloaders export --help
+Export sanitized CSV list of downloader subscribers
+
+Usage:
+  bookbeam downloaders export <project-id> [flags]
+
+Flags:
+  -h, --help            help for export
+  -o, --output string   Destination CSV file path
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+[exit 0]
+
+$ bookbeam downloaders export 5
+✓ Exported 179 bytes to downloaders-project-5.csv
+[exit 0]
+
+$ bookbeam downloaders export 5 -o sub.csv
+✓ Exported 179 bytes to sub.csv
+[exit 0]
+
+$ bookbeam downloaders export 26 -o empty.csv
+✓ Exported 35 bytes to empty.csv
+[exit 0]
+
+$ bookbeam downloaders export 5 --json
+
+[exit 0]
+
+$ bookbeam whoami
+
+[stderr] Error: Not authenticated. Run 'bookbeam auth login' to authenticate.
+[exit 1]
+
+$ bookbeam projects list
+
+[stderr] Usage:
+[stderr]   bookbeam projects list [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]   -h, --help       help for list
+[stderr]       --page int   Page number (default 1)
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: API error (401): Unauthenticated.
+[exit 1]
+
+$ bookbeam auth login --token <TOKEN> --json
+
+[exit 0]
+
+$ bookbeam whoami --json
+{
+  "created_at": "2026-01-15T09:09:55.000000Z",
+  "current_team": {
+    "created_at": "2026-01-15T09:09:55.000000Z",
+    "id": 1,
+    "name": "Jonathan's Team",
+    "newsletter_provider": "mailcoach",
+    "newsletter_provider_config": {
+      "api_token": "<REDACTED>",
+      "api_url": "https://subject-zero.mailcoach.app",
+      "default_list_id": null
+    },
+    "newsletter_webhook_url": null,
+    "personal_team": true,
+    "updated_at": "2026-09-30T02:33:56.000000Z",
+    "user_id": 1
+  },
+  "current_team_id": 1,
+  "email": "<email>",
+  "email_verified_at": null,
+  "id": 1,
+  "name": "Jonathan Baldie",
+  "profile_photo_path": null,
+  "profile_photo_url": "https://ui-avatars.com/api/?name=J+B\u0026color=7F9CF5\u0026background=EBF4FF",
+  "two_factor_confirmed_at": null,
+  "updated_at": "2026-01-23T07:42:39.000000Z"
+}
+[exit 0]
+
+$ bookbeam auth login --token bad_token
+✓ Authentication token saved successfully.
+[exit 0]
+
+$ bookbeam whoami
+
+[stderr] Usage:
+[stderr]   bookbeam whoami [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]   -h, --help   help for whoami
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: failed to get user details: API error (401): Unauthenticated.
+[exit 1]
+
+$ bookbeam projects list
+
+[stderr] Usage:
+[stderr]   bookbeam projects list [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]   -h, --help       help for list
+[stderr]       --page int   Page number (default 1)
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: API error (401): Unauthenticated.
+[exit 1]
+
+$ bookbeam whoami
+Property      Value
+Name          Jonathan Baldie
+Email         <email>
+Active Team   Jonathan's Team
+API Host      https://bookbeam.app
+[exit 0]
+
+$ bookbeam --token <TOKEN> projects list
+ID   TITLE                                    FILES   LINKS   CREATED
+26   ET Lifecycle v3                          4       3       2026-10-03T01:55:57.000000Z
+21   Exploratory Journey 2 Links              0       0       2026-09-26T02:01:41.000000Z
+6    Reader Magnet Playbook                   1       1       2026-03-26T11:27:38.000000Z
+5    Ashes of the Waterfall                   2       1       2026-03-25T19:58:11.000000Z
+4    D.W. Stein Sci-fi Starter Library        6       1       2026-03-17T19:58:41.000000Z
+3    Test for Lemon Squeezy                   0       0       2026-01-31T16:43:16.000000Z
+2    The Deep Blue                            2       1       2026-01-15T16:36:49.000000Z
+1    Tark: A Half-Serious Magical Adventure   1       1       2026-01-15T09:10:44.000000Z
+
+Page 1 of 1 (Total: 8)
+[exit 0]
+
+$ bookbeam --host https://example.invalid whoami
+
+[stderr] Usage:
+[stderr]   bookbeam whoami [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]   -h, --help   help for whoami
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: failed to get user details: Get "https://example.invalid/api/v1/user": dial tcp: lookup example.invalid: no such host
+[exit 1]
+
+$ bookbeam whoami
+
+[stderr] Usage:
+[stderr]   bookbeam whoami [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]   -h, --help   help for whoami
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: failed to get user details: Get "http://127.0.0.1:9/api/v1/user": dial tcp 127.0.0.1:9: connect: connection refused
+[exit 1]
+
+$ bookbeam --token <TOKEN> auth login --token bad2
+✓ Authentication token saved successfully.
+[exit 0]
+
+$ bookbeam auth logout --json
+
+[exit 0]
+
+$ bookbeam auth logout
+✓ Logged out successfully.
+[exit 0]
+
+$ bookbeam --host https://staging.example.test auth login --token tok3
+✓ Authentication token saved successfully.
+[exit 0]
+
+$ bookbeam whoami
+
+[stderr] Usage:
+[stderr]   bookbeam whoami [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]   -h, --help   help for whoami
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: failed to get user details: API error (401): Unauthenticated.
+[exit 1]
+
+$ bookbeam auth --help
+Manage authentication and tokens
+
+Usage:
+  bookbeam auth [command]
+
+Available Commands:
+  login       Authenticate with BookBeam via browser or direct token
+  logout      Log out of BookBeam and remove saved credentials
+  whoami      Display the currently authenticated user and team
+
+Flags:
+  -h, --help   help for auth
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Use "bookbeam auth [command] --help" for more information about a command.
+[exit 0]
+
+$ bookbeam auth login --help
+Authenticate with BookBeam via browser or direct token
+
+Usage:
+  bookbeam auth login [flags]
+
+Flags:
+  -h, --help           help for login
+      --token string   Authenticate directly with an API personal access token
+
+Global Flags:
+      --host string   BookBeam API host (default https://bookbeam.app)
+      --json          Output results as JSON
+  -q, --quiet         Suppress informational messages
+[exit 0]
+
+$ bookbeam links delete 26 23
+Are you sure you want to delete link #23? (y/N): Cancelled.
+[exit 0]
+
+$ bookbeam files delete 26 28
+Are you sure you want to delete file #28 from project #26? (y/N): Cancelled.
+[exit 0]
+
+$ bookbeam links delete 26 23 --json
+{
+  "message": "Signup link deleted successfully."
+}
+[exit 0]
+
+$ bookbeam files delete 26 28 --force
+✓ Deleted file #28 from project #26
+[exit 0]
+
+$ bookbeam files delete 26 28 --force
+
+[stderr] Usage:
+[stderr]   bookbeam files delete <project-id> <file-id> [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]   -f, --force   Skip confirmation prompt
+[stderr]   -h, --help    help for delete
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: API error (404): No query results for model [App\Models\BookFile] 28
+[exit 1]
+
+$ bookbeam projects get 99999 --json
+
+[stderr] Usage:
+[stderr]   bookbeam projects get <project-id> [flags]
+[stderr] 
+[stderr] Flags:
+[stderr]   -h, --help   help for get
+[stderr] 
+[stderr] Global Flags:
+[stderr]       --host string    BookBeam API host (default https://bookbeam.app)
+[stderr]       --json           Output results as JSON
+[stderr]   -q, --quiet          Suppress informational messages
+[stderr]       --token string   BookBeam API personal access token
+[stderr] 
+[stderr] Error: API error (404): No query results for model [App\Models\BookProject] 99999
+[exit 1]
+
+$ bookbeam projects delete 26
+Are you sure you want to delete project #26? (y/N): Cancelled.
+[exit 0]
+
+$ bookbeam projects get 26
+Field         Value
+ID            26
+Title         ET Lifecycle v3
+Description   
+Cover URL     https://dml7kyyqr0izx.cloudfront.net/cover-images/<key>.png
+Files Count   3
+Links Count   2
+Created At    2026-10-03T01:55:57.000000Z
+[exit 0]
+
+$ bookbeam projects delete 26 --force
+✓ Deleted book project #26
+[exit 0]
+
+$ bookbeam projects list
+ID   TITLE                                    FILES   LINKS   CREATED
+21   Exploratory Journey 2 Links              0       0       2026-09-26T02:01:41.000000Z
+6    Reader Magnet Playbook                   1       1       2026-03-26T11:27:38.000000Z
+5    Ashes of the Waterfall                   2       1       2026-03-25T19:58:11.000000Z
+4    D.W. Stein Sci-fi Starter Library        6       1       2026-03-17T19:58:41.000000Z
+3    Test for Lemon Squeezy                   0       0       2026-01-31T16:43:16.000000Z
+2    The Deep Blue                            2       1       2026-01-15T16:36:49.000000Z
+1    Tark: A Half-Serious Magical Adventure   1       1       2026-01-15T09:10:44.000000Z
+
+Page 1 of 1 (Total: 7)
+[exit 0]
+
+$ bookbeam metrics
+Metric                     Total
+Total Book Projects        7
+Total Uploaded Files       12
+Total Reader Downloads     8
+Total Landing Page Views   1483
+[exit 0]
+

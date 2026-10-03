@@ -1,0 +1,16 @@
+--- run 1
+downloaders export --json stdout bytes:        0
+exit 0
+179 r1.csv
+jq exit 0
+auth login --token --json bytes:        0
+auth logout --json bytes:        0
+files download --json bytes (control):       85
+--- run 2
+downloaders export --json stdout bytes:        0
+exit 0
+179 r2.csv
+jq exit 0
+auth login --token --json bytes:        0
+auth logout --json bytes:        0
+files download --json bytes (control):       85
