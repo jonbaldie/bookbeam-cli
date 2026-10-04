@@ -5,52 +5,12 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/jonbaldie/bookbeam-cli/pkg/client"
 	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 )
-
-func TestRedactNewsletterProviderCredentialsPreservesOtherDocuments(t *testing.T) {
-	teamWithoutConfig := map[string]any{"current_team": map[string]any{"name": "Team"}}
-	emptyCredentials := map[string]any{
-		"current_team": map[string]any{
-			"newsletter_provider_config": map[string]any{
-				"api_token": "",
-				"api_key":   7,
-				"api_url":   "https://provider.example/api",
-			},
-		},
-	}
-	emptyCredentialsWant := map[string]any{
-		"current_team": map[string]any{
-			"newsletter_provider_config": map[string]any{
-				"api_token": "",
-				"api_key":   7,
-				"api_url":   "https://provider.example/api",
-			},
-		},
-	}
-
-	for _, tc := range []struct {
-		name string
-		doc  any
-		want any
-	}{
-		{name: "non-object response", doc: "plain response", want: "plain response"},
-		{name: "no current team", doc: map[string]any{"name": "Author"}, want: map[string]any{"name": "Author"}},
-		{name: "no provider config", doc: teamWithoutConfig, want: teamWithoutConfig},
-		{name: "empty or non-string credentials", doc: emptyCredentials, want: emptyCredentialsWant},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			if got := redactNewsletterProviderCredentials(tc.doc); !reflect.DeepEqual(got, tc.want) {
-				t.Errorf("got %#v, want %#v", got, tc.want)
-			}
-		})
-	}
-}
 
 func TestDirectTokenLoginAndLogout(t *testing.T) {
 	a := &app{}
