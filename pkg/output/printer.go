@@ -31,7 +31,7 @@ type View struct {
 	Rows        [][]string
 	Footer      string // info line below a non-empty table, e.g. pagination
 	EmptyNotice string // info line shown instead of a table without rows
-	Data        any    // encoded as-is under --json
+	Data        any    // encoded as JSON under --json, with sensitive fields masked
 }
 
 // Display prints v as JSON under --json, otherwise as a table framed by its info lines.
@@ -87,13 +87,18 @@ func (p *Printer) Info(msg string) {
 }
 
 func (p *Printer) encode(v any) error {
+	sanitized, err := sanitize(v)
+	if err != nil {
+		return err
+	}
+
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
 	enc.SetIndent("", "  ")
-	if err := enc.Encode(v); err != nil {
+	if err := enc.Encode(sanitized); err != nil {
 		return err
 	}
-	_, err := io.Copy(p.Out, &buf)
+	_, err = io.Copy(p.Out, &buf)
 	return err
 }
 

@@ -68,6 +68,106 @@ func TestDisplayTextWithoutRowsPrintsEmptyNoticeInsteadOfTable(t *testing.T) {
 	}
 }
 
+func TestJSONOutputMasksNestedCredentials(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		print func(*Printer, any) error
+	}{
+		{"Display", func(p *Printer, data any) error { return p.Display(View{Data: data}) }},
+		{"Success", func(p *Printer, data any) error { return p.Success(data, "") }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			data := map[string]any{
+				"nested": []any{map[string]any{
+					"api_token":     "TEST_API_TOKEN_SENTINEL",
+					"API_KEY":       "TEST_API_KEY_SENTINEL",
+					"Token":         "TEST_TOKEN_SENTINEL",
+					"sEcReT":        "TEST_SECRET_SENTINEL",
+					"Password":      "TEST_PASSWORD_SENTINEL",
+					"Authorization": "TEST_AUTHORIZATION_SENTINEL",
+				}},
+			}
+			var buf bytes.Buffer
+			p := &Printer{Out: &buf, JSON: true}
+			if err := tc.print(p, data); err != nil {
+				t.Fatal(err)
+			}
+			for _, sentinel := range []string{
+				"TEST_API_TOKEN_SENTINEL", "TEST_API_KEY_SENTINEL", "TEST_TOKEN_SENTINEL",
+				"TEST_SECRET_SENTINEL", "TEST_PASSWORD_SENTINEL", "TEST_AUTHORIZATION_SENTINEL",
+			} {
+				if bytes.Contains(buf.Bytes(), []byte(sentinel)) {
+					t.Errorf("JSON output exposed credential %s: %s", sentinel, buf.String())
+				}
+			}
+			if count := bytes.Count(buf.Bytes(), []byte(`"********"`)); count != 6 {
+				t.Fatalf("JSON output contains %d masked values, want 6: %s", count, buf.String())
+			}
+			if got := data["nested"].([]any)[0].(map[string]any)["api_token"]; got != "TEST_API_TOKEN_SENTINEL" {
+				t.Fatalf("printing mutated input credential: %#v", got)
+			}
+		})
+	}
+}
+
+func TestJSONOutputMasksStructFieldsByJSONNameWithoutMutation(t *testing.T) {
+	type nested struct {
+		Secret string `json:"SeCrEt"`
+	}
+	type document struct {
+		APIToken      string    `json:"Api_ToKeN"`
+		APIKey        string    `json:"API_KEY"`
+		Token         string    `json:"ToKeN"`
+		Password      string    `json:"PASSWORD"`
+		Authorization string    `json:"Authorization"`
+		Nested        [1]nested `json:"nested"`
+		Label         string    `json:"label"`
+	}
+	data := document{
+		APIToken:      "STRUCT_API_TOKEN_SENTINEL",
+		APIKey:        "STRUCT_API_KEY_SENTINEL",
+		Token:         "STRUCT_TOKEN_SENTINEL",
+		Password:      "STRUCT_PASSWORD_SENTINEL",
+		Authorization: "STRUCT_AUTHORIZATION_SENTINEL",
+		Nested:        [1]nested{{Secret: "STRUCT_SECRET_SENTINEL"}},
+		Label:         "kept",
+	}
+	var buf bytes.Buffer
+	p := &Printer{Out: &buf, JSON: true}
+	if err := p.Success(data, ""); err != nil {
+		t.Fatal(err)
+	}
+	for _, sentinel := range []string{
+		"STRUCT_API_TOKEN_SENTINEL", "STRUCT_API_KEY_SENTINEL", "STRUCT_TOKEN_SENTINEL",
+		"STRUCT_SECRET_SENTINEL", "STRUCT_PASSWORD_SENTINEL", "STRUCT_AUTHORIZATION_SENTINEL",
+	} {
+		if bytes.Contains(buf.Bytes(), []byte(sentinel)) {
+			t.Errorf("JSON output exposed struct credential %s: %s", sentinel, buf.String())
+		}
+	}
+	var got map[string]any
+	if err := json.Unmarshal(buf.Bytes(), &got); err != nil {
+		t.Fatalf("decode output: %v", err)
+	}
+	for _, key := range []string{"Api_ToKeN", "API_KEY", "ToKeN", "PASSWORD", "Authorization"} {
+		if got[key] != "********" {
+			t.Errorf("%s = %#v, want masked value", key, got[key])
+		}
+	}
+	nestedGot, ok := got["nested"].([]any)
+	if !ok || len(nestedGot) != 1 {
+		t.Errorf("nested struct shape changed: %#v", got["nested"])
+	} else if nestedObject, ok := nestedGot[0].(map[string]any); !ok || nestedObject["SeCrEt"] != "********" {
+		t.Errorf("nested struct field was not masked: %#v", nestedGot[0])
+	}
+	if got["label"] != "kept" {
+		t.Errorf("non-sensitive field changed: %#v", got["label"])
+	}
+	if data.APIToken != "STRUCT_API_TOKEN_SENTINEL" || data.Nested[0].Secret != "STRUCT_SECRET_SENTINEL" {
+		t.Fatal("printing mutated the input struct")
+	}
+}
+
 func TestDisplayJSONEncodesTypedDataWithTwoSpaceIndent(t *testing.T) {
 	var buf bytes.Buffer
 	p := &Printer{Out: &buf, JSON: true}
