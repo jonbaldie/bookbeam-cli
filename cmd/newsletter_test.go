@@ -8,6 +8,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/spf13/cobra"
+
 	"github.com/jonbaldie/bookbeam-cli/pkg/client"
 	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 )
@@ -263,5 +265,53 @@ func TestNewsletterConfigureOmitsAPIURLWithoutEndpoint(t *testing.T) {
 	}
 	if got["api_token"] != "ml_secret_key" || len(got) != 2 {
 		t.Errorf("unexpected body %v", got)
+	}
+}
+
+func TestNewsletterJSONMasksProviderCredentials(t *testing.T) {
+	const sentinel = "sentinel-provider-secret"
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"provider":"mailcoach","config":{"api_url":"https://mailcoach.example/api","api_token":"` + sentinel + `","default_list_id":null},"webhook_url":null}`))
+	}))
+	defer ts.Close()
+
+	for _, tc := range []struct {
+		name    string
+		command func(*app) *cobra.Command
+	}{
+		{name: "status", command: newsletterStatusCmd},
+		{name: "configure", command: func(a *app) *cobra.Command {
+			c := newsletterConfigureCmd(a)
+			_ = c.Flags().Set("provider", "mailcoach")
+			_ = c.Flags().Set("api-key", sentinel)
+			return c
+		}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			a := &app{
+				printer:  &output.Printer{Out: &buf, JSON: true},
+				settings: testSettings(t, ts.URL, "test-token"),
+				apiCli:   client.New(ts.URL, "test-token"),
+			}
+			c := tc.command(a)
+			if err := c.RunE(c, nil); err != nil {
+				t.Fatalf("run newsletter %s: %v", tc.name, err)
+			}
+			if strings.Contains(buf.String(), sentinel) {
+				t.Fatalf("newsletter %s --json exposed the provider credential: %s", tc.name, buf.String())
+			}
+			var got struct {
+				Provider string         `json:"provider"`
+				Config   map[string]any `json:"config"`
+			}
+			if err := json.Unmarshal(buf.Bytes(), &got); err != nil {
+				t.Fatalf("output is not valid JSON: %v", err)
+			}
+			if got.Provider != "mailcoach" || got.Config["api_url"] != "https://mailcoach.example/api" || got.Config["api_token"] != "********" {
+				t.Errorf("unexpected JSON document: %s", buf.String())
+			}
+		})
 	}
 }

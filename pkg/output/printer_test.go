@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"reflect"
 	"testing"
 )
 
@@ -212,5 +213,123 @@ func TestLaunchSkipsOpenWhenReportFails(t *testing.T) {
 	opened := false
 	if err := p.Launch(map[string]int{"id": 7}, "Go", func() { opened = true }); err == nil || opened {
 		t.Fatalf("err=%v opened=%v", err, opened)
+	}
+}
+
+type providerConfig struct {
+	URL   string `json:"api_url"`
+	Token string `json:"API_Token"`
+}
+
+type sensitiveDoc struct {
+	Name     string            `json:"name"`
+	Password string            `json:"password,omitempty"`
+	Teams    []map[string]any  `json:"teams"`
+	Config   *providerConfig   `json:"config"`
+	Headers  map[string]string `json:"headers"`
+}
+
+func sensitiveFixture() sensitiveDoc {
+	return sensitiveDoc{
+		Name:     "Author <a&b>",
+		Password: "sentinel-password",
+		Teams: []map[string]any{
+			{"id": json.Number("12345678901234567"), "settings": map[string]any{"api_key": "sentinel-key", "Secret": []any{"sentinel-secret"}, "token": "", "api_token": nil}},
+		},
+		Config:  &providerConfig{URL: "https://provider.example/api", Token: "sentinel-token"},
+		Headers: map[string]string{"Authorization": "Bearer sentinel-bearer"},
+	}
+}
+
+const sensitiveWant = `{
+  "name": "Author \u003ca\u0026b\u003e",
+  "password": "********",
+  "teams": [
+    {
+      "id": 12345678901234567,
+      "settings": {
+        "Secret": "********",
+        "api_key": "********",
+        "api_token": null,
+        "token": ""
+      }
+    }
+  ],
+  "config": {
+    "api_url": "https://provider.example/api",
+    "API_Token": "********"
+  },
+  "headers": {
+    "Authorization": "********"
+  }
+}
+`
+
+func TestJSONMasksSensitiveKeysThroughDisplayAndSuccess(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		print func(*Printer, any) error
+	}{
+		{"display", func(p *Printer, data any) error { return p.Display(View{Rows: [][]string{{"x"}}, Data: data}) }},
+		{"success", func(p *Printer, data any) error { return p.Success(data, "✓ Done") }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			data := sensitiveFixture()
+			if err := tc.print(&Printer{Out: &buf, JSON: true}, data); err != nil {
+				t.Fatal(err)
+			}
+			if got := buf.String(); got != sensitiveWant {
+				t.Fatalf("got %s, want %s", got, sensitiveWant)
+			}
+			if !reflect.DeepEqual(data, sensitiveFixture()) {
+				t.Fatalf("printing mutated its input: %#v", data)
+			}
+		})
+	}
+}
+
+func TestJSONMasksSensitiveKeysInDecodedDocumentsWithoutMutatingThem(t *testing.T) {
+	doc := map[string]any{"user": map[string]any{"name": "Author", "token": "sentinel-token"}}
+	var buf bytes.Buffer
+	if err := (&Printer{Out: &buf, JSON: true}).Success(doc, ""); err != nil {
+		t.Fatal(err)
+	}
+	if want := "{\n  \"user\": {\n    \"name\": \"Author\",\n    \"token\": \"********\"\n  }\n}\n"; buf.String() != want {
+		t.Fatalf("got %q, want %q", buf.String(), want)
+	}
+	if doc["user"].(map[string]any)["token"] != "sentinel-token" {
+		t.Fatalf("printing mutated its input: %#v", doc)
+	}
+}
+
+func TestJSONLeavesScalarsAndKeysThatOnlyResembleSecretsAlone(t *testing.T) {
+	for _, tc := range []struct {
+		data any
+		want string
+	}{
+		{"token", "\"token\"\n"},
+		{nil, "null\n"},
+		{[]any{"secret", 1.5}, "[\n  \"secret\",\n  1.5\n]\n"},
+		{map[string]any{"token_type": "Bearer", "tokens": 3, "passwordless": true}, "{\n  \"passwordless\": true,\n  \"token_type\": \"Bearer\",\n  \"tokens\": 3\n}\n"},
+	} {
+		var buf bytes.Buffer
+		if err := (&Printer{Out: &buf, JSON: true}).Success(tc.data, ""); err != nil {
+			t.Fatal(err)
+		}
+		if buf.String() != tc.want {
+			t.Errorf("got %q, want %q", buf.String(), tc.want)
+		}
+	}
+}
+
+func TestTextOutputIsNotMasked(t *testing.T) {
+	var buf bytes.Buffer
+	p := &Printer{Out: &buf}
+	if err := p.Display(View{Headers: []string{"token"}, Rows: [][]string{{"visible"}}, Data: map[string]any{"token": "x"}}); err != nil {
+		t.Fatal(err)
+	}
+	if got, want := buf.String(), "token\nvisible\n"; got != want {
+		t.Fatalf("got %q, want %q", got, want)
 	}
 }

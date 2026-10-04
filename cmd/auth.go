@@ -145,32 +145,10 @@ func whoamiCmd(a *app) *cobra.Command {
 					{"Active Team", teamName},
 					{"API Host", a.settings.Host()},
 				},
-				Data: redactNewsletterProviderCredentials(doc),
+				Data: doc,
 			})
 		},
 	}
-}
-
-func redactNewsletterProviderCredentials(doc any) any {
-	user, ok := doc.(map[string]any)
-	if !ok {
-		return doc
-	}
-	team, ok := user["current_team"].(map[string]any)
-	if !ok {
-		return doc
-	}
-	providerConfig, ok := team["newsletter_provider_config"].(map[string]any)
-	if !ok {
-		return doc
-	}
-
-	for _, key := range []string{"api_token", "api_key"} {
-		if credential, ok := providerConfig[key].(string); ok && credential != "" {
-			providerConfig[key] = "********"
-		}
-	}
-	return doc
 }
 
 func openBrowser(url string) {
