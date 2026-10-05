@@ -377,34 +377,6 @@ func TestARBExecuteReturnsError(t *testing.T) {
 	}
 }
 
-func TestARBConfirm(t *testing.T) {
-	cases := []struct {
-		input string
-		want  bool
-	}{
-		{"y\n", true},
-		{"yes\n", true},
-		{"  YES \n", true},
-		{"Y", true},
-		{"n\n", false},
-		{"yep\n", false},
-		{"\n", false},
-		{"", false},
-	}
-	for _, tc := range cases {
-		cmd := &cobra.Command{}
-		var out bytes.Buffer
-		cmd.SetOut(&out)
-		cmd.SetIn(strings.NewReader(tc.input))
-		if got := confirm(cmd, "Delete it?"); got != tc.want {
-			t.Errorf("confirm(%q) = %v, want %v", tc.input, got, tc.want)
-		}
-		if out.String() != "Delete it? (y/N): " {
-			t.Errorf("prompt = %q", out.String())
-		}
-	}
-}
-
 func TestARBCompletionScripts(t *testing.T) {
 	arbIsolate(t)
 	cases := map[string][]string{

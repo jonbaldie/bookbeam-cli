@@ -446,55 +446,44 @@ func flpDeleteCases() []flpDeleteCase {
 func TestFlpDeleteCommands(t *testing.T) {
 	for _, dc := range flpDeleteCases() {
 		t.Run(dc.name, func(t *testing.T) {
-			answers := []struct {
-				in      string
-				deleted bool
-			}{{"y\n", true}, {" YES \n", true}, {"n\n", false}, {"", false}, {"yep\n", false}}
-			for _, ans := range answers {
-				var reqs []flpRequest
-				a, buf := flpServe(t, 200, `{"message":"ok"}`, &reqs)
-				c := dc.build(a)
-				var prompt bytes.Buffer
-				c.SetIn(strings.NewReader(ans.in))
-				c.SetOut(&prompt)
-				if err := flpRun(t, c, nil, dc.args...); err != nil {
-					t.Fatal(err)
-				}
-				if prompt.String() != dc.prompt {
-					t.Fatalf("prompt %q", prompt.String())
-				}
-				if ans.deleted {
-					if len(reqs) != 1 || reqs[0].Method != "DELETE" || reqs[0].Path != dc.path || buf.String() != dc.success {
-						t.Fatalf("answer %q: %+v %q", ans.in, reqs, buf.String())
-					}
-				} else if len(reqs) != 0 || buf.String() != "Cancelled.\n" {
-					t.Fatalf("answer %q: %+v %q", ans.in, reqs, buf.String())
-				}
-			}
-
 			var reqs []flpRequest
 			a, buf := flpServe(t, 200, `{"message":"ok"}`, &reqs)
-			c := dc.build(a)
-			var prompt bytes.Buffer
-			c.SetOut(&prompt)
-			if err := flpRun(t, c, map[string]string{"force": "true"}, dc.args...); err != nil {
+			a.printer.In = strings.NewReader("y\n")
+			if err := flpRun(t, dc.build(a), nil, dc.args...); err != nil {
 				t.Fatal(err)
 			}
-			if prompt.Len() != 0 || len(reqs) != 1 || buf.String() != dc.success {
-				t.Fatalf("force: %q %+v %q", prompt.String(), reqs, buf.String())
+			if len(reqs) != 1 || reqs[0].Method != "DELETE" || reqs[0].Path != dc.path || buf.String() != dc.prompt+dc.success {
+				t.Fatalf("confirm: %+v %q", reqs, buf.String())
 			}
 
+			reqs = nil
 			a, buf = flpServe(t, 200, `{"message":"ok"}`, &reqs)
-			a.printer.JSON = true
-			c = dc.build(a)
-			prompt.Reset()
-			c.SetOut(&prompt)
-			c.SetIn(strings.NewReader(""))
-			if err := flpRun(t, c, nil, dc.args...); err != nil {
+			a.printer.In = strings.NewReader("n\n")
+			if err := flpRun(t, dc.build(a), nil, dc.args...); err != nil {
 				t.Fatal(err)
 			}
-			if prompt.Len() != 0 || buf.String() != "{\n  \"message\": \"ok\"\n}\n" {
-				t.Fatalf("json: %q %q", prompt.String(), buf.String())
+			if len(reqs) != 0 || buf.String() != dc.prompt+"Cancelled.\n" {
+				t.Fatalf("cancel: %+v %q", reqs, buf.String())
+			}
+
+			reqs = nil
+			a, buf = flpServe(t, 200, `{"message":"ok"}`, &reqs)
+			if err := flpRun(t, dc.build(a), map[string]string{"force": "true"}, dc.args...); err != nil {
+				t.Fatal(err)
+			}
+			if len(reqs) != 1 || buf.String() != dc.success {
+				t.Fatalf("force: %+v %q", reqs, buf.String())
+			}
+
+			reqs = nil
+			a, buf = flpServe(t, 200, `{"message":"ok"}`, &reqs)
+			a.printer.JSON = true
+			a.printer.In = strings.NewReader("")
+			if err := flpRun(t, dc.build(a), nil, dc.args...); err != nil {
+				t.Fatal(err)
+			}
+			if len(reqs) != 1 || buf.String() != "{\n  \"message\": \"ok\"\n}\n" {
+				t.Fatalf("json: %+v %q", reqs, buf.String())
 			}
 
 			a, buf = flpServe(t, 403, `{"message":"no"}`, &reqs)
