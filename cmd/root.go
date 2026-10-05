@@ -1,10 +1,8 @@
 package cmd
 
 import (
-	"bufio"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/jonbaldie/bookbeam-cli/pkg/client"
@@ -86,15 +84,6 @@ func resolveSettings(getenv func(string) string, home func() (string, error), fl
 		return nil, err
 	}
 	return config.Resolve(dir, getenv, flags)
-}
-
-// confirm asks a yes/no question on the command's streams; anything but y/yes cancels.
-func confirm(cmd *cobra.Command, question string) bool {
-	fmt.Fprintf(cmd.OutOrStdout(), "%s (y/N): ", question)
-	scanner := bufio.NewScanner(cmd.InOrStdin())
-	scanner.Scan()
-	answer := strings.ToLower(strings.TrimSpace(scanner.Text()))
-	return answer == "y" || answer == "yes"
 }
 
 // Execute runs the command tree and returns the error that ended it.

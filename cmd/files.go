@@ -215,11 +215,8 @@ func filesDeleteCmd(a *app) *cobra.Command {
 			}
 			force, _ := cmd.Flags().GetBool("force")
 
-			if !force && !a.printer.JSON {
-				if !confirm(cmd, fmt.Sprintf("Are you sure you want to delete file #%d from project #%d?", fileID, projectID)) {
-					a.printer.Info("Cancelled.")
-					return nil
-				}
+			if !a.printer.Proceed(force, fmt.Sprintf("Are you sure you want to delete file #%d from project #%d?", fileID, projectID)) {
+				return nil
 			}
 
 			raw, err := a.apiCli.Delete(fmt.Sprintf("/api/v1/projects/%d/files/%d", projectID, fileID))
