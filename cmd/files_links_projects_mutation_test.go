@@ -466,12 +466,24 @@ func TestFlpDeleteCommands(t *testing.T) {
 				t.Fatalf("cancel: %+v %q", reqs, buf.String())
 			}
 
+			reqs = nil
 			a, buf = flpServe(t, 200, `{"message":"ok"}`, &reqs)
 			if err := flpRun(t, dc.build(a), map[string]string{"force": "true"}, dc.args...); err != nil {
 				t.Fatal(err)
 			}
 			if len(reqs) != 1 || buf.String() != dc.success {
 				t.Fatalf("force: %+v %q", reqs, buf.String())
+			}
+
+			reqs = nil
+			a, buf = flpServe(t, 200, `{"message":"ok"}`, &reqs)
+			a.printer.JSON = true
+			a.printer.In = strings.NewReader("")
+			if err := flpRun(t, dc.build(a), nil, dc.args...); err != nil {
+				t.Fatal(err)
+			}
+			if len(reqs) != 1 || buf.String() != "{\n  \"message\": \"ok\"\n}\n" {
+				t.Fatalf("json: %+v %q", reqs, buf.String())
 			}
 
 			a, buf = flpServe(t, 403, `{"message":"no"}`, &reqs)
