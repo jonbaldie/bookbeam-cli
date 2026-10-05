@@ -1,6 +1,7 @@
 package output
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -14,6 +15,7 @@ type Printer struct {
 	JSON  bool
 	Quiet bool
 	Out   io.Writer
+	In    io.Reader // answers to Proceed's prompt
 }
 
 func New(jsonOutput, quiet bool) *Printer {
@@ -21,6 +23,7 @@ func New(jsonOutput, quiet bool) *Printer {
 		JSON:  jsonOutput,
 		Quiet: quiet,
 		Out:   os.Stdout,
+		In:    os.Stdin,
 	}
 }
 
@@ -77,6 +80,23 @@ func (p *Printer) Launch(data any, msg string, open func()) error {
 	}
 	open()
 	return nil
+}
+
+// Proceed reports whether a destructive action may run: forced, a script (--json),
+// or a person who answers y/yes to question. A person's refusal reports Cancelled.
+func (p *Printer) Proceed(force bool, question string) bool {
+	if force || p.JSON {
+		return true
+	}
+	fmt.Fprintf(p.Out, "%s (y/N): ", question)
+	scanner := bufio.NewScanner(p.In)
+	scanner.Scan()
+	answer := strings.ToLower(strings.TrimSpace(scanner.Text()))
+	if answer == "y" || answer == "yes" {
+		return true
+	}
+	p.Info("Cancelled.")
+	return false
 }
 
 // Info prints msg for people; --quiet and --json suppress it.

@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"strings"
 	"testing"
 )
 
 func TestNewWritesToStdoutWithGivenModes(t *testing.T) {
 	p := New(true, true)
-	if !p.JSON || !p.Quiet || p.Out != os.Stdout {
+	if !p.JSON || !p.Quiet || p.Out != os.Stdout || p.In != os.Stdin {
 		t.Fatalf("unexpected printer: %+v", p)
 	}
 	p = New(false, false)
@@ -312,5 +313,36 @@ func TestLaunchSkipsOpenWhenReportFails(t *testing.T) {
 	opened := false
 	if err := p.Launch(map[string]int{"id": 7}, "Go", func() { opened = true }); err == nil || opened {
 		t.Fatalf("err=%v opened=%v", err, opened)
+	}
+}
+
+func TestProceedAsksPeopleButTrustsForceAndScripts(t *testing.T) {
+	const prompt = "Delete it? (y/N): "
+	cases := []struct {
+		name               string
+		force, json, quiet bool
+		in                 string
+		want               string
+		proceed            bool
+	}{
+		{"force", true, false, false, "n\n", "", true},
+		{"json", false, true, false, "n\n", "", true},
+		{"y", false, false, false, "y\n", prompt, true},
+		{"padded YES", false, false, false, " YES \n", prompt, true},
+		{"Y without newline", false, false, false, "Y", prompt, true},
+		{"blank line", false, false, false, "\n", prompt + "Cancelled.\n", false},
+		{"n", false, false, false, "n\n", prompt + "Cancelled.\n", false},
+		{"empty", false, false, false, "", prompt + "Cancelled.\n", false},
+		{"yep", false, false, false, "yep\n", prompt + "Cancelled.\n", false},
+		{"quiet n", false, false, true, "n\n", prompt, false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			p := &Printer{Out: &buf, In: strings.NewReader(tc.in), JSON: tc.json, Quiet: tc.quiet}
+			if got := p.Proceed(tc.force, "Delete it?"); got != tc.proceed || buf.String() != tc.want {
+				t.Fatalf("proceed=%v got %q, want %v %q", got, buf.String(), tc.proceed, tc.want)
+			}
+		})
 	}
 }
