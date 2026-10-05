@@ -466,6 +466,7 @@ func TestFlpDeleteCommands(t *testing.T) {
 				t.Fatalf("cancel: %+v %q", reqs, buf.String())
 			}
 
+			reqs = nil
 			a, buf = flpServe(t, 200, `{"message":"ok"}`, &reqs)
 			if err := flpRun(t, dc.build(a), map[string]string{"force": "true"}, dc.args...); err != nil {
 				t.Fatal(err)
