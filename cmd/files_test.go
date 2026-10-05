@@ -528,17 +528,10 @@ func TestFilesDeleteCmd(t *testing.T) {
 
 	t.Run("interactive prompt confirm y", func(t *testing.T) {
 		var buf bytes.Buffer
-		a.printer = &output.Printer{Out: &buf, JSON: false}
+		a.printer = &output.Printer{Out: &buf, In: strings.NewReader("y\n"), JSON: false}
 		a.apiCli = client.New(ts.URL, "test-token")
 
 		filesDeleteCmd.Flags().Set("force", "false")
-
-		oldStdin := os.Stdin
-		r, w, _ := os.Pipe()
-		os.Stdin = r
-		w.Write([]byte("y\n"))
-		w.Close()
-		defer func() { os.Stdin = oldStdin }()
 
 		err := filesDeleteCmd.RunE(filesDeleteCmd, []string{"7", "16"})
 		if err != nil {
@@ -551,17 +544,10 @@ func TestFilesDeleteCmd(t *testing.T) {
 
 	t.Run("interactive prompt cancel n", func(t *testing.T) {
 		var buf bytes.Buffer
-		a.printer = &output.Printer{Out: &buf, JSON: false}
+		a.printer = &output.Printer{Out: &buf, In: strings.NewReader("n\n"), JSON: false}
 		a.apiCli = client.New(ts.URL, "test-token")
 
 		filesDeleteCmd.Flags().Set("force", "false")
-
-		oldStdin := os.Stdin
-		r, w, _ := os.Pipe()
-		os.Stdin = r
-		w.Write([]byte("n\n"))
-		w.Close()
-		defer func() { os.Stdin = oldStdin }()
 
 		err := filesDeleteCmd.RunE(filesDeleteCmd, []string{"7", "16"})
 		if err != nil {
