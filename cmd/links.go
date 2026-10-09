@@ -151,14 +151,12 @@ func linksUpdateCmd(a *app) *cobra.Command {
 			}
 
 			title, _ := cmd.Flags().GetString("title")
-			consent, _ := cmd.Flags().GetString("consent")
-			clearConsent, _ := cmd.Flags().GetBool("clear-consent")
-
-			if consent != "" && clearConsent {
-				return fmt.Errorf("cannot specify both --consent and --clear-consent")
+			consent, err := editFlag(cmd, "consent", "clear-consent")
+			if err != nil {
+				return err
 			}
 
-			payload, err := linkUpdatePayload(title, consent, clearConsent, func() (*SignupLinkItem, error) {
+			payload, err := linkUpdatePayload(title, consent, func() (*SignupLinkItem, error) {
 				return fetchExistingLink(a, projectID, linkID)
 			})
 			if err != nil {
@@ -208,25 +206,18 @@ func linksDeleteCmd(a *app) *cobra.Command {
 }
 
 // linkUpdatePayload builds a full PUT body, filling fields the user left unset from the existing link.
-func linkUpdatePayload(title, consent string, clearConsent bool, fetch func() (*SignupLinkItem, error)) (map[string]any, error) {
-	if title == "" || (!clearConsent && consent == "") {
+func linkUpdatePayload(title string, consent fieldEdit, fetch func() (*SignupLinkItem, error)) (map[string]any, error) {
+	if title == "" || consent.unset() {
 		existing, err := fetch()
 		if err != nil {
 			return nil, err
 		}
 		title = firstNonEmpty(title, existing.Title)
-		if !clearConsent {
-			consent = firstNonEmpty(consent, existing.OptInText)
-		}
+		consent = consent.orExisting(existing.OptInText)
 	}
 
 	payload := map[string]any{"title": title}
-	if clearConsent {
-		// The API keeps fields a PUT omits, so clearing needs an explicit null.
-		payload["opt_in_text"] = nil
-	} else if consent != "" {
-		payload["opt_in_text"] = consent
-	}
+	consent.putJSON(payload, "opt_in_text")
 	return payload, nil
 }
 

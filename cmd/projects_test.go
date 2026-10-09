@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -157,7 +158,8 @@ func TestProjectsUpdateRemoveCoverJSON(t *testing.T) {
 }
 
 func TestProjectsUpdateMultipartFieldsWithRemoveCover(t *testing.T) {
-	fields := buildProjectUpdateMultipartFields("My Title", "My Description", false, true)
+	fields := formBody{}
+	projectFields{title: fieldEdit{value: "My Title"}, description: fieldEdit{value: "My Description"}, removeCover: true}.writeTo(fields)
 	if fields["title"] != "My Title" {
 		t.Errorf("expected title 'My Title', got %q", fields["title"])
 	}
@@ -190,7 +192,8 @@ func TestProjectsUpdateMultipartRemoveCoverServer(t *testing.T) {
 	defer ts.Close()
 
 	c := client.New(ts.URL, "test-token")
-	fields := buildProjectUpdateMultipartFields("Sample", "", false, true)
+	fields := formBody{}
+	projectFields{title: fieldEdit{value: "Sample"}, removeCover: true}.writeTo(fields)
 	_, err := c.PostMultipart("/api/v1/projects/42", fields, "cover_image", dummyFile)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -1008,5 +1011,39 @@ func TestProjectsUpdateConflictingDescriptionFlags(t *testing.T) {
 	}
 	if requestReceived {
 		t.Errorf("expected no HTTP request to be sent when flags conflict, but request was received")
+	}
+}
+
+func TestProjectsUpdateSendsSameFieldsOverJSONAndMultipart(t *testing.T) {
+	cover := flpWriteFile(t, "c.jpg", "img")
+	for _, flags := range []map[string]string{
+		{"title": "T", "description": "D"},
+		{"title": "T", "clear-description": "true"},
+		{"description": "D"},
+	} {
+		var reqs []flpRequest
+		a, _ := flpServe(t, 200, `{}`, &reqs)
+		if err := flpRun(t, projectsUpdateCmd(a), flags, "4"); err != nil {
+			t.Fatal(err)
+		}
+		withCover := map[string]string{"cover": cover}
+		for k, v := range flags {
+			withCover[k] = v
+		}
+		a, _ = flpServe(t, 200, `{}`, &reqs)
+		if err := flpRun(t, projectsUpdateCmd(a), withCover, "4"); err != nil {
+			t.Fatal(err)
+		}
+		if len(reqs) != 2 || reqs[0].Method != "PUT" || reqs[1].Method != "POST" || reqs[1].Fields["_method"] != "PUT" {
+			t.Fatalf("%v: requests %+v", flags, reqs)
+		}
+		asForm := map[string]string{"_method": "PUT"}
+		for k, v := range reqs[0].Body {
+			s, _ := v.(string) // a JSON null clear is spelled "" in multipart
+			asForm[k] = s
+		}
+		if !reflect.DeepEqual(asForm, reqs[1].Fields) {
+			t.Errorf("%v: JSON %v vs multipart %v", flags, reqs[0].Body, reqs[1].Fields)
+		}
 	}
 }
