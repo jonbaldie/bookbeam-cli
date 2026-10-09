@@ -30,49 +30,34 @@ type ProjectListResponse struct {
 	Total       int           `json:"total"`
 }
 
-func validateProjectUpdateFlags(description, cover string, clearDescription, removeCover bool) error {
-	if cover != "" && removeCover {
-		return fmt.Errorf("cannot specify both --cover and --remove-cover")
-	}
-	if description != "" && clearDescription {
-		return fmt.Errorf("cannot specify both --description and --clear-description")
-	}
-	return nil
+// projectFields lists the fields a projects create or update request can send.
+type projectFields struct {
+	title, description fieldEdit
+	removeCover        bool
 }
 
-func buildProjectUpdatePayload(title, description string, clearDescription, removeCover bool) map[string]any {
-	payload := make(map[string]any)
-	if title != "" {
-		payload["title"] = title
-	}
-	if clearDescription {
-		// The API keeps fields a PUT omits, so clearing needs an explicit null.
-		payload["description"] = nil
-	} else if description != "" {
-		payload["description"] = description
-	}
-	if removeCover {
-		payload["remove_cover_image"] = true
-	}
-	return payload
+// fieldWriter is a request body being built in one transport's encoding.
+type fieldWriter interface {
+	edit(key string, e fieldEdit)
+	flag(key string)
 }
 
-func buildProjectUpdateMultipartFields(title, description string, clearDescription, removeCover bool) map[string]string {
-	fields := make(map[string]string)
-	if title != "" {
-		fields["title"] = title
+type jsonBody map[string]any
+
+func (b jsonBody) edit(key string, e fieldEdit) { e.putJSON(b, key) }
+func (b jsonBody) flag(key string)              { b[key] = true }
+
+type formBody map[string]string
+
+func (b formBody) edit(key string, e fieldEdit) { e.putForm(b, key) }
+func (b formBody) flag(key string)              { b[key] = "true" }
+
+func (f projectFields) writeTo(w fieldWriter) {
+	w.edit("title", f.title)
+	w.edit("description", f.description)
+	if f.removeCover {
+		w.flag("remove_cover_image")
 	}
-	if clearDescription {
-		// Multipart cannot carry a null; the API stores an empty field as null.
-		fields["description"] = ""
-	} else if description != "" {
-		fields["description"] = description
-	}
-	if removeCover {
-		fields["remove_cover_image"] = "true"
-	}
-	fields["_method"] = "PUT"
-	return fields
 }
 
 func projectsCmd(a *app) *cobra.Command {
@@ -185,24 +170,17 @@ func projectsCreateCmd(a *app) *cobra.Command {
 				return fmt.Errorf("--title is required")
 			}
 
+			fields := projectFields{title: fieldEdit{value: title}, description: fieldEdit{value: description}}
 			var raw []byte
 			var err error
 
 			if cover != "" {
-				fields := map[string]string{
-					"title": title,
-				}
-				if description != "" {
-					fields["description"] = description
-				}
-				raw, err = a.apiCli.PostMultipart("/api/v1/projects", fields, "cover_image", cover)
+				form := formBody{}
+				fields.writeTo(form)
+				raw, err = a.apiCli.PostMultipart("/api/v1/projects", form, "cover_image", cover)
 			} else {
-				payload := map[string]string{
-					"title": title,
-				}
-				if description != "" {
-					payload["description"] = description
-				}
+				payload := jsonBody{}
+				fields.writeTo(payload)
 				raw, err = a.apiCli.Post("/api/v1/projects", payload)
 			}
 
@@ -238,22 +216,25 @@ func projectsUpdateCmd(a *app) *cobra.Command {
 				return err
 			}
 			title, _ := cmd.Flags().GetString("title")
-			description, _ := cmd.Flags().GetString("description")
-			cover, _ := cmd.Flags().GetString("cover")
-			removeCover, _ := cmd.Flags().GetBool("remove-cover")
-			clearDescription, _ := cmd.Flags().GetBool("clear-description")
-
-			if err := validateProjectUpdateFlags(description, cover, clearDescription, removeCover); err != nil {
+			cover, err := editFlag(cmd, "cover", "remove-cover")
+			if err != nil {
 				return err
 			}
+			description, err := editFlag(cmd, "description", "clear-description")
+			if err != nil {
+				return err
+			}
+			fields := projectFields{title: fieldEdit{value: title}, description: description, removeCover: cover.clear}
 
 			var raw []byte
 
-			if cover != "" {
-				fields := buildProjectUpdateMultipartFields(title, description, clearDescription, removeCover)
-				raw, err = a.apiCli.PostMultipart(fmt.Sprintf("/api/v1/projects/%d", projectID), fields, "cover_image", cover)
+			if cover.value != "" {
+				form := formBody{"_method": "PUT"}
+				fields.writeTo(form)
+				raw, err = a.apiCli.PostMultipart(fmt.Sprintf("/api/v1/projects/%d", projectID), form, "cover_image", cover.value)
 			} else {
-				payload := buildProjectUpdatePayload(title, description, clearDescription, removeCover)
+				payload := jsonBody{}
+				fields.writeTo(payload)
 				raw, err = a.apiCli.Put(fmt.Sprintf("/api/v1/projects/%d", projectID), payload)
 			}
 
@@ -315,24 +296,18 @@ func fetchExistingProject(a *app, projectID int) (*ProjectItem, error) {
 	return &response.Data, nil
 }
 
-func projectNewsletterPayload(listID, tags string, clearTags bool, fetch func() (*ProjectItem, error)) (map[string]any, error) {
-	if listID == "" || (!clearTags && tags == "") {
+func projectNewsletterPayload(listID string, tags fieldEdit, fetch func() (*ProjectItem, error)) (map[string]any, error) {
+	if listID == "" || tags.unset() {
 		existing, err := fetch()
 		if err != nil {
 			return nil, err
 		}
 		listID = firstNonEmpty(listID, existing.NewsletterListID)
-		if !clearTags {
-			tags = firstNonEmpty(tags, strings.Join(existing.NewsletterTags, ","))
-		}
+		tags = tags.orExisting(strings.Join(existing.NewsletterTags, ","))
 	}
 
 	payload := map[string]any{"newsletter_list_id": listID}
-	if clearTags {
-		payload["newsletter_tags"] = nil
-	} else if tags != "" {
-		payload["newsletter_tags"] = tags
-	}
+	tags.putJSON(payload, "newsletter_tags")
 	return payload, nil
 }
 
@@ -347,17 +322,15 @@ func projectsNewsletterCmd(a *app) *cobra.Command {
 				return err
 			}
 			listID, _ := cmd.Flags().GetString("list-id")
-			tags, _ := cmd.Flags().GetString("tags")
-			clearTags, _ := cmd.Flags().GetBool("clear-tags")
-
-			if tags != "" && clearTags {
-				return fmt.Errorf("cannot specify both --tags and --clear-tags")
+			tags, err := editFlag(cmd, "tags", "clear-tags")
+			if err != nil {
+				return err
 			}
-			if listID == "" && tags == "" && !clearTags {
+			if listID == "" && tags.unset() {
 				return fmt.Errorf("specify --list-id, --tags, or --clear-tags")
 			}
 
-			payload, err := projectNewsletterPayload(listID, tags, clearTags, func() (*ProjectItem, error) {
+			payload, err := projectNewsletterPayload(listID, tags, func() (*ProjectItem, error) {
 				return fetchExistingProject(a, projectID)
 			})
 			if err != nil {

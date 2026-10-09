@@ -600,11 +600,11 @@ func TestFlpLinkUpdatePayloadSkipsFetchWhenClearingWithTitle(t *testing.T) {
 		calls++
 		return &SignupLinkItem{Title: "Old", OptInText: "Old consent"}, nil
 	}
-	got, err := linkUpdatePayload("New", "", true, fetch)
+	got, err := linkUpdatePayload("New", fieldEdit{clear: true}, fetch)
 	if err != nil || calls != 0 || !reflect.DeepEqual(got, map[string]any{"title": "New", "opt_in_text": nil}) {
 		t.Fatalf("got %v %v calls=%d", got, err, calls)
 	}
-	got, err = linkUpdatePayload("", "", true, fetch)
+	got, err = linkUpdatePayload("", fieldEdit{clear: true}, fetch)
 	if err != nil || calls != 1 || !reflect.DeepEqual(got, map[string]any{"title": "Old", "opt_in_text": nil}) {
 		t.Fatalf("got %v %v calls=%d", got, err, calls)
 	}
@@ -801,17 +801,22 @@ func TestFlpProjectsUpdate(t *testing.T) {
 	flpAPIStatus(t, flpRun(t, projectsUpdateCmd(a), nil, "4"), 403)
 }
 
-func TestFlpBuildProjectUpdateMultipartFields(t *testing.T) {
-	if got := buildProjectUpdateMultipartFields("", "", false, false); !reflect.DeepEqual(got, map[string]string{"_method": "PUT"}) {
-		t.Fatalf("got %v", got)
+func TestFlpProjectFieldsWriteForm(t *testing.T) {
+	cases := []struct {
+		fields projectFields
+		want   map[string]string
+	}{
+		{projectFields{}, map[string]string{}},
+		{projectFields{title: fieldEdit{value: "A"}, description: fieldEdit{value: "B"}, removeCover: true},
+			map[string]string{"title": "A", "description": "B", "remove_cover_image": "true"}},
+		{projectFields{description: fieldEdit{clear: true}}, map[string]string{"description": ""}},
 	}
-	want := map[string]string{"title": "A", "description": "B", "remove_cover_image": "true", "_method": "PUT"}
-	if got := buildProjectUpdateMultipartFields("A", "B", false, true); !reflect.DeepEqual(got, want) {
-		t.Fatalf("got %v", got)
-	}
-	cleared := map[string]string{"description": "", "_method": "PUT"}
-	if got := buildProjectUpdateMultipartFields("", "", true, false); !reflect.DeepEqual(got, cleared) {
-		t.Fatalf("got %v", got)
+	for _, tc := range cases {
+		got := formBody{}
+		tc.fields.writeTo(got)
+		if !reflect.DeepEqual(map[string]string(got), tc.want) {
+			t.Fatalf("got %v, want %v", got, tc.want)
+		}
 	}
 }
 
@@ -857,28 +862,28 @@ func TestFlpProjectNewsletterPayloadSkipsFetchWhenComplete(t *testing.T) {
 		calls++
 		return &ProjectItem{NewsletterListID: "old-list", NewsletterTags: []string{"old-tags"}}, nil
 	}
-	got, err := projectNewsletterPayload("L1", "a,b", false, fetch)
+	got, err := projectNewsletterPayload("L1", fieldEdit{value: "a,b"}, fetch)
 	if err != nil || calls != 0 || !reflect.DeepEqual(got, map[string]any{"newsletter_list_id": "L1", "newsletter_tags": "a,b"}) {
 		t.Fatalf("got %v %v calls=%d", got, err, calls)
 	}
-	got, err = projectNewsletterPayload("L1", "", true, fetch)
+	got, err = projectNewsletterPayload("L1", fieldEdit{clear: true}, fetch)
 	if err != nil || calls != 0 || !reflect.DeepEqual(got, map[string]any{"newsletter_list_id": "L1", "newsletter_tags": nil}) {
 		t.Fatalf("got %v %v calls=%d", got, err, calls)
 	}
-	got, err = projectNewsletterPayload("", "", true, fetch)
+	got, err = projectNewsletterPayload("", fieldEdit{clear: true}, fetch)
 	if err != nil || calls != 1 || !reflect.DeepEqual(got, map[string]any{"newsletter_list_id": "old-list", "newsletter_tags": nil}) {
 		t.Fatalf("got %v %v calls=%d", got, err, calls)
 	}
-	got, err = projectNewsletterPayload("L1", "", false, fetch)
+	got, err = projectNewsletterPayload("L1", fieldEdit{}, fetch)
 	if err != nil || calls != 2 || !reflect.DeepEqual(got, map[string]any{"newsletter_list_id": "L1", "newsletter_tags": "old-tags"}) {
 		t.Fatalf("got %v %v calls=%d", got, err, calls)
 	}
-	got, err = projectNewsletterPayload("", "new", false, fetch)
+	got, err = projectNewsletterPayload("", fieldEdit{value: "new"}, fetch)
 	if err != nil || calls != 3 || !reflect.DeepEqual(got, map[string]any{"newsletter_list_id": "old-list", "newsletter_tags": "new"}) {
 		t.Fatalf("got %v %v calls=%d", got, err, calls)
 	}
 	fetchErr := errors.New("fetch failed")
-	got, err = projectNewsletterPayload("", "new", false, func() (*ProjectItem, error) { return nil, fetchErr })
+	got, err = projectNewsletterPayload("", fieldEdit{value: "new"}, func() (*ProjectItem, error) { return nil, fetchErr })
 	if err != fetchErr || got != nil {
 		t.Fatalf("got %v %v", got, err)
 	}

@@ -157,7 +157,8 @@ func TestProjectsUpdateRemoveCoverJSON(t *testing.T) {
 }
 
 func TestProjectsUpdateMultipartFieldsWithRemoveCover(t *testing.T) {
-	fields := buildProjectUpdateMultipartFields("My Title", "My Description", false, true)
+	fields := formBody{}
+	projectFields{title: fieldEdit{value: "My Title"}, description: fieldEdit{value: "My Description"}, removeCover: true}.writeTo(fields)
 	if fields["title"] != "My Title" {
 		t.Errorf("expected title 'My Title', got %q", fields["title"])
 	}
@@ -190,7 +191,8 @@ func TestProjectsUpdateMultipartRemoveCoverServer(t *testing.T) {
 	defer ts.Close()
 
 	c := client.New(ts.URL, "test-token")
-	fields := buildProjectUpdateMultipartFields("Sample", "", false, true)
+	fields := formBody{}
+	projectFields{title: fieldEdit{value: "Sample"}, removeCover: true}.writeTo(fields)
 	_, err := c.PostMultipart("/api/v1/projects/42", fields, "cover_image", dummyFile)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
