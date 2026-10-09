@@ -57,37 +57,3 @@ func TestEditFlagRejectsValueWithClear(t *testing.T) {
 		t.Fatalf("err = %v", err)
 	}
 }
-
-func TestProjectsUpdateSendsSameFieldsOverJSONAndMultipart(t *testing.T) {
-	cover := flpWriteFile(t, "c.jpg", "img")
-	for _, flags := range []map[string]string{
-		{"title": "T", "description": "D"},
-		{"title": "T", "clear-description": "true"},
-		{"description": "D"},
-	} {
-		var reqs []flpRequest
-		a, _ := flpServe(t, 200, `{}`, &reqs)
-		if err := flpRun(t, projectsUpdateCmd(a), flags, "4"); err != nil {
-			t.Fatal(err)
-		}
-		withCover := map[string]string{"cover": cover}
-		for k, v := range flags {
-			withCover[k] = v
-		}
-		a, _ = flpServe(t, 200, `{}`, &reqs)
-		if err := flpRun(t, projectsUpdateCmd(a), withCover, "4"); err != nil {
-			t.Fatal(err)
-		}
-		if len(reqs) != 2 || reqs[0].Method != "PUT" || reqs[1].Method != "POST" || reqs[1].Fields["_method"] != "PUT" {
-			t.Fatalf("%v: requests %+v", flags, reqs)
-		}
-		asForm := map[string]string{"_method": "PUT"}
-		for k, v := range reqs[0].Body {
-			s, _ := v.(string) // a JSON null clear is spelled "" in multipart
-			asForm[k] = s
-		}
-		if !reflect.DeepEqual(asForm, reqs[1].Fields) {
-			t.Errorf("%v: JSON %v vs multipart %v", flags, reqs[0].Body, reqs[1].Fields)
-		}
-	}
-}

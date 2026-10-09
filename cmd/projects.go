@@ -30,7 +30,7 @@ type ProjectListResponse struct {
 	Total       int           `json:"total"`
 }
 
-// projectFields lists the fields a projects create or update request can send.
+// projectFields lists the fields a projects create or update request can send; only update removes a cover.
 type projectFields struct {
 	title, description fieldEdit
 	removeCover        bool
