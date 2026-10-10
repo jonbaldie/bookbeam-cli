@@ -1,0 +1,976 @@
+Journey 1: isolated authentication and config persistence
+$ bookbeam whoami
+stdout:
+
+stderr:
+Error: Not authenticated. Run 'bookbeam auth login' to authenticate.
+
+exit=1
+CHECK fresh config unauthenticated (1): PASS
+$ bookbeam auth login --token exploratory-fake-token --json
+stdout:
+{
+  "host": "https://bookbeam.app",
+  "logged_in": true
+}
+
+stderr:
+
+exit=0
+CHECK login result and stored token (1): PASS
+fresh modes dir=0700 config=0600
+$ bookbeam whoami
+stdout:
+
+stderr:
+Usage:
+  bookbeam whoami [flags]
+
+Flags:
+  -h, --help   help for whoami
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to get user details: Get "http://127.0.0.1:1/api/v1/user": dial tcp 127.0.0.1:1: connect: connection refused
+
+exit=1
+CHECK overrides did not persist (1): PASS
+$ bookbeam auth logout --json
+stdout:
+{
+  "host": "https://bookbeam.app",
+  "logged_in": false
+}
+
+stderr:
+
+exit=0
+CHECK logout removed stored token (1): PASS
+$ bookbeam auth login --token exploratory-permission-sentinel
+stdout:
+✓ Authentication token saved successfully.
+
+stderr:
+
+exit=0
+CHECK login secures pre-existing 0644 file (1): FAIL
+existing config after login: mode=0644; sentinel persisted=True
+$ bookbeam auth logout --json
+stdout:
+{
+  "host": "https://bookbeam.app",
+  "logged_in": false
+}
+
+stderr:
+
+exit=0
+$ bookbeam whoami
+stdout:
+
+stderr:
+Error: Not authenticated. Run 'bookbeam auth login' to authenticate.
+
+exit=1
+CHECK fresh config unauthenticated (2): PASS
+$ bookbeam auth login --token exploratory-fake-token --json
+stdout:
+{
+  "host": "https://bookbeam.app",
+  "logged_in": true
+}
+
+stderr:
+
+exit=0
+CHECK login result and stored token (2): PASS
+fresh modes dir=0700 config=0600
+$ bookbeam whoami
+stdout:
+
+stderr:
+Usage:
+  bookbeam whoami [flags]
+
+Flags:
+  -h, --help   help for whoami
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to get user details: Get "http://127.0.0.1:1/api/v1/user": dial tcp 127.0.0.1:1: connect: connection refused
+
+exit=1
+CHECK overrides did not persist (2): PASS
+$ bookbeam auth logout --json
+stdout:
+{
+  "host": "https://bookbeam.app",
+  "logged_in": false
+}
+
+stderr:
+
+exit=0
+CHECK logout removed stored token (2): PASS
+$ bookbeam auth login --token exploratory-permission-sentinel
+stdout:
+✓ Authentication token saved successfully.
+
+stderr:
+
+exit=0
+CHECK login secures pre-existing 0644 file (2): FAIL
+existing config after login: mode=0644; sentinel persisted=True
+$ bookbeam auth logout --json
+stdout:
+{
+  "host": "https://bookbeam.app",
+  "logged_in": false
+}
+
+stderr:
+
+exit=0
+Journey 2: live project and signup-link lifecycle
+$ bookbeam whoami --json
+stdout:
+{
+  "created_at": "2026-01-15T09:09:55.000000Z",
+  "current_team": {
+    "created_at": "2026-01-15T09:09:55.000000Z",
+    "id": 1,
+    "name": "Jonathan's Team",
+    "newsletter_provider": "mailcoach",
+    "newsletter_provider_config": {
+      "api_token": "[REDACTED]",
+      "api_url": "https://subject-zero.mailcoach.app",
+      "default_list_id": null
+    },
+    "newsletter_webhook_url": null,
+    "personal_team": true,
+    "updated_at": "2026-09-30T02:33:56.000000Z",
+    "user_id": 1
+  },
+  "current_team_id": 1,
+  "email": "[REDACTED-EMAIL]",
+  "email_verified_at": null,
+  "id": 1,
+  "name": "Jonathan Baldie",
+  "profile_photo_path": null,
+  "profile_photo_url": "https://ui-avatars.com/api/?name=J+B\u0026color=7F9CF5\u0026background=EBF4FF",
+  "two_factor_confirmed_at": null,
+  "updated_at": "2026-01-23T07:42:39.000000Z"
+}
+
+stderr:
+
+exit=0
+CHECK identity ready: PASS
+$ bookbeam projects list --json
+stdout:
+{
+  "current_page": 1,
+  "data": [
+    {
+      "cover_image_path": null,
+      "cover_image_url": null,
+      "created_at": "2026-09-26T02:01:41.000000Z",
+      "description": "Testing links and newsletter",
+      "files_count": 0,
+      "id": 21,
+      "newsletter_list_id": "18c50c64-242c-4127-ad48-d2fac6321bce",
+      "newsletter_tags": null,
+      "signup_links_count": 0,
+      "title": "Exploratory Journey 2 Links",
+      "updated_at": "2026-10-02T01:26:42.000000Z"
+    },
+    {
+      "cover_image_path": "cover-images/3ZQWSNE5peEhDtjaCtYSw3FGm0wjDyPBmv2CHWix.png",
+      "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/3ZQWSNE5peEhDtjaCtYSw3FGm0wjDyPBmv2CHWix.png",
+      "created_at": "2026-03-26T11:27:38.000000Z",
+      "description": "A 19-page PDF showing how authors built their email lists - strategies, costs, and results from 10 case studies.",
+      "files_count": 1,
+      "id": 6,
+      "newsletter_list_id": "f360d073-6b24-404e-bb01-c8d9d1e1cf16",
+      "newsletter_tags": null,
+      "signup_links_count": 1,
+      "title": "Reader Magnet Playbook",
+      "updated_at": "2026-03-26T11:44:46.000000Z"
+    },
+    {
+      "cover_image_path": "cover-images/yQV7nF4C6zvvpWIdry7fHkcKGxqdwK9Pf2uzl8UO.jpg",
+      "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/yQV7nF4C6zvvpWIdry7fHkcKGxqdwK9Pf2uzl8UO.jpg",
+      "created_at": "2026-03-25T19:58:11.000000Z",
+      "description": "Get Part 1 of my novel Ashes of the Waterfall for free! ",
+      "files_count": 2,
+      "id": 5,
+      "newsletter_list_id": "6ca38df7-a87d-4c93-889e-7c73f486b2ca",
+      "newsletter_tags": null,
+      "signup_links_count": 1,
+      "title": "Ashes of the Waterfall",
+      "updated_at": "2026-03-25T20:48:59.000000Z"
+    },
+    {
+      "cover_image_path": "cover-images/9az3RTZpgaViawoX6Gl82pPUj9ubQEXfKM6WxaWQ.jpg",
+      "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/9az3RTZpgaViawoX6Gl82pPUj9ubQEXfKM6WxaWQ.jpg",
+      "created_at": "2026-03-17T19:58:41.000000Z",
+      "description": "",
+      "files_count": 6,
+      "id": 4,
+      "newsletter_list_id": "c6ca4cc0-e643-43e7-9a6d-2aba6e7e07e5",
+      "newsletter_tags": null,
+      "signup_links_count": 1,
+      "title": "D.W. Stein Sci-fi Starter Library",
+      "updated_at": "2026-03-18T13:33:50.000000Z"
+    },
+    {
+      "cover_image_path": null,
+      "cover_image_url": null,
+      "created_at": "2026-01-31T16:43:16.000000Z",
+      "description": "Test description",
+      "files_count": 0,
+      "id": 3,
+      "newsletter_list_id": null,
+      "newsletter_tags": null,
+      "signup_links_count": 0,
+      "title": "Test for Lemon Squeezy",
+      "updated_at": "2026-01-31T16:43:16.000000Z"
+    },
+    {
+      "cover_image_path": "cover-images/W2wk8eQ29YJ2TSLJK78ePqG1fB4rvJ2GPZBgUttX.png",
+      "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/W2wk8eQ29YJ2TSLJK78ePqG1fB4rvJ2GPZBgUttX.png",
+      "created_at": "2026-01-15T16:36:49.000000Z",
+      "description": "Get two free sci-fi stories \"Open It\" and \"The Deep Blue\" for free now, and be the first to hear about new books in my series! ",
+      "files_count": 2,
+      "id": 2,
+      "newsletter_list_id": null,
+      "newsletter_tags": null,
+      "signup_links_count": 1,
+      "title": "The Deep Blue",
+      "updated_at": "2026-01-15T16:36:49.000000Z"
+    },
+    {
+      "cover_image_path": "cover-images/TdWWwjpEC2KdaFhXgUXgSuHonHbKEOEn1YURvvEp.jpg",
+      "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/TdWWwjpEC2KdaFhXgUXgSuHonHbKEOEn1YURvvEp.jpg",
+      "created_at": "2026-01-15T09:10:44.000000Z",
+      "description": "Tark's life is a magical dumpster fire... ",
+      "files_count": 1,
+      "id": 1,
+      "newsletter_list_id": null,
+      "newsletter_tags": null,
+      "signup_links_count": 1,
+      "title": "Tark: A Half-Serious Magical Adventure",
+      "updated_at": "2026-01-15T14:25:58.000000Z"
+    }
+  ],
+  "first_page_url": "https://bookbeam.app/api/v1/projects?page=1",
+  "from": 1,
+  "last_page": 1,
+  "last_page_url": "https://bookbeam.app/api/v1/projects?page=1",
+  "links": [
+    {
+      "active": false,
+      "label": "\u0026laquo; Previous",
+      "page": null,
+      "url": null
+    },
+    {
+      "active": true,
+      "label": "1",
+      "page": 1,
+      "url": "https://bookbeam.app/api/v1/projects?page=1"
+    },
+    {
+      "active": false,
+      "label": "Next \u0026raquo;",
+      "page": null,
+      "url": null
+    }
+  ],
+  "next_page_url": null,
+  "path": "https://bookbeam.app/api/v1/projects",
+  "per_page": 15,
+  "prev_page_url": null,
+  "to": 7,
+  "total": 7
+}
+
+stderr:
+
+exit=0
+$ bookbeam projects create --title 'Exploratory 2026-10-10 disposable' --description 'Initial description' --json
+stdout:
+{
+  "data": {
+    "cover_image_path": null,
+    "cover_image_url": null,
+    "created_at": "2026-10-10T01:47:14.000000Z",
+    "description": "Initial description",
+    "files_count": 0,
+    "id": 27,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "Exploratory 2026-10-10 disposable",
+    "updated_at": "2026-10-10T01:47:14.000000Z"
+  }
+}
+
+stderr:
+
+exit=0
+$ bookbeam projects update 27 --title 'Exploratory renamed' --json
+stdout:
+{
+  "data": {
+    "cover_image_path": null,
+    "cover_image_url": null,
+    "created_at": "2026-10-10T01:47:14.000000Z",
+    "description": "Initial description",
+    "files_count": 0,
+    "id": 27,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "Exploratory renamed",
+    "updated_at": "2026-10-10T01:47:14.000000Z"
+  }
+}
+
+stderr:
+
+exit=0
+$ bookbeam projects get 27 --json
+stdout:
+{
+  "data": {
+    "cover_image_path": null,
+    "cover_image_url": null,
+    "created_at": "2026-10-10T01:47:14.000000Z",
+    "description": "Initial description",
+    "files_count": 0,
+    "id": 27,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "Exploratory renamed",
+    "updated_at": "2026-10-10T01:47:14.000000Z"
+  }
+}
+
+stderr:
+
+exit=0
+CHECK title update preserves description: PASS
+$ bookbeam projects update 27 --clear-description --json
+stdout:
+{
+  "data": {
+    "cover_image_path": null,
+    "cover_image_url": null,
+    "created_at": "2026-10-10T01:47:14.000000Z",
+    "description": null,
+    "files_count": 0,
+    "id": 27,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "Exploratory renamed",
+    "updated_at": "2026-10-10T01:47:14.000000Z"
+  }
+}
+
+stderr:
+
+exit=0
+$ bookbeam projects get 27 --json
+stdout:
+{
+  "data": {
+    "cover_image_path": null,
+    "cover_image_url": null,
+    "created_at": "2026-10-10T01:47:14.000000Z",
+    "description": null,
+    "files_count": 0,
+    "id": 27,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "Exploratory renamed",
+    "updated_at": "2026-10-10T01:47:14.000000Z"
+  }
+}
+
+stderr:
+
+exit=0
+CHECK description cleared after reopen: PASS
+$ bookbeam projects update 27 --description Conflict --clear-description
+stdout:
+
+stderr:
+Usage:
+  bookbeam projects update <project-id> [flags]
+
+Flags:
+      --clear-description    Clear the book project description
+      --cover string         Path to new cover image file
+      --description string   Updated book project description
+  -h, --help                 help for update
+      --remove-cover         Remove current cover image
+      --title string         Updated book project title
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: cannot specify both --description and --clear-description
+
+exit=1
+$ bookbeam projects get 27 --json
+stdout:
+{
+  "data": {
+    "cover_image_path": null,
+    "cover_image_url": null,
+    "created_at": "2026-10-10T01:47:14.000000Z",
+    "description": null,
+    "files_count": 0,
+    "id": 27,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "Exploratory renamed",
+    "updated_at": "2026-10-10T01:47:14.000000Z"
+  }
+}
+
+stderr:
+
+exit=0
+CHECK conflicting flags fail without changing state: PASS
+$ bookbeam links create 27 --title 'Sample chapter' --consent 'Join my newsletter' --json
+stdout:
+{
+  "data": {
+    "book_project_id": 27,
+    "created_at": "2026-10-10T01:47:15.000000Z",
+    "id": 24,
+    "opt_in_text": "Join my newsletter",
+    "signups_count": 0,
+    "slug": "hoF1YvRU8N",
+    "title": "Sample chapter",
+    "updated_at": "2026-10-10T01:47:15.000000Z"
+  }
+}
+
+stderr:
+
+exit=0
+$ bookbeam links update 27 24 --title 'Updated chapter' --json
+stdout:
+{
+  "data": {
+    "book_project_id": 27,
+    "created_at": "2026-10-10T01:47:15.000000Z",
+    "id": 24,
+    "opt_in_text": "Join my newsletter",
+    "signups_count": 0,
+    "slug": "hoF1YvRU8N",
+    "title": "Updated chapter",
+    "updated_at": "2026-10-10T01:47:15.000000Z"
+  }
+}
+
+stderr:
+
+exit=0
+$ bookbeam links list 27 --json
+stdout:
+{
+  "data": [
+    {
+      "book_project_id": 27,
+      "created_at": "2026-10-10T01:47:15.000000Z",
+      "id": 24,
+      "opt_in_text": "Join my newsletter",
+      "signups_count": 0,
+      "slug": "hoF1YvRU8N",
+      "title": "Updated chapter",
+      "updated_at": "2026-10-10T01:47:15.000000Z"
+    }
+  ]
+}
+
+stderr:
+
+exit=0
+CHECK link title update preserves consent: PASS
+$ bookbeam links update 27 24 --clear-consent --json
+stdout:
+{
+  "data": {
+    "book_project_id": 27,
+    "created_at": "2026-10-10T01:47:15.000000Z",
+    "id": 24,
+    "opt_in_text": null,
+    "signups_count": 0,
+    "slug": "hoF1YvRU8N",
+    "title": "Updated chapter",
+    "updated_at": "2026-10-10T01:47:15.000000Z"
+  }
+}
+
+stderr:
+
+exit=0
+$ bookbeam links list 27 --json
+stdout:
+{
+  "data": [
+    {
+      "book_project_id": 27,
+      "created_at": "2026-10-10T01:47:15.000000Z",
+      "id": 24,
+      "opt_in_text": null,
+      "signups_count": 0,
+      "slug": "hoF1YvRU8N",
+      "title": "Updated chapter",
+      "updated_at": "2026-10-10T01:47:15.000000Z"
+    }
+  ]
+}
+
+stderr:
+
+exit=0
+CHECK consent clear persisted: PASS
+$ bookbeam links delete 27 24
+stdout:
+Are you sure you want to delete link #24? (y/N): Cancelled.
+
+stderr:
+
+exit=0
+$ bookbeam links list 27 --json
+stdout:
+{
+  "data": [
+    {
+      "book_project_id": 27,
+      "created_at": "2026-10-10T01:47:15.000000Z",
+      "id": 24,
+      "opt_in_text": null,
+      "signups_count": 0,
+      "slug": "hoF1YvRU8N",
+      "title": "Updated chapter",
+      "updated_at": "2026-10-10T01:47:15.000000Z"
+    }
+  ]
+}
+
+stderr:
+
+exit=0
+CHECK cancel leaves link: PASS
+$ bookbeam links delete 27 24 --force --json
+stdout:
+{
+  "message": "Signup link deleted successfully."
+}
+
+stderr:
+
+exit=0
+$ bookbeam links list 27 --json
+stdout:
+{
+  "data": []
+}
+
+stderr:
+
+exit=0
+CHECK forced delete persisted: PASS
+Journey 3: book file round trip and subscriber export
+$ bookbeam files upload 27 '/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/two words.epub' --json
+stdout:
+{
+  "data": {
+    "book_project_id": 27,
+    "created_at": "2026-10-10T01:47:17.000000Z",
+    "downloads_count": 0,
+    "file_size": 1230,
+    "file_type": "epub",
+    "filename": "two words.epub",
+    "id": 29,
+    "updated_at": "2026-10-10T01:47:17.000000Z"
+  }
+}
+
+stderr:
+
+exit=0
+$ bookbeam files list 27 --json
+stdout:
+{
+  "data": [
+    {
+      "book_project_id": 27,
+      "created_at": "2026-10-10T01:47:17.000000Z",
+      "downloads_count": 0,
+      "file_size": 1230,
+      "file_type": "epub",
+      "filename": "two words.epub",
+      "id": 29,
+      "updated_at": "2026-10-10T01:47:17.000000Z"
+    }
+  ]
+}
+
+stderr:
+
+exit=0
+CHECK upload listed with original filename: PASS
+$ bookbeam files download 27 29 -o /Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/downloaded.epub --json
+stdout:
+{
+  "bytes_written": 1230,
+  "file_id": 29,
+  "path": "/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/downloaded.epub",
+  "project_id": 27
+}
+
+stderr:
+
+exit=0
+CHECK explicit download byte-identical: PASS
+$ bookbeam files download 27 29 --json
+stdout:
+{
+  "bytes_written": 1230,
+  "file_id": 29,
+  "path": "two words.epub",
+  "project_id": 27
+}
+
+stderr:
+
+exit=0
+CHECK automatic filename download byte-identical: PASS
+$ bookbeam files delete 27 29
+stdout:
+Are you sure you want to delete file #29 from project #27? (y/N): Cancelled.
+
+stderr:
+
+exit=0
+$ bookbeam files list 27 --json
+stdout:
+{
+  "data": [
+    {
+      "book_project_id": 27,
+      "created_at": "2026-10-10T01:47:17.000000Z",
+      "downloads_count": 0,
+      "file_size": 1230,
+      "file_type": "epub",
+      "filename": "two words.epub",
+      "id": 29,
+      "updated_at": "2026-10-10T01:47:17.000000Z"
+    }
+  ]
+}
+
+stderr:
+
+exit=0
+CHECK cancel leaves file: PASS
+$ bookbeam files delete 27 29 --force --json
+stdout:
+{
+  "message": "File deleted successfully."
+}
+
+stderr:
+
+exit=0
+$ bookbeam files list 27 --json
+stdout:
+{
+  "data": []
+}
+
+stderr:
+
+exit=0
+CHECK forced file delete persisted: PASS
+$ bookbeam downloaders list 27 --json
+stdout:
+{
+  "current_page": 1,
+  "data": [],
+  "first_page_url": "https://bookbeam.app/api/v1/projects/27/downloaders?page=1",
+  "from": null,
+  "last_page": 1,
+  "last_page_url": "https://bookbeam.app/api/v1/projects/27/downloaders?page=1",
+  "links": [
+    {
+      "active": false,
+      "label": "\u0026laquo; Previous",
+      "page": null,
+      "url": null
+    },
+    {
+      "active": true,
+      "label": "1",
+      "page": 1,
+      "url": "https://bookbeam.app/api/v1/projects/27/downloaders?page=1"
+    },
+    {
+      "active": false,
+      "label": "Next \u0026raquo;",
+      "page": null,
+      "url": null
+    }
+  ],
+  "next_page_url": null,
+  "path": "https://bookbeam.app/api/v1/projects/27/downloaders",
+  "per_page": 15,
+  "prev_page_url": null,
+  "to": null,
+  "total": 0
+}
+
+stderr:
+
+exit=0
+CHECK empty project has no downloaders: PASS
+$ bookbeam downloaders export 27 -o /Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/empty.csv --json
+stdout:
+{
+  "bytes_written": 35,
+  "path": "/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/empty.csv",
+  "project_id": 27
+}
+
+stderr:
+
+exit=0
+CHECK empty CSV metadata matches saved file: PASS
+empty CSV rows: [['Email', 'Signed Up At', 'Source Link']]
+$ bookbeam downloaders export 27 --json
+stdout:
+{
+  "bytes_written": 35,
+  "path": "downloaders-project-27.csv",
+  "project_id": 27
+}
+
+stderr:
+
+exit=0
+CHECK default CSV survives reopening and matches explicit export: PASS
+$ bookbeam projects delete 27
+stdout:
+Are you sure you want to delete project #27? (y/N): Cancelled.
+
+stderr:
+
+exit=0
+$ bookbeam projects get 27 --json
+stdout:
+{
+  "data": {
+    "cover_image_path": null,
+    "cover_image_url": null,
+    "created_at": "2026-10-10T01:47:14.000000Z",
+    "description": null,
+    "files_count": 0,
+    "id": 27,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "Exploratory renamed",
+    "updated_at": "2026-10-10T01:47:14.000000Z"
+  }
+}
+
+stderr:
+
+exit=0
+CHECK cancel leaves project: PASS
+$ bookbeam projects delete 27 --force --json
+stdout:
+{
+  "message": "Project deleted successfully."
+}
+
+stderr:
+
+exit=0
+$ bookbeam projects get 27 --json
+stdout:
+
+stderr:
+Usage:
+  bookbeam projects get <project-id> [flags]
+
+Flags:
+  -h, --help   help for get
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: API error (404): No query results for model [App\Models\BookProject] 27
+
+exit=1
+CHECK project removed (GET 404): PASS
+$ bookbeam projects list --json
+stdout:
+{
+  "current_page": 1,
+  "data": [
+    {
+      "cover_image_path": null,
+      "cover_image_url": null,
+      "created_at": "2026-09-26T02:01:41.000000Z",
+      "description": "Testing links and newsletter",
+      "files_count": 0,
+      "id": 21,
+      "newsletter_list_id": "18c50c64-242c-4127-ad48-d2fac6321bce",
+      "newsletter_tags": null,
+      "signup_links_count": 0,
+      "title": "Exploratory Journey 2 Links",
+      "updated_at": "2026-10-02T01:26:42.000000Z"
+    },
+    {
+      "cover_image_path": "cover-images/3ZQWSNE5peEhDtjaCtYSw3FGm0wjDyPBmv2CHWix.png",
+      "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/3ZQWSNE5peEhDtjaCtYSw3FGm0wjDyPBmv2CHWix.png",
+      "created_at": "2026-03-26T11:27:38.000000Z",
+      "description": "A 19-page PDF showing how authors built their email lists - strategies, costs, and results from 10 case studies.",
+      "files_count": 1,
+      "id": 6,
+      "newsletter_list_id": "f360d073-6b24-404e-bb01-c8d9d1e1cf16",
+      "newsletter_tags": null,
+      "signup_links_count": 1,
+      "title": "Reader Magnet Playbook",
+      "updated_at": "2026-03-26T11:44:46.000000Z"
+    },
+    {
+      "cover_image_path": "cover-images/yQV7nF4C6zvvpWIdry7fHkcKGxqdwK9Pf2uzl8UO.jpg",
+      "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/yQV7nF4C6zvvpWIdry7fHkcKGxqdwK9Pf2uzl8UO.jpg",
+      "created_at": "2026-03-25T19:58:11.000000Z",
+      "description": "Get Part 1 of my novel Ashes of the Waterfall for free! ",
+      "files_count": 2,
+      "id": 5,
+      "newsletter_list_id": "6ca38df7-a87d-4c93-889e-7c73f486b2ca",
+      "newsletter_tags": null,
+      "signup_links_count": 1,
+      "title": "Ashes of the Waterfall",
+      "updated_at": "2026-03-25T20:48:59.000000Z"
+    },
+    {
+      "cover_image_path": "cover-images/9az3RTZpgaViawoX6Gl82pPUj9ubQEXfKM6WxaWQ.jpg",
+      "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/9az3RTZpgaViawoX6Gl82pPUj9ubQEXfKM6WxaWQ.jpg",
+      "created_at": "2026-03-17T19:58:41.000000Z",
+      "description": "",
+      "files_count": 6,
+      "id": 4,
+      "newsletter_list_id": "c6ca4cc0-e643-43e7-9a6d-2aba6e7e07e5",
+      "newsletter_tags": null,
+      "signup_links_count": 1,
+      "title": "D.W. Stein Sci-fi Starter Library",
+      "updated_at": "2026-03-18T13:33:50.000000Z"
+    },
+    {
+      "cover_image_path": null,
+      "cover_image_url": null,
+      "created_at": "2026-01-31T16:43:16.000000Z",
+      "description": "Test description",
+      "files_count": 0,
+      "id": 3,
+      "newsletter_list_id": null,
+      "newsletter_tags": null,
+      "signup_links_count": 0,
+      "title": "Test for Lemon Squeezy",
+      "updated_at": "2026-01-31T16:43:16.000000Z"
+    },
+    {
+      "cover_image_path": "cover-images/W2wk8eQ29YJ2TSLJK78ePqG1fB4rvJ2GPZBgUttX.png",
+      "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/W2wk8eQ29YJ2TSLJK78ePqG1fB4rvJ2GPZBgUttX.png",
+      "created_at": "2026-01-15T16:36:49.000000Z",
+      "description": "Get two free sci-fi stories \"Open It\" and \"The Deep Blue\" for free now, and be the first to hear about new books in my series! ",
+      "files_count": 2,
+      "id": 2,
+      "newsletter_list_id": null,
+      "newsletter_tags": null,
+      "signup_links_count": 1,
+      "title": "The Deep Blue",
+      "updated_at": "2026-01-15T16:36:49.000000Z"
+    },
+    {
+      "cover_image_path": "cover-images/TdWWwjpEC2KdaFhXgUXgSuHonHbKEOEn1YURvvEp.jpg",
+      "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/TdWWwjpEC2KdaFhXgUXgSuHonHbKEOEn1YURvvEp.jpg",
+      "created_at": "2026-01-15T09:10:44.000000Z",
+      "description": "Tark's life is a magical dumpster fire... ",
+      "files_count": 1,
+      "id": 1,
+      "newsletter_list_id": null,
+      "newsletter_tags": null,
+      "signup_links_count": 1,
+      "title": "Tark: A Half-Serious Magical Adventure",
+      "updated_at": "2026-01-15T14:25:58.000000Z"
+    }
+  ],
+  "first_page_url": "https://bookbeam.app/api/v1/projects?page=1",
+  "from": 1,
+  "last_page": 1,
+  "last_page_url": "https://bookbeam.app/api/v1/projects?page=1",
+  "links": [
+    {
+      "active": false,
+      "label": "\u0026laquo; Previous",
+      "page": null,
+      "url": null
+    },
+    {
+      "active": true,
+      "label": "1",
+      "page": 1,
+      "url": "https://bookbeam.app/api/v1/projects?page=1"
+    },
+    {
+      "active": false,
+      "label": "Next \u0026raquo;",
+      "page": null,
+      "url": null
+    }
+  ],
+  "next_page_url": null,
+  "path": "https://bookbeam.app/api/v1/projects",
+  "per_page": 15,
+  "prev_page_url": null,
+  "to": 7,
+  "total": 7
+}
+
+stderr:
+
+exit=0
+CHECK catalog IDs and count restored: PASS
+CHECK real config unchanged: PASS
+Real config SHA-256 unchanged: a488da2b03fe0582c61df018ca8e2e5d8bbb0729becf16ec812a02fc9428bac1

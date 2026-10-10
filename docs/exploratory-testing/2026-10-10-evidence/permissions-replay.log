@@ -1,0 +1,22 @@
+REPLAY 1: before directory=0755 file=0644
+$ bookbeam auth login --token fake-permission-replay-token --json
+stdout={
+  "host": "https://bookbeam.app",
+  "logged_in": true
+}
+stderr=
+exit=0
+after directory=0755 file=0644; token saved=True
+owner-only file expectation: FAIL
+other-user directory traversal and config-read bits: True
+REPLAY 2: before directory=0755 file=0644
+$ bookbeam auth login --token fake-permission-replay-token --json
+stdout={
+  "host": "https://bookbeam.app",
+  "logged_in": true
+}
+stderr=
+exit=0
+after directory=0755 file=0644; token saved=True
+owner-only file expectation: FAIL
+other-user directory traversal and config-read bits: True
