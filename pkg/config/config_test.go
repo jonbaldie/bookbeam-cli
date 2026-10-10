@@ -183,6 +183,52 @@ func TestStoreTokenCreatesPrivateDirectoryAndFile(t *testing.T) {
 	}
 }
 
+func TestStoreTokenEnforcesPrivatePermissionsOnExistingFile(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("POSIX permissions are not enforced on Windows")
+	}
+	dir := t.TempDir()
+	configPath := filepath.Join(dir, "config.json")
+	if err := os.WriteFile(configPath, []byte(`{"host":"https://existing.example","token":"old"}`), 0644); err != nil {
+		t.Fatal(err)
+	}
+	s, err := Resolve(dir, envOf(nil), Overrides{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := s.StoreToken("new"); err != nil {
+		t.Fatal(err)
+	}
+	info, err := os.Stat(configPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := info.Mode().Perm(); got != 0600 {
+		t.Errorf("file permissions = %o, want 600", got)
+	}
+	want := "{\n  \"host\": \"https://existing.example\",\n  \"token\": \"new\"\n}"
+	if got := readConfig(t, dir); got != want {
+		t.Errorf("saved config = %q, want %q", got, want)
+	}
+}
+
+func TestStoreTokenReportsChmodFailure(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("POSIX permissions not applicable on Windows")
+	}
+	dir := t.TempDir()
+	configPath := filepath.Join(dir, "config.json")
+	if err := os.WriteFile(configPath, []byte(`{"host":"https://existing.example"}`), 0644); err != nil {
+		t.Fatal(err)
+	}
+	s := &Settings{path: configPath + "/"}
+	err := s.StoreToken("new")
+	if err == nil {
+		t.Fatal("expected chmod error on path with trailing slash")
+	}
+}
+
+
 func TestStoreTokenReportsDirectoryCreationFailure(t *testing.T) {
 	blocker := filepath.Join(t.TempDir(), "blocker")
 	if err := os.WriteFile(blocker, []byte("x"), 0600); err != nil {

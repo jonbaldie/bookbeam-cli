@@ -130,5 +130,9 @@ func save(cfg *Config, path string) error {
 		return err
 	}
 
+	if err := os.Chmod(path, 0600); err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+
 	return os.WriteFile(path, data, 0600)
 }
