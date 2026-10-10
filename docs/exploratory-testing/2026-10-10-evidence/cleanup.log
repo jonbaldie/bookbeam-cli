@@ -1,0 +1,191 @@
+Run cleanup (UTC): 2026-10-10T01:49:43Z
+Docker operations during this run: inventory only.
+Created containers: 0
+Created images: 0
+Created volumes: 0
+No Docker resources require removal; pre-existing resources left untouched.
+Docker inventory differences since baseline (concurrent activity is not owned by this run):
+Project 27, file 29, link 24 deleted; GET project 27 returned 404; catalog restored to IDs 21,6,5,4,3,2,1 (7 projects). See session.log.
+Real config unchanged; SHA-256 verified in session.log.
+Pre-existing untracked file SHA-256: a467bc1c8b92c5419f6ef6906ef7a4fe5683324a2cf0cdd20744ee9000c652e3  cmd/fuzz_test.go
+Initial workspace scratch removal was partial: Go's read-only module directories caused `Permission denied` for module files and `Directory not empty` for the cache. Replaying below preserves the diagnostics; Go's own cache cleanup will remove those directories.
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/zsh_completions_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/command.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/go.mod: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/fish_completions.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/flag_groups.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/powershell_completions_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/Makefile: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/command_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/zsh_completions.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/bash_completionsV2_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/cobra.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/go.sum: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/.golangci.yml: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/MAINTAINERS: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/README.md: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/args_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/args.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/.gitignore: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/bash_completionsV2.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/CONTRIBUTING.md: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/.github/labeler.yml: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/.github/workflows/labeler.yml: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/.github/workflows/test.yml: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/.github/workflows: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/.github/dependabot.yml: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/.github: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/cobra_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/completions.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/site/content/user_guide.md: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/site/content/completions/fish.md: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/site/content/completions/zsh.md: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/site/content/completions/powershell.md: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/site/content/completions/bash.md: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/site/content/completions/_index.md: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/site/content/completions: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/site/content/active_help.md: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/site/content/projects_using_cobra.md: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/site/content/docgen/yaml.md: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/site/content/docgen/md.md: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/site/content/docgen/man.md: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/site/content/docgen/_index.md: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/site/content/docgen/rest.md: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/site/content/docgen: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/site/content: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/site: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/command_win.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/active_help_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/doc/man_examples_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/doc/md_docs_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/doc/yaml_docs_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/doc/cmd_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/doc/yaml_docs.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/doc/md_docs.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/doc/util.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/doc/rest_docs_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/doc/rest_docs.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/doc/man_docs.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/doc/man_docs_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/doc: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/fish_completions_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/powershell_completions.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/flag_groups_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/command_notwin.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/.mailmap: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/LICENSE.txt: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/shell_completions.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/assets/CobraMain.png: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/assets: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/CONDUCT.md: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/active_help.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/bash_completions.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/completions_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/bash_completions_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2/SECURITY.md: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/cobra@v1.10.2: Directory not empty
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/golangflag.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/bool_slice.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/bool_slice_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/uint8.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/example_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/string_slice.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/ip_slice.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/go.mod: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/errors_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/flag.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/string_to_int64_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/string_to_string.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/int64_slice_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/LICENSE: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/time.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/verify/gofmt.sh: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/verify/golint.sh: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/verify/all.sh: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/verify: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/string_array_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/float64.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/uint32.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/duration_slice.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/int_slice_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/string_to_int_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/uint16.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/float32_slice.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/printusage_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/ipnet_slice.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/duration.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/ip_slice_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/text_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/float32_slice_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/int64.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/go.sum: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/uint_slice.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/bool.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/int32_slice.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/bool_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/.editorconfig: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/int32.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/README.md: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/string_to_int.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/int16.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/text.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/flag_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/.gitignore: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/string_to_string_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/int32_slice_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/ip.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/ipnet.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/count_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/uint64.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/export_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/ipnet_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/.golangci.yaml: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/string_slice_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/ip_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/.github/dependabot.yaml: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/.github/workflows/ci.yaml: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/.github/workflows: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/.github/.editorconfig: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/.github: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/string_to_int64.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/float32.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/func_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/ipmask.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/count.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/duration_slice_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/func.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/ipnet_slice_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/int.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/uint.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/time_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/float64_slice.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/float64_slice_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/int8.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/.travis.yml: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/bool_func_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/golangflag_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/bytes.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/int_slice.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/string.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/string_array.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/uint_slice_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/bytes_test.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/bool_func.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/int64_slice.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9/errors.go: Permission denied
+rm: .exploratory-run/modcache/github.com/spf13/pflag@v1.0.9: Directory not empty
+rm: .exploratory-run/modcache/github.com/spf13: Directory not empty
+rm: .exploratory-run/modcache/github.com/inconshreveable/mousetrap@v1.1.0/go.mod: Permission denied
+rm: .exploratory-run/modcache/github.com/inconshreveable/mousetrap@v1.1.0/LICENSE: Permission denied
+rm: .exploratory-run/modcache/github.com/inconshreveable/mousetrap@v1.1.0/trap_windows.go: Permission denied
+rm: .exploratory-run/modcache/github.com/inconshreveable/mousetrap@v1.1.0/README.md: Permission denied
+rm: .exploratory-run/modcache/github.com/inconshreveable/mousetrap@v1.1.0/trap_others.go: Permission denied
+rm: .exploratory-run/modcache/github.com/inconshreveable/mousetrap@v1.1.0: Directory not empty
+rm: .exploratory-run/modcache/github.com/inconshreveable: Directory not empty
+rm: .exploratory-run/modcache/github.com: Directory not empty
+rm: .exploratory-run/modcache: Directory not empty
+rm: .exploratory-run: Directory not empty
+plain rm retry exit=1
+go clean -modcache exit=0
+final rm exit=0
+Workspace scratch removed: binary, local module cache, fake-token configs, EPUB/download and CSV fixtures, overlay. Shared build/download caches retained.

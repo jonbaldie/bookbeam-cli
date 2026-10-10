@@ -1,0 +1,9 @@
+# github.com/jonbaldie/bookbeam-cli/cmd [github.com/jonbaldie/bookbeam-cli/cmd.test]
+cmd/fuzz_test.go:74:14: undefined: buildProjectUpdatePayload
+?   	github.com/jonbaldie/bookbeam-cli	[no test files]
+FAIL	github.com/jonbaldie/bookbeam-cli/cmd [build failed]
+ok  	github.com/jonbaldie/bookbeam-cli/integration	33.448s
+ok  	github.com/jonbaldie/bookbeam-cli/pkg/client	0.655s
+ok  	github.com/jonbaldie/bookbeam-cli/pkg/config	0.855s
+ok  	github.com/jonbaldie/bookbeam-cli/pkg/output	1.111s
+FAIL

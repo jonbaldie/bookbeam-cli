@@ -1,0 +1,9 @@
+Intervention: go overlay replaces only pre-existing untracked cmd/fuzz_test.go with package cmd; original file untouched.
+?   	github.com/jonbaldie/bookbeam-cli	[no test files]
+ok  	github.com/jonbaldie/bookbeam-cli/cmd	1.863s
+ok  	github.com/jonbaldie/bookbeam-cli/integration	(cached)
+ok  	github.com/jonbaldie/bookbeam-cli/pkg/client	(cached)
+ok  	github.com/jonbaldie/bookbeam-cli/pkg/config	(cached)
+ok  	github.com/jonbaldie/bookbeam-cli/pkg/output	(cached)
+test exit=0
+vet exit=0

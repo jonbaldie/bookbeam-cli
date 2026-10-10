@@ -1,0 +1,25 @@
+Sat Oct 10 01:45:48 UTC 2026
+go version go1.26.3 darwin/arm64
+36154bb2f8ecdac977777ed5e0454cef5613d8e4
+TMPDIR=/Users/jonathanbaldie/.fleet/events/scratch/6c0fcba86f67b05e5f608f71c334c25de41e9faf7aa22dd2c98037444af11a16
+GOCACHE=/Users/jonathanbaldie/.fleet/caches/go-build
+43a534ff350e915b0c7c37ad171c4157a73e65146e11b6794d719438cfc809be  go.mod
+8443a862d2e8b05ac34298d963911aa22b0e54978185655078ae2e83346cfa51  go.sum
+43a534ff350e915b0c7c37ad171c4157a73e65146e11b6794d719438cfc809be  go.mod
+8443a862d2e8b05ac34298d963911aa22b0e54978185655078ae2e83346cfa51  go.sum
+Updating 36154bb..c4bac1f
+Fast-forward
+ cmd/field_edit.go                         |  56 +++++++++++++
+ cmd/field_edit_test.go                    |  59 ++++++++++++++
+ cmd/files_links_projects_mutation_test.go |  41 +++++-----
+ cmd/links.go                              |  25 ++----
+ cmd/projects.go                           | 129 ++++++++++++------------------
+ cmd/projects_test.go                      |  41 +++++++++-
+ 6 files changed, 236 insertions(+), 115 deletions(-)
+ create mode 100644 cmd/field_edit.go
+ create mode 100644 cmd/field_edit_test.go
+c4bac1f37247c7930b820d1396a6a74cd3f5d63f
+
+Dependency/build policy: local GOMODCACHE=.exploratory-run/modcache; shared GOCACHE retained; GOFLAGS=-mod=readonly used for download/build/tests/vet; supplied TMPDIR unchanged; no mutable dependency/build symlinks.
+43a534ff350e915b0c7c37ad171c4157a73e65146e11b6794d719438cfc809be  go.mod
+8443a862d2e8b05ac34298d963911aa22b0e54978185655078ae2e83346cfa51  go.sum
