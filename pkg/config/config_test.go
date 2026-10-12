@@ -316,11 +316,19 @@ func TestResolveHost(t *testing.T) {
 		{"default", "", "", "", "https://bookbeam.app", ""},
 		{"trailing slashes trimmed", "", "", "https://beam.example.com///", "https://beam.example.com", ""},
 		{"http with port and path", "", "http://127.0.0.1:18787/api/", "", "http://127.0.0.1:18787/api", ""},
-		{"flag without scheme", "", "", "127.0.0.1:18787", "", `invalid --host "127.0.0.1:18787": missing http:// or https://`},
-		{"env without scheme", "", "bookbeam.app", "", "", `invalid BOOKBEAM_HOST "bookbeam.app": missing http:// or https://`},
-		{"unsupported scheme", "", "ftp://bookbeam.app", "", "", `invalid BOOKBEAM_HOST "ftp://bookbeam.app": missing http:// or https://`},
+		{"upper-case scheme", "", "", "HTTPS://beam.example.com/", "https://beam.example.com", ""},
+		{"flag without scheme", "", "", "127.0.0.1:18787", "", `invalid --host "127.0.0.1:18787": must start with http:// or https://`},
+		{"env without scheme", "", "bookbeam.app", "", "", `invalid BOOKBEAM_HOST "bookbeam.app": must start with http:// or https://`},
+		{"unsupported scheme", "", "ftp://bookbeam.app", "", "", `invalid BOOKBEAM_HOST "ftp://bookbeam.app": must start with http:// or https://`},
+		{"leading space", "", "", " https://bookbeam.app", "", `invalid --host " https://bookbeam.app": must start with http:// or https://`},
 		{"scheme only", "", "", "https://", "", `invalid --host "https://": missing host name`},
-		{"unparseable", "", "", "http://[::1", "", `invalid --host "http://[::1": parse "http://[::1": missing ']' in host`},
+		{"port only", "", "", "http://:8080", "", `invalid --host "http://:8080": missing host name`},
+		{"unparseable", "", "", "http://[::1", "", `invalid --host "http://[::1": missing ']' in host`},
+		{"query", "", "", "https://beam.example.com/?a=1", "", `invalid --host "https://beam.example.com/?a=1": unexpected query or fragment`},
+		{"fragment", "", "", "https://beam.example.com#top", "", `invalid --host "https://beam.example.com#top": unexpected query or fragment`},
+		{"empty query", "", "", "https://beam.example.com?", "", `invalid --host "https://beam.example.com?": unexpected query or fragment`},
+		{"escaped path", "", "", "https://beam.example.com/a%2Fb/", "https://beam.example.com/a%2Fb", ""},
+		{"credentials", "", "", "https://u:p@beam.example.com", "", `invalid --host "https://u:p@beam.example.com": unexpected credentials`},
 		{"bad file host", `{"host":"localhost:8080"}`, "", "", "", `invalid host "localhost:8080" in `},
 		{"bad file host overridden", `{"host":"localhost:8080"}`, "", "https://flag.example", "https://flag.example", ""},
 		{"empty file host", `{"host":""}`, "", "", "", `invalid host "" in `},
@@ -351,7 +359,7 @@ func TestResolveHost(t *testing.T) {
 func TestResolveHostErrorNamesConfigFile(t *testing.T) {
 	dir := writeConfig(t, `{"host":"bookbeam.app"}`)
 	_, err := Resolve(dir, envOf(nil), Overrides{})
-	want := `invalid host "bookbeam.app" in ` + filepath.Join(dir, "config.json") + ": missing http:// or https://"
+	want := `invalid host "bookbeam.app" in ` + filepath.Join(dir, "config.json") + ": must start with http:// or https://"
 	if err == nil || err.Error() != want {
 		t.Fatalf("got %v, want %q", err, want)
 	}

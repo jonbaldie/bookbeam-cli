@@ -10,7 +10,7 @@ import (
 // Regression test for #77: a host without a scheme fails once, at load,
 // naming --host, before any command runs or stores a token.
 func TestSchemelessHostFailsAtLoad(t *testing.T) {
-	const want = `failed to load configuration: invalid --host "127.0.0.1:18787": missing http:// or https://`
+	const want = `failed to load configuration: invalid --host "127.0.0.1:18787": must start with http:// or https://`
 	for _, args := range [][]string{
 		{"links", "list", "7"},
 		{"auth", "login", "--token", "t"},

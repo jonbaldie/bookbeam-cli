@@ -106,20 +106,27 @@ func (s *Settings) rawHost() (string, string) {
 }
 
 // canonicalHost checks that raw is an http or https base URL and returns it
-// without trailing slashes.
+// with a lower-case scheme and no trailing slashes.
 func canonicalHost(raw string) (string, error) {
 	lower := strings.ToLower(raw)
 	if !strings.HasPrefix(lower, "http://") && !strings.HasPrefix(lower, "https://") {
-		return "", errors.New("missing http:// or https://")
+		return "", errors.New("must start with http:// or https://")
 	}
 	u, err := url.Parse(raw)
 	if err != nil {
-		return "", err
+		return "", errors.Unwrap(err)
 	}
-	if u.Host == "" {
+	switch {
+	case u.Hostname() == "":
 		return "", errors.New("missing host name")
+	case u.User != nil:
+		return "", errors.New("unexpected credentials")
+	case u.ForceQuery || u.RawQuery != "" || u.Fragment != "":
+		return "", errors.New("unexpected query or fragment")
 	}
-	return strings.TrimRight(raw, "/"), nil
+	u.Path = strings.TrimRight(u.Path, "/")
+	u.RawPath = strings.TrimRight(u.RawPath, "/")
+	return u.String(), nil
 }
 
 // Host is the effective API host: an http or https base URL with no trailing
