@@ -181,7 +181,8 @@ Every command supports:
 
 - `--json`: Output raw structured JSON for scripts, jq, and automation.
 - `--quiet, -q`: Suppress informational messages and progress output.
-- `--host`: Override target API host (defaults to `https://bookbeam.app`).
+- `--host`: Override target API host (defaults to `https://bookbeam.app`). The
+  host must start with `http://` or `https://`; a trailing slash is ignored.
 - `--token`: Override API authentication token for single commands.
 
 ## Environment Variables

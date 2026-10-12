@@ -14,10 +14,10 @@ import (
 	"time"
 )
 
-func TestClientNewTrimsTrailingSlash(t *testing.T) {
-	c := New("https://api.bookbeam.app///", "token123")
+func TestClientNew(t *testing.T) {
+	c := New("https://api.bookbeam.app", "token123")
 	if c.BaseURL != "https://api.bookbeam.app" {
-		t.Errorf("expected trimmed BaseURL, got %s", c.BaseURL)
+		t.Errorf("expected BaseURL https://api.bookbeam.app, got %s", c.BaseURL)
 	}
 	if c.Token != "token123" {
 		t.Errorf("expected token123, got %s", c.Token)

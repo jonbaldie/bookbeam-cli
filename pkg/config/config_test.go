@@ -228,7 +228,6 @@ func TestStoreTokenReportsChmodFailure(t *testing.T) {
 	}
 }
 
-
 func TestStoreTokenReportsDirectoryCreationFailure(t *testing.T) {
 	blocker := filepath.Join(t.TempDir(), "blocker")
 	if err := os.WriteFile(blocker, []byte("x"), 0600); err != nil {
@@ -300,5 +299,76 @@ func TestResolveInvalidConfigFile(t *testing.T) {
 				t.Errorf("expected wrapped json.SyntaxError, got: %v", err)
 			}
 		})
+	}
+}
+
+// Regression test for #77: the effective host is validated and canonicalised
+// once, at Resolve, and a bad value names the layer it came from.
+func TestResolveHost(t *testing.T) {
+	cases := []struct {
+		name    string
+		file    string
+		env     string
+		flag    string
+		want    string
+		wantErr string
+	}{
+		{"default", "", "", "", "https://bookbeam.app", ""},
+		{"trailing slashes trimmed", "", "", "https://beam.example.com///", "https://beam.example.com", ""},
+		{"http with port and path", "", "http://127.0.0.1:18787/api/", "", "http://127.0.0.1:18787/api", ""},
+		{"flag without scheme", "", "", "127.0.0.1:18787", "", `invalid --host "127.0.0.1:18787": missing http:// or https://`},
+		{"env without scheme", "", "bookbeam.app", "", "", `invalid BOOKBEAM_HOST "bookbeam.app": missing http:// or https://`},
+		{"unsupported scheme", "", "ftp://bookbeam.app", "", "", `invalid BOOKBEAM_HOST "ftp://bookbeam.app": missing http:// or https://`},
+		{"scheme only", "", "", "https://", "", `invalid --host "https://": missing host name`},
+		{"unparseable", "", "", "http://[::1", "", `invalid --host "http://[::1": parse "http://[::1": missing ']' in host`},
+		{"bad file host", `{"host":"localhost:8080"}`, "", "", "", `invalid host "localhost:8080" in `},
+		{"bad file host overridden", `{"host":"localhost:8080"}`, "", "https://flag.example", "https://flag.example", ""},
+		{"empty file host", `{"host":""}`, "", "", "", `invalid host "" in `},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			dir := t.TempDir()
+			if tc.file != "" {
+				dir = writeConfig(t, tc.file)
+			}
+			s, err := Resolve(dir, envOf(map[string]string{HostEnv: tc.env}), Overrides{Host: tc.flag})
+			if tc.wantErr != "" {
+				if err == nil || !strings.HasPrefix(err.Error(), tc.wantErr) || s != nil {
+					t.Fatalf("got %v, %v; want error starting %q", s, err, tc.wantErr)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got := s.Host(); got != tc.want {
+				t.Errorf("host %q, want %q", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestResolveHostErrorNamesConfigFile(t *testing.T) {
+	dir := writeConfig(t, `{"host":"bookbeam.app"}`)
+	_, err := Resolve(dir, envOf(nil), Overrides{})
+	want := `invalid host "bookbeam.app" in ` + filepath.Join(dir, "config.json") + ": missing http:// or https://"
+	if err == nil || err.Error() != want {
+		t.Fatalf("got %v, want %q", err, want)
+	}
+}
+
+// Storing a token keeps the config-file host as written, not canonicalised.
+func TestStoreTokenKeepsStoredHostAsWritten(t *testing.T) {
+	dir := writeConfig(t, `{"host":"https://file.example/"}`)
+	s, err := Resolve(dir, envOf(nil), Overrides{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := s.StoreToken("t"); err != nil {
+		t.Fatal(err)
+	}
+	want := "{\n  \"host\": \"https://file.example/\",\n  \"token\": \"t\"\n}"
+	if got := readConfig(t, dir); got != want {
+		t.Errorf("saved %q, want %q", got, want)
 	}
 }

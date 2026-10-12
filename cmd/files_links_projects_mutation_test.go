@@ -324,7 +324,7 @@ func TestFlpFilesDownload(t *testing.T) {
 	}))
 	t.Cleanup(ts.Close)
 	var buf bytes.Buffer
-	a := &app{printer: &output.Printer{Out: &buf}, settings: testSettings(t, "", ""), apiCli: client.New(ts.URL, "tok")}
+	a := &app{printer: &output.Printer{Out: &buf}, settings: testSettings(t, ts.URL, ""), apiCli: client.New(ts.URL, "tok")}
 
 	dir := flpChdirTemp(t)
 	var err error
@@ -393,7 +393,7 @@ func TestFlpFilesDownloadErrors(t *testing.T) {
 	}))
 	t.Cleanup(ts.Close)
 	var buf bytes.Buffer
-	a := &app{printer: &output.Printer{Out: &buf}, settings: testSettings(t, "", ""), apiCli: client.New(ts.URL, "tok")}
+	a := &app{printer: &output.Printer{Out: &buf}, settings: testSettings(t, ts.URL, ""), apiCli: client.New(ts.URL, "tok")}
 	dest := filepath.Join(flpChdirTemp(t), "partial.epub")
 
 	err := flpRun(t, filesDownloadCmd(a), map[string]string{"output": dest}, "4", "9")
