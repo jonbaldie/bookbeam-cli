@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // Config is the on-disk shape of config.json: the stored layer of Settings.
@@ -66,6 +68,7 @@ type Settings struct {
 	stored Config
 	env    Overrides
 	flags  Overrides
+	host   string
 }
 
 // Resolve reads config.json from dir and layers the environment and flag
@@ -76,17 +79,60 @@ func Resolve(dir string, getenv func(string) string, flags Overrides) (*Settings
 	if err != nil {
 		return nil, err
 	}
-	return &Settings{
+	s := &Settings{
 		path:   path,
 		stored: *stored,
 		env:    Overrides{Host: getenv(HostEnv), Token: getenv(TokenEnv)},
 		flags:  flags,
-	}, nil
+	}
+	raw, source := s.rawHost()
+	if s.host, err = canonicalHost(raw); err != nil {
+		return nil, fmt.Errorf("invalid %s: %w", source, err)
+	}
+	return s, nil
 }
 
-// Host is the effective API host.
+// rawHost is the effective host as configured, with a description of the
+// layer it came from for error messages.
+func (s *Settings) rawHost() (string, string) {
+	switch {
+	case s.flags.Host != "":
+		return s.flags.Host, fmt.Sprintf("--host %q", s.flags.Host)
+	case s.env.Host != "":
+		return s.env.Host, fmt.Sprintf("%s %q", HostEnv, s.env.Host)
+	default:
+		return s.stored.Host, fmt.Sprintf("host %q in %s", s.stored.Host, s.path)
+	}
+}
+
+// canonicalHost checks that raw is an http or https base URL and returns it
+// with a lower-case scheme and no trailing slashes.
+func canonicalHost(raw string) (string, error) {
+	lower := strings.ToLower(raw)
+	if !strings.HasPrefix(lower, "http://") && !strings.HasPrefix(lower, "https://") {
+		return "", errors.New("must start with http:// or https://")
+	}
+	u, err := url.Parse(raw)
+	if err != nil {
+		return "", errors.Unwrap(err)
+	}
+	switch {
+	case u.Hostname() == "":
+		return "", errors.New("missing host name")
+	case u.User != nil:
+		return "", errors.New("unexpected credentials")
+	case u.ForceQuery || u.RawQuery != "" || u.Fragment != "":
+		return "", errors.New("unexpected query or fragment")
+	}
+	u.Path = strings.TrimRight(u.Path, "/")
+	u.RawPath = strings.TrimRight(u.RawPath, "/")
+	return u.String(), nil
+}
+
+// Host is the effective API host: an http or https base URL with no trailing
+// slash.
 func (s *Settings) Host() string {
-	return apply(apply(s.stored.Host, s.env.Host), s.flags.Host)
+	return s.host
 }
 
 // Token is the effective API token.

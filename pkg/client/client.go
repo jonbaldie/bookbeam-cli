@@ -44,8 +44,9 @@ func (e *APIError) Error() string {
 	return fmt.Sprintf("API error (%d)", e.StatusCode)
 }
 
+// New returns a client for baseURL, which must already be canonical: an http
+// or https URL with no trailing slash, as config.Settings.Host returns.
 func New(baseURL, token string) *Client {
-	baseURL = strings.TrimRight(baseURL, "/")
 	return &Client{
 		BaseURL:    baseURL,
 		Token:      token,

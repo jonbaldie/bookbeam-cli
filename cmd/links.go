@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 	"github.com/spf13/cobra"
@@ -17,6 +16,12 @@ type SignupLinkItem struct {
 	Title     string `json:"title"`
 	OptInText string `json:"opt_in_text"`
 	CreatedAt string `json:"created_at"`
+}
+
+// PublicURL is the reader-facing landing page for the link on host, an API
+// host as returned by Settings.Host.
+func (l SignupLinkItem) PublicURL(host string) string {
+	return host + "/download/" + l.Slug
 }
 
 func linksCmd(a *app) *cobra.Command {
@@ -54,12 +59,11 @@ func linksListCmd(a *app) *cobra.Command {
 
 			var rows [][]string
 			for _, l := range response.Data {
-				publicURL := fmt.Sprintf("%s/download/%s", strings.TrimRight(a.settings.Host(), "/"), l.Slug)
 				rows = append(rows, []string{
 					strconv.Itoa(l.ID),
 					l.Title,
 					l.Slug,
-					publicURL,
+					l.PublicURL(a.settings.Host()),
 					l.CreatedAt,
 				})
 			}
@@ -130,8 +134,7 @@ func linksCreateCmd(a *app) *cobra.Command {
 				return err
 			}
 			created := response.Data
-			publicURL := fmt.Sprintf("%s/download/%s", strings.TrimRight(a.settings.Host(), "/"), created.Slug)
-			return a.printer.Success(doc, fmt.Sprintf("✓ Created signup link #%d: %s", created.ID, publicURL))
+			return a.printer.Success(doc, fmt.Sprintf("✓ Created signup link #%d: %s", created.ID, created.PublicURL(a.settings.Host())))
 		},
 	}
 	cmd.Flags().String("title", "", "Signup link title")
