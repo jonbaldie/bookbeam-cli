@@ -1,0 +1,6 @@
+docker containers before       20 after       20
+docker images before      134 after      134
+docker volumes before       25 after       25
+created by this run: containers        0 images        0 volumes        0
+no docker create/run/build was invoked
+workspace .exploratory-run removed
