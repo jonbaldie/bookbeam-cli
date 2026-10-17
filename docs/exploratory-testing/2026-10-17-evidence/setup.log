@@ -1,0 +1,16 @@
+date: 2026-10-17T01:45:51Z start (02:45 BST)
+rev: 068bec00159f1606d0281a998157eb7d50160f92
+go: go1.26.3 darwin/arm64
+GOCACHE: /Users/jonathanbaldie/.fleet/caches/go-build
+TMPDIR: /Users/jonathanbaldie/.fleet/events/scratch/0ce5863af50e832b9f799f957f3133f896d7db13fa2ae10f96ca952b608caec7
+GOMODCACHE: /Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/modcache
+GOFLAGS: -mod=readonly
+go.mod sha256 before and after download: 43a534ff350e915b0c7c37ad171c4157a73e65146e11b6794d719438cfc809be
+go.sum sha256 before and after download: 8443a862d2e8b05ac34298d963911aa22b0e54978185655078ae2e83346cfa51
+binary: .exploratory-run/bookbeam Mach-O 64-bit executable arm64 (not a symlink)
+real config sha256 before: a488da2b03fe0582c61df018ca8e2e5d8bbb0729becf16ec812a02fc9428bac1
+real config mode: 0600 directory 0700
+docker before: 20 containers, 134 images, 25 volumes
+whoami ready: Jonathan Baldie, Jonathan's Team, https://bookbeam.app
+catalog start: ids 21, 6, 5, 4, 3, 2, 1 total 7
+metrics start: downloads 8, files 12, projects 7, views 1515

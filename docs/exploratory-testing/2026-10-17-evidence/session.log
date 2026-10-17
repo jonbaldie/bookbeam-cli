@@ -1,0 +1,5156 @@
+
+===== whoami --json =====
+$ bookbeam whoami --json
+# BOOKBEAM_CONFIG_DIR=.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "created_at": "2026-01-15T09:09:55.000000Z",
+  "current_team": {
+    "created_at": "2026-01-15T09:09:55.000000Z",
+    "id": 1,
+    "name": "Jonathan's Team",
+    "newsletter_provider": "mailcoach",
+    "newsletter_provider_config": {
+      "api_token": "********",
+      "api_url": "https://subject-zero.mailcoach.app",
+      "default_list_id": null
+    },
+    "newsletter_webhook_url": null,
+    "personal_team": true,
+    "updated_at": "2026-09-30T02:33:56.000000Z",
+    "user_id": 1
+  },
+  "current_team_id": 1,
+  "email": "[EMAIL]",
+  "email_verified_at": null,
+  "id": 1,
+  "name": "Jonathan Baldie",
+  "profile_photo_path": null,
+  "profile_photo_url": "https://ui-avatars.com/api/?name=J+B\u0026color=7F9CF5\u0026background=EBF4FF",
+  "two_factor_confirmed_at": null,
+  "updated_at": "2026-01-23T07:42:39.000000Z"
+}
+
+--- stderr ---
+
+
+===== projects list --json =====
+$ bookbeam projects list --json
+# BOOKBEAM_CONFIG_DIR=.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "current_page": 1,
+  "data": [
+    {
+      "cover_image_path": null,
+      "cover_image_url": null,
+      "created_at": "2026-09-26T02:01:41.000000Z",
+      "description": "Testing links and newsletter",
+      "files_count": 0,
+      "id": 21,
+      "newsletter_list_id": "18c50c64-242c-4127-ad48-d2fac6321bce",
+      "newsletter_tags": null,
+      "signup_links_count": 0,
+      "title": "Exploratory Journey 2 Links",
+      "updated_at": "2026-10-02T01:26:42.000000Z"
+    },
+    {
+      "cover_image_path": "cover-images/3ZQWSNE5peEhDtjaCtYSw3FGm0wjDyPBmv2CHWix.png",
+      "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/3ZQWSNE5peEhDtjaCtYSw3FGm0wjDyPBmv2CHWix.png",
+      "created_at": "2026-03-26T11:27:38.000000Z",
+      "description": "A 19-page PDF showing how authors built their email lists - strategies, costs, and results from 10 case studies.",
+      "files_count": 1,
+      "id": 6,
+      "newsletter_list_id": "f360d073-6b24-404e-bb01-c8d9d1e1cf16",
+      "newsletter_tags": null,
+      "signup_links_count": 1,
+      "title": "Reader Magnet Playbook",
+      "updated_at": "2026-03-26T11:44:46.000000Z"
+    },
+    {
+      "cover_image_path": "cover-images/yQV7nF4C6zvvpWIdry7fHkcKGxqdwK9Pf2uzl8UO.jpg",
+      "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/yQV7nF4C6zvvpWIdry7fHkcKGxqdwK9Pf2uzl8UO.jpg",
+      "created_at": "2026-03-25T19:58:11.000000Z",
+      "description": "Get Part 1 of my novel Ashes of the Waterfall for free! ",
+      "files_count": 2,
+      "id": 5,
+      "newsletter_list_id": "6ca38df7-a87d-4c93-889e-7c73f486b2ca",
+      "newsletter_tags": null,
+      "signup_links_count": 1,
+      "title": "Ashes of the Waterfall",
+      "updated_at": "2026-03-25T20:48:59.000000Z"
+    },
+    {
+      "cover_image_path": "cover-images/9az3RTZpgaViawoX6Gl82pPUj9ubQEXfKM6WxaWQ.jpg",
+      "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/9az3RTZpgaViawoX6Gl82pPUj9ubQEXfKM6WxaWQ.jpg",
+      "created_at": "2026-03-17T19:58:41.000000Z",
+      "description": "",
+      "files_count": 6,
+      "id": 4,
+      "newsletter_list_id": "c6ca4cc0-e643-43e7-9a6d-2aba6e7e07e5",
+      "newsletter_tags": null,
+      "signup_links_count": 1,
+      "title": "D.W. Stein Sci-fi Starter Library",
+      "updated_at": "2026-03-18T13:33:50.000000Z"
+    },
+    {
+      "cover_image_path": null,
+      "cover_image_url": null,
+      "created_at": "2026-01-31T16:43:16.000000Z",
+      "description": "Test description",
+      "files_count": 0,
+      "id": 3,
+      "newsletter_list_id": null,
+      "newsletter_tags": null,
+      "signup_links_count": 0,
+      "title": "Test for Lemon Squeezy",
+      "updated_at": "2026-01-31T16:43:16.000000Z"
+    },
+    {
+      "cover_image_path": "cover-images/W2wk8eQ29YJ2TSLJK78ePqG1fB4rvJ2GPZBgUttX.png",
+      "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/W2wk8eQ29YJ2TSLJK78ePqG1fB4rvJ2GPZBgUttX.png",
+      "created_at": "2026-01-15T16:36:49.000000Z",
+      "description": "Get two free sci-fi stories \"Open It\" and \"The Deep Blue\" for free now, and be the first to hear about new books in my series! ",
+      "files_count": 2,
+      "id": 2,
+      "newsletter_list_id": null,
+      "newsletter_tags": null,
+      "signup_links_count": 1,
+      "title": "The Deep Blue",
+      "updated_at": "2026-01-15T16:36:49.000000Z"
+    },
+    {
+      "cover_image_path": "cover-images/TdWWwjpEC2KdaFhXgUXgSuHonHbKEOEn1YURvvEp.jpg",
+      "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/TdWWwjpEC2KdaFhXgUXgSuHonHbKEOEn1YURvvEp.jpg",
+      "created_at": "2026-01-15T09:10:44.000000Z",
+      "description": "Tark's life is a magical dumpster fire... ",
+      "files_count": 1,
+      "id": 1,
+      "newsletter_list_id": null,
+      "newsletter_tags": null,
+      "signup_links_count": 1,
+      "title": "Tark: A Half-Serious Magical Adventure",
+      "updated_at": "2026-01-15T14:25:58.000000Z"
+    }
+  ],
+  "first_page_url": "https://bookbeam.app/api/v1/projects?page=1",
+  "from": 1,
+  "last_page": 1,
+  "last_page_url": "https://bookbeam.app/api/v1/projects?page=1",
+  "links": [
+    {
+      "active": false,
+      "label": "\u0026laquo; Previous",
+      "page": null,
+      "url": null
+    },
+    {
+      "active": true,
+      "label": "1",
+      "page": 1,
+      "url": "https://bookbeam.app/api/v1/projects?page=1"
+    },
+    {
+      "active": false,
+      "label": "Next \u0026raquo;",
+      "page": null,
+      "url": null
+    }
+  ],
+  "next_page_url": null,
+  "path": "https://bookbeam.app/api/v1/projects",
+  "per_page": 15,
+  "prev_page_url": null,
+  "to": 7,
+  "total": 7
+}
+
+--- stderr ---
+
+
+===== metrics --json =====
+$ bookbeam metrics --json
+# BOOKBEAM_CONFIG_DIR=.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "total_downloads": 8,
+  "total_files": 12,
+  "total_projects": 7,
+  "total_views": 1515
+}
+
+--- stderr ---
+
+
+===== billing status --json =====
+$ bookbeam billing status --json
+# BOOKBEAM_CONFIG_DIR=.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "active_offer": {
+    "checkout_url": "https://subject-zero.lemonsqueezy.com/checkout/custom/fd3e7f9b-4d39-443e-9984-8400a195b825?signature=[REDACTED]",
+    "description": "One-time payment. Lifetime access.",
+    "is_subscription": false,
+    "name": "Founder's Lifetime Deal",
+    "price_label": "$99 one-time"
+  },
+  "has_access": true,
+  "subscription": {
+    "active": false,
+    "customer_portal_url": null,
+    "ends_at": null,
+    "name": null,
+    "status": null
+  }
+}
+
+--- stderr ---
+
+
+===== newsletter status --json =====
+$ bookbeam newsletter status --json
+# BOOKBEAM_CONFIG_DIR=.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "config": {
+    "api_token": "********",
+    "api_url": "https://subject-zero.mailcoach.app",
+    "default_list_id": null
+  },
+  "provider": "mailcoach",
+  "webhook_url": null
+}
+
+--- stderr ---
+
+
+===== newsletter lists --json =====
+$ bookbeam newsletter lists --json
+# BOOKBEAM_CONFIG_DIR=.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": [
+    {
+      "id": "572cf516-2430-44cc-84c0-9165cf34299d",
+      "name": "Anna Koplin Readers"
+    },
+    {
+      "id": "18c50c64-242c-4127-ad48-d2fac6321bce",
+      "name": "Anna’s Justice ARC List"
+    },
+    {
+      "id": "6ca38df7-a87d-4c93-889e-7c73f486b2ca",
+      "name": "Ashes of the Waterfall"
+    },
+    {
+      "id": "dd9ec39f-4dc6-41b8-8771-1bcaba5a77a9",
+      "name": "Be Cruel to Your Characters ARC List"
+    },
+    {
+      "id": "f360d073-6b24-404e-bb01-c8d9d1e1cf16",
+      "name": "BookBeam"
+    },
+    {
+      "id": "2bd57387-35c0-496e-babb-5885caa8953a",
+      "name": "D.W. Stein"
+    },
+    {
+      "id": "08037ed9-97a8-4dfb-9459-e5485be9fa97",
+      "name": "Fiction Mailing List"
+    },
+    {
+      "id": "18e267b2-81b2-41c2-ad9b-f1d4bee98ccb",
+      "name": "Frontier Chronicles"
+    },
+    {
+      "id": "c6ca4cc0-e643-43e7-9a6d-2aba6e7e07e5",
+      "name": "Heroes of the ADF"
+    },
+    {
+      "id": "ceeccba5-0094-4ceb-b30a-6af3e846e6f3",
+      "name": "Jack Russell Advice"
+    },
+    {
+      "id": "86f944c7-17b4-4f54-b9df-63befc28ec91",
+      "name": "Laws of Storytelling"
+    },
+    {
+      "id": "dd2e2db7-270a-42cd-9d40-25b1c578b626",
+      "name": "Social Intelligence"
+    },
+    {
+      "id": "91621f5b-b4ca-4d0d-856b-f55597710472",
+      "name": "Valeria’s Victim"
+    }
+  ]
+}
+
+--- stderr ---
+
+
+# NOTE journey 1 start
+
+===== whoami table =====
+$ bookbeam whoami
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Property      Value
+Name          Jonathan Baldie
+Email         [EMAIL]
+Active Team   Jonathan's Team
+API Host      https://bookbeam.app
+
+--- stderr ---
+
+
+===== whoami quiet =====
+$ bookbeam whoami --quiet
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Property      Value
+Name          Jonathan Baldie
+Email         [EMAIL]
+Active Team   Jonathan's Team
+API Host      https://bookbeam.app
+
+--- stderr ---
+
+
+===== whoami --host 'https://bookbeam.app/' =====
+$ bookbeam --host https://bookbeam.app/ whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "created_at": "2026-01-15T09:09:55.000000Z",
+  "current_team": {
+    "created_at": "2026-01-15T09:09:55.000000Z",
+    "id": 1,
+    "name": "Jonathan's Team",
+    "newsletter_provider": "mailcoach",
+    "newsletter_provider_config": {
+      "api_token": "********",
+      "api_url": "https://subject-zero.mailcoach.app",
+      "default_list_id": null
+    },
+    "newsletter_webhook_url": null,
+    "personal_team": true,
+    "updated_at": "2026-09-30T02:33:56.000000Z",
+    "user_id": 1
+  },
+  "current_team_id": 1,
+  "email": "[EMAIL]",
+  "email_verified_at": null,
+  "id": 1,
+  "name": "Jonathan Baldie",
+  "profile_photo_path": null,
+  "profile_photo_url": "https://ui-avatars.com/api/?name=J+B\u0026color=7F9CF5\u0026background=EBF4FF",
+  "two_factor_confirmed_at": null,
+  "updated_at": "2026-01-23T07:42:39.000000Z"
+}
+
+--- stderr ---
+
+
+===== whoami --host 'HTTPS://bookbeam.app' =====
+$ bookbeam --host HTTPS://bookbeam.app whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "created_at": "2026-01-15T09:09:55.000000Z",
+  "current_team": {
+    "created_at": "2026-01-15T09:09:55.000000Z",
+    "id": 1,
+    "name": "Jonathan's Team",
+    "newsletter_provider": "mailcoach",
+    "newsletter_provider_config": {
+      "api_token": "********",
+      "api_url": "https://subject-zero.mailcoach.app",
+      "default_list_id": null
+    },
+    "newsletter_webhook_url": null,
+    "personal_team": true,
+    "updated_at": "2026-09-30T02:33:56.000000Z",
+    "user_id": 1
+  },
+  "current_team_id": 1,
+  "email": "[EMAIL]",
+  "email_verified_at": null,
+  "id": 1,
+  "name": "Jonathan Baldie",
+  "profile_photo_path": null,
+  "profile_photo_url": "https://ui-avatars.com/api/?name=J+B\u0026color=7F9CF5\u0026background=EBF4FF",
+  "two_factor_confirmed_at": null,
+  "updated_at": "2026-01-23T07:42:39.000000Z"
+}
+
+--- stderr ---
+
+
+===== whoami --host 'https://BookBeam.app' =====
+$ bookbeam --host https://BookBeam.app whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "created_at": "2026-01-15T09:09:55.000000Z",
+  "current_team": {
+    "created_at": "2026-01-15T09:09:55.000000Z",
+    "id": 1,
+    "name": "Jonathan's Team",
+    "newsletter_provider": "mailcoach",
+    "newsletter_provider_config": {
+      "api_token": "********",
+      "api_url": "https://subject-zero.mailcoach.app",
+      "default_list_id": null
+    },
+    "newsletter_webhook_url": null,
+    "personal_team": true,
+    "updated_at": "2026-09-30T02:33:56.000000Z",
+    "user_id": 1
+  },
+  "current_team_id": 1,
+  "email": "[EMAIL]",
+  "email_verified_at": null,
+  "id": 1,
+  "name": "Jonathan Baldie",
+  "profile_photo_path": null,
+  "profile_photo_url": "https://ui-avatars.com/api/?name=J+B\u0026color=7F9CF5\u0026background=EBF4FF",
+  "two_factor_confirmed_at": null,
+  "updated_at": "2026-01-23T07:42:39.000000Z"
+}
+
+--- stderr ---
+
+
+===== whoami --host 'https://bookbeam.app:443' =====
+$ bookbeam --host https://bookbeam.app:443 whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "created_at": "2026-01-15T09:09:55.000000Z",
+  "current_team": {
+    "created_at": "2026-01-15T09:09:55.000000Z",
+    "id": 1,
+    "name": "Jonathan's Team",
+    "newsletter_provider": "mailcoach",
+    "newsletter_provider_config": {
+      "api_token": "********",
+      "api_url": "https://subject-zero.mailcoach.app",
+      "default_list_id": null
+    },
+    "newsletter_webhook_url": null,
+    "personal_team": true,
+    "updated_at": "2026-09-30T02:33:56.000000Z",
+    "user_id": 1
+  },
+  "current_team_id": 1,
+  "email": "[EMAIL]",
+  "email_verified_at": null,
+  "id": 1,
+  "name": "Jonathan Baldie",
+  "profile_photo_path": null,
+  "profile_photo_url": "https://ui-avatars.com/api/?name=J+B\u0026color=7F9CF5\u0026background=EBF4FF",
+  "two_factor_confirmed_at": null,
+  "updated_at": "2026-01-23T07:42:39.000000Z"
+}
+
+--- stderr ---
+
+
+===== whoami --host 'https://bookbeam.app//' =====
+$ bookbeam --host https://bookbeam.app// whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "created_at": "2026-01-15T09:09:55.000000Z",
+  "current_team": {
+    "created_at": "2026-01-15T09:09:55.000000Z",
+    "id": 1,
+    "name": "Jonathan's Team",
+    "newsletter_provider": "mailcoach",
+    "newsletter_provider_config": {
+      "api_token": "********",
+      "api_url": "https://subject-zero.mailcoach.app",
+      "default_list_id": null
+    },
+    "newsletter_webhook_url": null,
+    "personal_team": true,
+    "updated_at": "2026-09-30T02:33:56.000000Z",
+    "user_id": 1
+  },
+  "current_team_id": 1,
+  "email": "[EMAIL]",
+  "email_verified_at": null,
+  "id": 1,
+  "name": "Jonathan Baldie",
+  "profile_photo_path": null,
+  "profile_photo_url": "https://ui-avatars.com/api/?name=J+B\u0026color=7F9CF5\u0026background=EBF4FF",
+  "two_factor_confirmed_at": null,
+  "updated_at": "2026-01-23T07:42:39.000000Z"
+}
+
+--- stderr ---
+
+
+===== whoami --host 'https://bookbeam.app/api' =====
+$ bookbeam --host https://bookbeam.app/api whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam whoami [flags]
+
+Flags:
+  -h, --help   help for whoami
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to get user details: API error (404): The route api/api/v1/user could not be found.
+
+
+===== whoami --host 'https://bookbeam.app?x=1' =====
+$ bookbeam --host https://bookbeam.app?x=1 whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam whoami [flags]
+
+Flags:
+  -h, --help   help for whoami
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to load configuration: invalid --host "https://bookbeam.app?x=1": unexpected query or fragment
+
+
+===== whoami --host 'https://bookbeam.app#frag' =====
+$ bookbeam --host https://bookbeam.app#frag whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam whoami [flags]
+
+Flags:
+  -h, --help   help for whoami
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to load configuration: invalid --host "https://bookbeam.app#frag": unexpected query or fragment
+
+
+===== whoami --host 'https://user:[EMAIL]' =====
+$ bookbeam --host https://user:[EMAIL] whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam whoami [flags]
+
+Flags:
+  -h, --help   help for whoami
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to load configuration: invalid --host "https://user:[EMAIL]": unexpected credentials
+
+
+===== whoami --host 'bookbeam.app' =====
+$ bookbeam --host bookbeam.app whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam whoami [flags]
+
+Flags:
+  -h, --help   help for whoami
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to load configuration: invalid --host "bookbeam.app": must start with http:// or https://
+
+
+===== whoami --host '127.0.0.1:9' =====
+$ bookbeam --host 127.0.0.1:9 whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam whoami [flags]
+
+Flags:
+  -h, --help   help for whoami
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to load configuration: invalid --host "127.0.0.1:9": must start with http:// or https://
+
+
+===== whoami --host 'http://127.0.0.1:9' =====
+$ bookbeam --host http://127.0.0.1:9 whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam whoami [flags]
+
+Flags:
+  -h, --help   help for whoami
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to get user details: Get "http://127.0.0.1:9/api/v1/user": dial tcp 127.0.0.1:9: connect: connection refused
+
+
+===== whoami --host ' https://bookbeam.app' =====
+$ bookbeam --host  https://bookbeam.app whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam whoami [flags]
+
+Flags:
+  -h, --help   help for whoami
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to load configuration: invalid --host " https://bookbeam.app": must start with http:// or https://
+
+
+===== whoami --host 'https://bookbeam.app ' =====
+$ bookbeam --host https://bookbeam.app  whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam whoami [flags]
+
+Flags:
+  -h, --help   help for whoami
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to load configuration: invalid --host "https://bookbeam.app ": invalid character " " in host name
+
+
+===== whoami --host 'https://' =====
+$ bookbeam --host https:// whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam whoami [flags]
+
+Flags:
+  -h, --help   help for whoami
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to load configuration: invalid --host "https://": missing host name
+
+
+===== whoami --host 'http://' =====
+$ bookbeam --host http:// whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam whoami [flags]
+
+Flags:
+  -h, --help   help for whoami
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to load configuration: invalid --host "http://": missing host name
+
+
+===== whoami --host 'https://bookbeam.app/%zz' =====
+$ bookbeam --host https://bookbeam.app/%zz whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam whoami [flags]
+
+Flags:
+  -h, --help   help for whoami
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to load configuration: invalid --host "https://bookbeam.app/%zz": invalid URL escape "%zz"
+
+
+===== whoami --host 'https://[::1]' =====
+$ bookbeam --host https://[::1] whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam whoami [flags]
+
+Flags:
+  -h, --help   help for whoami
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to get user details: Get "https://[::1]/api/v1/user": dial tcp [::1]:443: connect: connection refused
+
+
+===== whoami --host '' =====
+$ bookbeam --host  whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "created_at": "2026-01-15T09:09:55.000000Z",
+  "current_team": {
+    "created_at": "2026-01-15T09:09:55.000000Z",
+    "id": 1,
+    "name": "Jonathan's Team",
+    "newsletter_provider": "mailcoach",
+    "newsletter_provider_config": {
+      "api_token": "********",
+      "api_url": "https://subject-zero.mailcoach.app",
+      "default_list_id": null
+    },
+    "newsletter_webhook_url": null,
+    "personal_team": true,
+    "updated_at": "2026-09-30T02:33:56.000000Z",
+    "user_id": 1
+  },
+  "current_team_id": 1,
+  "email": "[EMAIL]",
+  "email_verified_at": null,
+  "id": 1,
+  "name": "Jonathan Baldie",
+  "profile_photo_path": null,
+  "profile_photo_url": "https://ui-avatars.com/api/?name=J+B\u0026color=7F9CF5\u0026background=EBF4FF",
+  "two_factor_confirmed_at": null,
+  "updated_at": "2026-01-23T07:42:39.000000Z"
+}
+
+--- stderr ---
+
+
+# NOTE BOOKBEAM_HOST trailing slash, no flag
+
+===== BOOKBEAM_HOST trailing slash =====
+$ bookbeam whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+# env_extra={'BOOKBEAM_HOST': 'https://bookbeam.app/'}
+exit=0
+--- stdout ---
+{
+  "created_at": "2026-01-15T09:09:55.000000Z",
+  "current_team": {
+    "created_at": "2026-01-15T09:09:55.000000Z",
+    "id": 1,
+    "name": "Jonathan's Team",
+    "newsletter_provider": "mailcoach",
+    "newsletter_provider_config": {
+      "api_token": "********",
+      "api_url": "https://subject-zero.mailcoach.app",
+      "default_list_id": null
+    },
+    "newsletter_webhook_url": null,
+    "personal_team": true,
+    "updated_at": "2026-09-30T02:33:56.000000Z",
+    "user_id": 1
+  },
+  "current_team_id": 1,
+  "email": "[EMAIL]",
+  "email_verified_at": null,
+  "id": 1,
+  "name": "Jonathan Baldie",
+  "profile_photo_path": null,
+  "profile_photo_url": "https://ui-avatars.com/api/?name=J+B\u0026color=7F9CF5\u0026background=EBF4FF",
+  "two_factor_confirmed_at": null,
+  "updated_at": "2026-01-23T07:42:39.000000Z"
+}
+
+--- stderr ---
+
+
+# NOTE schemeless env host must fail before a request and must not require a token
+
+===== schemeless BOOKBEAM_HOST no token =====
+$ bookbeam whoami
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+# env_extra={'BOOKBEAM_HOST': 'bookbeam.app', 'BOOKBEAM_TOKEN': '[REDACTED]'}
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam whoami [flags]
+
+Flags:
+  -h, --help   help for whoami
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to load configuration: invalid BOOKBEAM_HOST "bookbeam.app": must start with http:// or https://
+
+
+# NOTE fresh login
+
+===== fresh auth login =====
+$ bookbeam auth login --token fake-fresh-token --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/fresh-login
+exit=0
+--- stdout ---
+{
+  "host": "https://bookbeam.app",
+  "logged_in": true
+}
+
+--- stderr ---
+
+
+# NOTE fresh dir mode=0o755 file mode=0o600 exists=True
+
+# NOTE fresh saved keys=['host', 'token'] token_saved=True host='https://bookbeam.app'
+
+===== one-off host and token override =====
+$ bookbeam --host http://127.0.0.1:9 --token override-token whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/fresh-login
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam whoami [flags]
+
+Flags:
+  -h, --help   help for whoami
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to get user details: Get "http://127.0.0.1:9/api/v1/user": dial tcp 127.0.0.1:9: connect: connection refused
+
+
+# NOTE config byte-identical after overrides=True
+
+===== env host and token override =====
+$ bookbeam whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/fresh-login
+# env_extra={'BOOKBEAM_HOST': 'http://127.0.0.1:9', 'BOOKBEAM_TOKEN': '[REDACTED]'}
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam whoami [flags]
+
+Flags:
+  -h, --help   help for whoami
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to get user details: Get "http://127.0.0.1:9/api/v1/user": dial tcp 127.0.0.1:9: connect: connection refused
+
+
+# NOTE config byte-identical after env overrides=True
+
+===== logout json =====
+$ bookbeam auth logout --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/fresh-login
+exit=0
+--- stdout ---
+{
+  "host": "https://bookbeam.app",
+  "logged_in": false
+}
+
+--- stderr ---
+
+
+# NOTE after logout token=None host='https://bookbeam.app' mode=0o600
+
+# NOTE before preexisting dir=0o755 file=0o644
+
+===== login into preexisting 0644 =====
+$ bookbeam auth login --token fake-permission-replay-token --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/preexisting-0644
+exit=0
+--- stdout ---
+{
+  "host": "https://bookbeam.app",
+  "logged_in": true
+}
+
+--- stderr ---
+
+
+# NOTE after preexisting dir=0o755 file=0o600
+
+# NOTE preexisting token_saved=True host_unchanged=True raw={'host': 'https://bookbeam.app/', 'token': 'set'}
+
+===== login with schemeless host =====
+$ bookbeam --host bookbeam.app auth login --token should-not-save --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/schemeless-login
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam auth login [flags]
+
+Flags:
+  -h, --help           help for login
+      --token string   Authenticate directly with an API personal access token
+
+Global Flags:
+      --host string   BookBeam API host (default https://bookbeam.app)
+      --json          Output results as JSON
+  -q, --quiet         Suppress informational messages
+
+Error: failed to load configuration: invalid --host "bookbeam.app": must start with http:// or https://
+
+
+# NOTE schemeless login created config=False dir_entries=[]
+
+===== stored schemeless host whoami =====
+$ bookbeam whoami
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/stored-invalid-host
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam whoami [flags]
+
+Flags:
+  -h, --help   help for whoami
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to load configuration: invalid host "bookbeam.app" in /Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/stored-invalid-host/config.json: must start with http:// or https://
+
+
+===== stored schemeless host logout =====
+$ bookbeam auth logout --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/stored-invalid-host
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam auth logout [flags]
+
+Flags:
+  -h, --help   help for logout
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to load configuration: invalid host "bookbeam.app" in /Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/stored-invalid-host/config.json: must start with http:// or https://
+
+
+# NOTE stored invalid config still='{"host":"bookbeam.app","token":"stored-token"}\n'
+
+===== stored trailing-slash host =====
+$ bookbeam whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/stored-trailing-slash
+exit=0
+--- stdout ---
+{
+  "created_at": "2026-01-15T09:09:55.000000Z",
+  "current_team": {
+    "created_at": "2026-01-15T09:09:55.000000Z",
+    "id": 1,
+    "name": "Jonathan's Team",
+    "newsletter_provider": "mailcoach",
+    "newsletter_provider_config": {
+      "api_token": "********",
+      "api_url": "https://subject-zero.mailcoach.app",
+      "default_list_id": null
+    },
+    "newsletter_webhook_url": null,
+    "personal_team": true,
+    "updated_at": "2026-09-30T02:33:56.000000Z",
+    "user_id": 1
+  },
+  "current_team_id": 1,
+  "email": "[EMAIL]",
+  "email_verified_at": null,
+  "id": 1,
+  "name": "Jonathan Baldie",
+  "profile_photo_path": null,
+  "profile_photo_url": "https://ui-avatars.com/api/?name=J+B\u0026color=7F9CF5\u0026background=EBF4FF",
+  "two_factor_confirmed_at": null,
+  "updated_at": "2026-01-23T07:42:39.000000Z"
+}
+
+--- stderr ---
+
+
+# NOTE trailing-slash config unchanged=True
+
+===== root help =====
+$ bookbeam --help
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+BookBeam CLI lets authors and developers manage book projects, files,
+signup links, newsletters, downloaders, and telemetry directly from the terminal.
+
+Usage:
+  bookbeam [command]
+
+Available Commands:
+  auth        Manage authentication and tokens
+  billing     Check team account billing and subscription entitlement
+  completion  Generate shell completion script for your terminal
+  downloaders View reader downloaders and export subscriber lists
+  files       Manage book files (EPUB, MOBI, PDF) attached to projects
+  help        Help about any command
+  links       Manage reader signup links and landing pages
+  logs        View chronological telemetry activity logs
+  metrics     Display aggregated catalog and reader engagement metrics
+  newsletter  Manage mailing list integrations and webhook notifications
+  projects    Manage book projects in your catalog
+  whoami      Display the currently authenticated user and team
+
+Flags:
+  -h, --help           help for bookbeam
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Use "bookbeam [command] --help" for more information about a command.
+
+--- stderr ---
+
+
+===== login help =====
+$ bookbeam auth login --help
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Authenticate with BookBeam via browser or direct token
+
+Usage:
+  bookbeam auth login [flags]
+
+Flags:
+  -h, --help           help for login
+      --token string   Authenticate directly with an API personal access token
+
+Global Flags:
+      --host string   BookBeam API host (default https://bookbeam.app)
+      --json          Output results as JSON
+  -q, --quiet         Suppress informational messages
+
+--- stderr ---
+
+
+# NOTE journey 1 commands done
+
+===== login creates missing dir =====
+$ bookbeam auth login --token fake-created-dir --json
+# BOOKBEAM_CONFIG_DIR=.exploratory-run/configs/cli-created/missing
+exit=0
+--- stdout ---
+{
+  "host": "https://bookbeam.app",
+  "logged_in": true
+}
+
+--- stderr ---
+
+
+# NOTE cli-created missing dir mode=0700 file=0600 (relative path resolved under scratch cwd; driver artifact, not product)
+
+===== unauthenticated whoami =====
+$ bookbeam whoami
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/empty-unauth
+exit=1
+--- stdout ---
+
+--- stderr ---
+Error: Not authenticated. Run 'bookbeam auth login' to authenticate.
+
+
+===== projects list table =====
+$ bookbeam projects list
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+ID   TITLE                                    FILES   LINKS   CREATED
+21   Exploratory Journey 2 Links              0       0       2026-09-26T02:01:41.000000Z
+6    Reader Magnet Playbook                   1       1       2026-03-26T11:27:38.000000Z
+5    Ashes of the Waterfall                   2       1       2026-03-25T19:58:11.000000Z
+4    D.W. Stein Sci-fi Starter Library        6       1       2026-03-17T19:58:41.000000Z
+3    Test for Lemon Squeezy                   0       0       2026-01-31T16:43:16.000000Z
+2    The Deep Blue                            2       1       2026-01-15T16:36:49.000000Z
+1    Tark: A Half-Serious Magical Adventure   1       1       2026-01-15T09:10:44.000000Z
+
+Page 1 of 1 (Total: 7)
+
+--- stderr ---
+
+
+===== billing status table =====
+$ bookbeam billing status
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Field                 Value
+Access Status         Active (Paid access granted)
+Subscription          none
+Subscription Status   none
+Active Offer          Founder's Lifetime Deal ($99 one-time)
+Checkout Link         https://subject-zero.lemonsqueezy.com/checkout/custom/fd3e7f9b-4d39-443e-9984-8400a195b825?signature=[REDACTED]
+
+--- stderr ---
+
+
+===== billing checkout json =====
+$ bookbeam billing checkout --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "active_offer": {
+    "checkout_url": "https://subject-zero.lemonsqueezy.com/checkout/custom/fd3e7f9b-4d39-443e-9984-8400a195b825?signature=[REDACTED]",
+    "description": "One-time payment. Lifetime access.",
+    "is_subscription": false,
+    "name": "Founder's Lifetime Deal",
+    "price_label": "$99 one-time"
+  },
+  "has_access": true,
+  "subscription": {
+    "active": false,
+    "customer_portal_url": null,
+    "ends_at": null,
+    "name": null,
+    "status": null
+  }
+}
+
+--- stderr ---
+
+
+===== logs limit 3 table =====
+$ bookbeam logs --limit 3
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+TIME                          TYPE       READER                                 BOOK                     FILE
+2026-09-15T08:00:01.000000Z   download   [EMAIL]   Reader Magnet Playbook   the-reader-magnet-playbook.pdf
+2026-09-15T07:59:59.000000Z   signup     [EMAIL]   Reader Magnet Playbook   
+2026-03-28T06:46:33.000000Z   download   [EMAIL]                  Ashes of the Waterfall   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+
+Page 1 of 4 (total: 11)
+
+--- stderr ---
+
+
+===== metrics table =====
+$ bookbeam metrics
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Metric                     Total
+Total Book Projects        7
+Total Uploaded Files       12
+Total Reader Downloads     8
+Total Landing Page Views   1515
+
+--- stderr ---
+
+
+===== newsletter status table =====
+$ bookbeam newsletter status
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Setting            Value
+Active Provider    MAILCOACH
+Configured         Yes
+Webhook Endpoint   None
+
+--- stderr ---
+
+
+===== downloaders list project 5 json =====
+$ bookbeam downloaders list 5 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "current_page": 1,
+  "data": [
+    {
+      "email": "[EMAIL]",
+      "reader_id": 9,
+      "signed_up_at": "2026-03-28 06:46:03",
+      "signup_link_id": 7,
+      "signup_link_slug": "cUBRJ6yugg",
+      "signup_link_title": "Ashes of the Waterfall"
+    },
+    {
+      "email": "[EMAIL]",
+      "reader_id": 8,
+      "signed_up_at": "2026-03-25 20:50:04",
+      "signup_link_id": 7,
+      "signup_link_slug": "cUBRJ6yugg",
+      "signup_link_title": "Ashes of the Waterfall"
+    }
+  ],
+  "first_page_url": "https://bookbeam.app/api/v1/projects/5/downloaders?page=1",
+  "from": 1,
+  "last_page": 1,
+  "last_page_url": "https://bookbeam.app/api/v1/projects/5/downloaders?page=1",
+  "links": [
+    {
+      "active": false,
+      "label": "\u0026laquo; Previous",
+      "page": null,
+      "url": null
+    },
+    {
+      "active": true,
+      "label": "1",
+      "page": 1,
+      "url": "https://bookbeam.app/api/v1/projects/5/downloaders?page=1"
+    },
+    {
+      "active": false,
+      "label": "Next \u0026raquo;",
+      "page": null,
+      "url": null
+    }
+  ],
+  "next_page_url": null,
+  "path": "https://bookbeam.app/api/v1/projects/5/downloaders",
+  "per_page": 15,
+  "prev_page_url": null,
+  "to": 2,
+  "total": 2
+}
+
+--- stderr ---
+
+
+===== downloaders list project 5 table =====
+$ bookbeam downloaders list 5
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+EMAIL                         SIGNUP LINK              SIGNUP DATE
+[EMAIL]         Ashes of the Waterfall   2026-03-28 06:46:03
+[EMAIL]   Ashes of the Waterfall   2026-03-25 20:50:04
+
+Page 1 of 1 (Total: 2)
+
+--- stderr ---
+
+
+===== logs page 2 limit 3 =====
+$ bookbeam logs --page 2 --limit 3
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+TIME                          TYPE       READER                  BOOK                     FILE
+2026-03-28T06:46:32.000000Z   download   [EMAIL]   Ashes of the Waterfall   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:31.000000Z   download   [EMAIL]   Ashes of the Waterfall   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:03.000000Z   signup     [EMAIL]   Ashes of the Waterfall   
+
+Page 2 of 4 (total: 11)
+
+--- stderr ---
+
+
+===== logs page 4 =====
+$ bookbeam logs --page 4 --limit 3
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+TIME                          TYPE       READER                          BOOK                                     FILE
+2026-02-09T17:42:19.000000Z   download   [EMAIL]   Tark: A Half-Serious Magical Adventure   Tark-Kindle-2026-01-09.epub
+2026-02-09T17:42:14.000000Z   signup     [EMAIL]   Tark: A Half-Serious Magical Adventure   
+
+Page 4 of 4 (total: 11)
+
+--- stderr ---
+
+
+===== logs page 99 =====
+$ bookbeam logs --page 99 --limit 3
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+No activity logs recorded.
+
+--- stderr ---
+
+
+===== logs event signup table =====
+$ bookbeam logs --event signup --limit 3
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+TIME                          TYPE     READER                                 BOOK                     FILE
+2026-09-15T07:59:59.000000Z   signup   [EMAIL]   Reader Magnet Playbook   
+
+Page 1 of 4 (total: 11)
+
+--- stderr ---
+
+
+===== logs event signup json =====
+$ bookbeam logs --event signup --limit 3 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "current_page": 1,
+  "data": [
+    {
+      "book_title": "Reader Magnet Playbook",
+      "filename": "the-reader-magnet-playbook.pdf",
+      "id": 5,
+      "occurred_at": "2026-09-15T08:00:01.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "iNS2rgt9RS",
+      "type": "download"
+    },
+    {
+      "book_title": "Reader Magnet Playbook",
+      "id": 6,
+      "newsletter_provider": "mailcoach",
+      "newsletter_provider_success": true,
+      "occurred_at": "2026-09-15T07:59:59.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "iNS2rgt9RS",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    },
+    {
+      "book_title": "Ashes of the Waterfall",
+      "filename": "Ashes-of-the-Waterfall-Print-2026-03-25.pdf",
+      "id": 4,
+      "occurred_at": "2026-03-28T06:46:33.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "cUBRJ6yugg",
+      "type": "download"
+    }
+  ],
+  "first_page_url": "https://bookbeam.app/api/v1/logs?page=1",
+  "from": 1,
+  "last_page": 4,
+  "last_page_url": "https://bookbeam.app/api/v1/logs?page=4",
+  "links": [
+    {
+      "active": false,
+      "label": "\u0026laquo; Previous",
+      "page": null,
+      "url": null
+    },
+    {
+      "active": true,
+      "label": "1",
+      "page": 1,
+      "url": "https://bookbeam.app/api/v1/logs?page=1"
+    },
+    {
+      "active": false,
+      "label": "2",
+      "page": 2,
+      "url": "https://bookbeam.app/api/v1/logs?page=2"
+    },
+    {
+      "active": false,
+      "label": "3",
+      "page": 3,
+      "url": "https://bookbeam.app/api/v1/logs?page=3"
+    },
+    {
+      "active": false,
+      "label": "4",
+      "page": 4,
+      "url": "https://bookbeam.app/api/v1/logs?page=4"
+    },
+    {
+      "active": false,
+      "label": "Next \u0026raquo;",
+      "page": 2,
+      "url": "https://bookbeam.app/api/v1/logs?page=2"
+    }
+  ],
+  "next_page_url": "https://bookbeam.app/api/v1/logs?page=2",
+  "path": "https://bookbeam.app/api/v1/logs",
+  "per_page": 3,
+  "prev_page_url": null,
+  "to": 3,
+  "total": 11
+}
+
+--- stderr ---
+
+
+===== logs limit 0 =====
+$ bookbeam logs --limit 0
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+TIME                          TYPE       READER                                   BOOK                                     FILE
+2026-09-15T08:00:01.000000Z   download   [EMAIL]     Reader Magnet Playbook                   the-reader-magnet-playbook.pdf
+2026-09-15T07:59:59.000000Z   signup     [EMAIL]     Reader Magnet Playbook                   
+2026-03-28T06:46:33.000000Z   download   [EMAIL]                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:32.000000Z   download   [EMAIL]                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:31.000000Z   download   [EMAIL]                    Ashes of the Waterfall                   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+2026-03-28T06:46:03.000000Z   signup     [EMAIL]                    Ashes of the Waterfall                   
+2026-03-25T20:50:04.000000Z   signup     [EMAIL]              Ashes of the Waterfall                   
+2026-03-18T14:13:12.000000Z   signup     [EMAIL]     D.W. Stein Sci-fi Starter Library        
+2026-03-18T13:25:59.000000Z   signup     [EMAIL]   D.W. Stein Sci-fi Starter Library        
+2026-02-09T17:42:19.000000Z   download   [EMAIL]            Tark: A Half-Serious Magical Adventure   Tark-Kindle-2026-01-09.epub
+2026-02-09T17:42:14.000000Z   signup     [EMAIL]            Tark: A Half-Serious Magical Adventure   
+
+--- stderr ---
+
+
+===== logs page 0 =====
+$ bookbeam logs --page 0 --limit 1
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+TIME                          TYPE       READER                                 BOOK                     FILE
+2026-09-15T08:00:01.000000Z   download   [EMAIL]   Reader Magnet Playbook   the-reader-magnet-playbook.pdf
+
+Page 1 of 11 (total: 11)
+
+--- stderr ---
+
+
+===== logs limit 101 json =====
+$ bookbeam logs --limit 101 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "current_page": 1,
+  "data": [
+    {
+      "book_title": "Reader Magnet Playbook",
+      "filename": "the-reader-magnet-playbook.pdf",
+      "id": 5,
+      "occurred_at": "2026-09-15T08:00:01.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "iNS2rgt9RS",
+      "type": "download"
+    },
+    {
+      "book_title": "Reader Magnet Playbook",
+      "id": 6,
+      "newsletter_provider": "mailcoach",
+      "newsletter_provider_success": true,
+      "occurred_at": "2026-09-15T07:59:59.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "iNS2rgt9RS",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    },
+    {
+      "book_title": "Ashes of the Waterfall",
+      "filename": "Ashes-of-the-Waterfall-Print-2026-03-25.pdf",
+      "id": 4,
+      "occurred_at": "2026-03-28T06:46:33.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "cUBRJ6yugg",
+      "type": "download"
+    },
+    {
+      "book_title": "Ashes of the Waterfall",
+      "filename": "Ashes-of-the-Waterfall-Print-2026-03-25.pdf",
+      "id": 3,
+      "occurred_at": "2026-03-28T06:46:32.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "cUBRJ6yugg",
+      "type": "download"
+    },
+    {
+      "book_title": "Ashes of the Waterfall",
+      "filename": "Ashes-of-the-Waterfall-Print-2026-03-25.pdf",
+      "id": 2,
+      "occurred_at": "2026-03-28T06:46:31.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "cUBRJ6yugg",
+      "type": "download"
+    },
+    {
+      "book_title": "Ashes of the Waterfall",
+      "id": 5,
+      "newsletter_provider": null,
+      "newsletter_provider_success": null,
+      "occurred_at": "2026-03-28T06:46:03.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "cUBRJ6yugg",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    },
+    {
+      "book_title": "Ashes of the Waterfall",
+      "id": 4,
+      "newsletter_provider": null,
+      "newsletter_provider_success": null,
+      "occurred_at": "2026-03-25T20:50:04.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "cUBRJ6yugg",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    },
+    {
+      "book_title": "D.W. Stein Sci-fi Starter Library",
+      "id": 3,
+      "newsletter_provider": null,
+      "newsletter_provider_success": null,
+      "occurred_at": "2026-03-18T14:13:12.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "4T8M69PbQP",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    },
+    {
+      "book_title": "D.W. Stein Sci-fi Starter Library",
+      "id": 2,
+      "newsletter_provider": null,
+      "newsletter_provider_success": null,
+      "occurred_at": "2026-03-18T13:25:59.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "4T8M69PbQP",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    },
+    {
+      "book_title": "Tark: A Half-Serious Magical Adventure",
+      "filename": "Tark-Kindle-2026-01-09.epub",
+      "id": 1,
+      "occurred_at": "2026-02-09T17:42:19.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "vzgLCqi7aE",
+      "type": "download"
+    },
+    {
+      "book_title": "Tark: A Half-Serious Magical Adventure",
+      "id": 1,
+      "newsletter_provider": null,
+      "newsletter_provider_success": null,
+      "occurred_at": "2026-02-09T17:42:14.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "vzgLCqi7aE",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    }
+  ],
+  "first_page_url": "https://bookbeam.app/api/v1/logs?page=1",
+  "from": 1,
+  "last_page": 1,
+  "last_page_url": "https://bookbeam.app/api/v1/logs?page=1",
+  "links": [
+    {
+      "active": false,
+      "label": "\u0026laquo; Previous",
+      "page": null,
+      "url": null
+    },
+    {
+      "active": true,
+      "label": "1",
+      "page": 1,
+      "url": "https://bookbeam.app/api/v1/logs?page=1"
+    },
+    {
+      "active": false,
+      "label": "Next \u0026raquo;",
+      "page": null,
+      "url": null
+    }
+  ],
+  "next_page_url": null,
+  "path": "https://bookbeam.app/api/v1/logs",
+  "per_page": 100,
+  "prev_page_url": null,
+  "to": 11,
+  "total": 11
+}
+
+--- stderr ---
+
+
+===== logs unknown event =====
+$ bookbeam logs --event no-such-type --limit 3
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+No activity logs recorded.
+
+--- stderr ---
+
+
+===== export project 5 json =====
+$ bookbeam downloaders export 5 -o /Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/scratch/subscribers-5.csv --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "bytes_written": 179,
+  "path": "/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/scratch/subscribers-5.csv",
+  "project_id": 5
+}
+
+--- stderr ---
+
+
+===== export empty project 21 =====
+$ bookbeam downloaders export 21 -o /Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/scratch/subscribers-21.csv --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "bytes_written": 35,
+  "path": "/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/scratch/subscribers-21.csv",
+  "project_id": 21
+}
+
+--- stderr ---
+
+
+===== export project 5 default name =====
+$ bookbeam downloaders export 5
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+✓ Exported 179 bytes to downloaders-project-5.csv
+
+--- stderr ---
+
+
+===== links list 5 table =====
+$ bookbeam links list 5
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+ID   TITLE                    SLUG         PUBLIC URL                                 CREATED
+7    Ashes of the Waterfall   cUBRJ6yugg   https://bookbeam.app/download/cUBRJ6yugg   2026-03-25T20:34:37.000000Z
+
+--- stderr ---
+
+
+===== links list 5 json =====
+$ bookbeam links list 5 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": [
+    {
+      "book_project_id": 5,
+      "created_at": "2026-03-25T20:34:37.000000Z",
+      "id": 7,
+      "opt_in_text": "Read the first third of my debut space opera novel for free! ",
+      "signups_count": 2,
+      "slug": "cUBRJ6yugg",
+      "title": "Ashes of the Waterfall",
+      "updated_at": "2026-10-16T13:49:09.000000Z"
+    }
+  ]
+}
+
+--- stderr ---
+
+
+===== projects get 5 table =====
+$ bookbeam projects get 5
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Field         Value
+ID            5
+Title         Ashes of the Waterfall
+Description   Get Part 1 of my novel Ashes of the Waterfall for free! 
+Cover URL     https://dml7kyyqr0izx.cloudfront.net/cover-images/yQV7nF4C6zvvpWIdry7fHkcKGxqdwK9Pf2uzl8UO.jpg
+Files Count   2
+Links Count   1
+Created At    2026-03-25T19:58:11.000000Z
+
+--- stderr ---
+
+
+===== files list 5 =====
+$ bookbeam files list 5
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+ID   FILENAME                                        FORMAT   SIZE (BYTES)   DOWNLOADS   CREATED
+10   Ashes-of-the-Waterfall-Kindle-2026-03-25.epub   EPUB     533447         0           2026-03-25T20:31:42.000000Z
+12   Ashes-of-the-Waterfall-Print-2026-03-25.pdf     PDF      959322         3           2026-03-26T09:07:52.000000Z
+
+--- stderr ---
+
+
+===== logs limit 0 json replay =====
+$ bookbeam logs --limit 0 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "current_page": 1,
+  "data": [
+    {
+      "book_title": "Reader Magnet Playbook",
+      "filename": "the-reader-magnet-playbook.pdf",
+      "id": 5,
+      "occurred_at": "2026-09-15T08:00:01.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "iNS2rgt9RS",
+      "type": "download"
+    },
+    {
+      "book_title": "Reader Magnet Playbook",
+      "id": 6,
+      "newsletter_provider": "mailcoach",
+      "newsletter_provider_success": true,
+      "occurred_at": "2026-09-15T07:59:59.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "iNS2rgt9RS",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    },
+    {
+      "book_title": "Ashes of the Waterfall",
+      "filename": "Ashes-of-the-Waterfall-Print-2026-03-25.pdf",
+      "id": 4,
+      "occurred_at": "2026-03-28T06:46:33.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "cUBRJ6yugg",
+      "type": "download"
+    },
+    {
+      "book_title": "Ashes of the Waterfall",
+      "filename": "Ashes-of-the-Waterfall-Print-2026-03-25.pdf",
+      "id": 3,
+      "occurred_at": "2026-03-28T06:46:32.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "cUBRJ6yugg",
+      "type": "download"
+    },
+    {
+      "book_title": "Ashes of the Waterfall",
+      "filename": "Ashes-of-the-Waterfall-Print-2026-03-25.pdf",
+      "id": 2,
+      "occurred_at": "2026-03-28T06:46:31.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "cUBRJ6yugg",
+      "type": "download"
+    },
+    {
+      "book_title": "Ashes of the Waterfall",
+      "id": 5,
+      "newsletter_provider": null,
+      "newsletter_provider_success": null,
+      "occurred_at": "2026-03-28T06:46:03.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "cUBRJ6yugg",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    },
+    {
+      "book_title": "Ashes of the Waterfall",
+      "id": 4,
+      "newsletter_provider": null,
+      "newsletter_provider_success": null,
+      "occurred_at": "2026-03-25T20:50:04.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "cUBRJ6yugg",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    },
+    {
+      "book_title": "D.W. Stein Sci-fi Starter Library",
+      "id": 3,
+      "newsletter_provider": null,
+      "newsletter_provider_success": null,
+      "occurred_at": "2026-03-18T14:13:12.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "4T8M69PbQP",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    },
+    {
+      "book_title": "D.W. Stein Sci-fi Starter Library",
+      "id": 2,
+      "newsletter_provider": null,
+      "newsletter_provider_success": null,
+      "occurred_at": "2026-03-18T13:25:59.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "4T8M69PbQP",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    },
+    {
+      "book_title": "Tark: A Half-Serious Magical Adventure",
+      "filename": "Tark-Kindle-2026-01-09.epub",
+      "id": 1,
+      "occurred_at": "2026-02-09T17:42:19.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "vzgLCqi7aE",
+      "type": "download"
+    },
+    {
+      "book_title": "Tark: A Half-Serious Magical Adventure",
+      "id": 1,
+      "newsletter_provider": null,
+      "newsletter_provider_success": null,
+      "occurred_at": "2026-02-09T17:42:14.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "vzgLCqi7aE",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    }
+  ],
+  "first_page_url": "https://bookbeam.app/api/v1/logs?page=1",
+  "from": 1,
+  "last_page": 1,
+  "last_page_url": "https://bookbeam.app/api/v1/logs?page=1",
+  "links": [
+    {
+      "active": false,
+      "label": "\u0026laquo; Previous",
+      "page": null,
+      "url": null
+    },
+    {
+      "active": true,
+      "label": "1",
+      "page": 1,
+      "url": "https://bookbeam.app/api/v1/logs?page=1"
+    },
+    {
+      "active": false,
+      "label": "Next \u0026raquo;",
+      "page": null,
+      "url": null
+    }
+  ],
+  "next_page_url": null,
+  "path": "https://bookbeam.app/api/v1/logs",
+  "per_page": 15,
+  "prev_page_url": null,
+  "to": 11,
+  "total": 11
+}
+
+--- stderr ---
+
+
+===== logs unknown event replay =====
+$ bookbeam logs --event no-such-type --limit 3
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+No activity logs recorded.
+
+--- stderr ---
+
+
+===== logs page 99 replay =====
+$ bookbeam logs --page 99 --limit 3
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+No activity logs recorded.
+
+--- stderr ---
+
+
+===== logs signup all pages? limit 50 =====
+$ bookbeam logs --event signup --limit 50
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+TIME                          TYPE     READER                                   BOOK                                     FILE
+2026-09-15T07:59:59.000000Z   signup   [EMAIL]     Reader Magnet Playbook                   
+2026-03-28T06:46:03.000000Z   signup   [EMAIL]                    Ashes of the Waterfall                   
+2026-03-25T20:50:04.000000Z   signup   [EMAIL]              Ashes of the Waterfall                   
+2026-03-18T14:13:12.000000Z   signup   [EMAIL]     D.W. Stein Sci-fi Starter Library        
+2026-03-18T13:25:59.000000Z   signup   [EMAIL]   D.W. Stein Sci-fi Starter Library        
+2026-02-09T17:42:14.000000Z   signup   [EMAIL]            Tark: A Half-Serious Magical Adventure   
+
+--- stderr ---
+
+
+===== billing checkout human =====
+$ bookbeam billing checkout
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Checkout URL: https://subject-zero.lemonsqueezy.com/checkout/custom/fd3e7f9b-4d39-443e-9984-8400a195b825?signature=[REDACTED]
+
+--- stderr ---
+
+
+# NOTE journey 2 start
+
+===== create project with cover =====
+$ bookbeam projects create --title Exploratory 2026-10-17 --description Disposable cover and file journey --cover /Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/scratch/fixtures/cover-red.png --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "cover_image_path": "cover-images/TqMCufHI2vx9HwPg4bvPLRq2tbQHH60Fq9FXliMv.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/TqMCufHI2vx9HwPg4bvPLRq2tbQHH60Fq9FXliMv.png",
+    "created_at": "2026-10-17T01:55:24.000000Z",
+    "description": "Disposable cover and file journey",
+    "files_count": 0,
+    "id": 28,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "Exploratory 2026-10-17",
+    "updated_at": "2026-10-17T01:55:24.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+# NOTE created id=28 cover_url_set=True description='Disposable cover and file journey'
+
+===== get created project =====
+$ bookbeam projects get 28 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "cover_image_path": "cover-images/TqMCufHI2vx9HwPg4bvPLRq2tbQHH60Fq9FXliMv.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/TqMCufHI2vx9HwPg4bvPLRq2tbQHH60Fq9FXliMv.png",
+    "created_at": "2026-10-17T01:55:24.000000Z",
+    "description": "Disposable cover and file journey",
+    "files_count": 0,
+    "id": 28,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "Exploratory 2026-10-17",
+    "updated_at": "2026-10-17T01:55:24.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+# NOTE get title='Exploratory 2026-10-17' description='Disposable cover and file journey' cover_set=True
+
+# NOTE cover fetch status=200 type=image/png bytes=69 magic=b'\x89PNG\r\n\x1a\n'
+
+===== rename only =====
+$ bookbeam projects update 28 --title Exploratory 2026-10-17 renamed --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "cover_image_path": "cover-images/TqMCufHI2vx9HwPg4bvPLRq2tbQHH60Fq9FXliMv.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/TqMCufHI2vx9HwPg4bvPLRq2tbQHH60Fq9FXliMv.png",
+    "created_at": "2026-10-17T01:55:24.000000Z",
+    "description": "Disposable cover and file journey",
+    "files_count": 0,
+    "id": 28,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "Exploratory 2026-10-17 renamed",
+    "updated_at": "2026-10-17T01:55:25.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+===== get after rename =====
+$ bookbeam projects get 28 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "cover_image_path": "cover-images/TqMCufHI2vx9HwPg4bvPLRq2tbQHH60Fq9FXliMv.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/TqMCufHI2vx9HwPg4bvPLRq2tbQHH60Fq9FXliMv.png",
+    "created_at": "2026-10-17T01:55:24.000000Z",
+    "description": "Disposable cover and file journey",
+    "files_count": 0,
+    "id": 28,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "Exploratory 2026-10-17 renamed",
+    "updated_at": "2026-10-17T01:55:25.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+# NOTE after rename title='Exploratory 2026-10-17 renamed' description='Disposable cover and file journey' cover_set=True
+
+===== update with no flags =====
+$ bookbeam projects update 28
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+✓ Updated book project #28
+
+--- stderr ---
+
+
+===== get after empty update =====
+$ bookbeam projects get 28 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "cover_image_path": "cover-images/TqMCufHI2vx9HwPg4bvPLRq2tbQHH60Fq9FXliMv.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/TqMCufHI2vx9HwPg4bvPLRq2tbQHH60Fq9FXliMv.png",
+    "created_at": "2026-10-17T01:55:24.000000Z",
+    "description": "Disposable cover and file journey",
+    "files_count": 0,
+    "id": 28,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "Exploratory 2026-10-17 renamed",
+    "updated_at": "2026-10-17T01:55:25.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+# NOTE after empty update title='Exploratory 2026-10-17 renamed' description='Disposable cover and file journey'
+
+===== conflicting cover flags =====
+$ bookbeam projects update 28 --cover /Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/scratch/fixtures/cover-blue.png --remove-cover
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam projects update <project-id> [flags]
+
+Flags:
+      --clear-description    Clear the book project description
+      --cover string         Path to new cover image file
+      --description string   Updated book project description
+  -h, --help                 help for update
+      --remove-cover         Remove current cover image
+      --title string         Updated book project title
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: cannot specify both --cover and --remove-cover
+
+
+===== get after conflicting cover flags =====
+$ bookbeam projects get 28 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "cover_image_path": "cover-images/TqMCufHI2vx9HwPg4bvPLRq2tbQHH60Fq9FXliMv.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/TqMCufHI2vx9HwPg4bvPLRq2tbQHH60Fq9FXliMv.png",
+    "created_at": "2026-10-17T01:55:24.000000Z",
+    "description": "Disposable cover and file journey",
+    "files_count": 0,
+    "id": 28,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "Exploratory 2026-10-17 renamed",
+    "updated_at": "2026-10-17T01:55:25.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+# NOTE after conflict cover_set=True url_changed=False
+
+===== replace cover =====
+$ bookbeam projects update 28 --cover /Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/scratch/fixtures/cover-blue.png --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "cover_image_path": "cover-images/jpHxtipxtSq9efNfGW5tSFHgZa0xXHo7XcEBQJtE.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/jpHxtipxtSq9efNfGW5tSFHgZa0xXHo7XcEBQJtE.png",
+    "created_at": "2026-10-17T01:55:24.000000Z",
+    "description": "Disposable cover and file journey",
+    "files_count": 0,
+    "id": 28,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "Exploratory 2026-10-17 renamed",
+    "updated_at": "2026-10-17T01:55:26.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+===== get after cover replace =====
+$ bookbeam projects get 28 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "cover_image_path": "cover-images/jpHxtipxtSq9efNfGW5tSFHgZa0xXHo7XcEBQJtE.png",
+    "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/jpHxtipxtSq9efNfGW5tSFHgZa0xXHo7XcEBQJtE.png",
+    "created_at": "2026-10-17T01:55:24.000000Z",
+    "description": "Disposable cover and file journey",
+    "files_count": 0,
+    "id": 28,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "Exploratory 2026-10-17 renamed",
+    "updated_at": "2026-10-17T01:55:26.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+# NOTE replaced cover_set=True changed=True description='Disposable cover and file journey'
+
+# NOTE new cover fetch status=200 type=image/png bytes=69 magic=b'\x89PNG\r\n\x1a\n'
+
+===== conflicting description flags =====
+$ bookbeam projects update 28 --clear-description --description Conflict
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam projects update <project-id> [flags]
+
+Flags:
+      --clear-description    Clear the book project description
+      --cover string         Path to new cover image file
+      --description string   Updated book project description
+  -h, --help                 help for update
+      --remove-cover         Remove current cover image
+      --title string         Updated book project title
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: cannot specify both --description and --clear-description
+
+
+===== remove cover =====
+$ bookbeam projects update 28 --remove-cover --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "cover_image_path": null,
+    "cover_image_url": null,
+    "created_at": "2026-10-17T01:55:24.000000Z",
+    "description": "Disposable cover and file journey",
+    "files_count": 0,
+    "id": 28,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "Exploratory 2026-10-17 renamed",
+    "updated_at": "2026-10-17T01:55:26.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+===== get after remove cover =====
+$ bookbeam projects get 28 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "cover_image_path": null,
+    "cover_image_url": null,
+    "created_at": "2026-10-17T01:55:24.000000Z",
+    "description": "Disposable cover and file journey",
+    "files_count": 0,
+    "id": 28,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "Exploratory 2026-10-17 renamed",
+    "updated_at": "2026-10-17T01:55:26.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+# NOTE after remove cover=None description='Disposable cover and file journey' title='Exploratory 2026-10-17 renamed'
+
+===== reject non-book extension =====
+$ bookbeam files upload 28 /Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/scratch/fixtures/notes.txt
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam files upload <project-id> <file-path> [flags]
+
+Flags:
+  -h, --help   help for upload
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: unsupported file extension '.txt'; allowed extensions are .epub, .mobi, .pdf
+
+
+===== files after rejected upload =====
+$ bookbeam files list 28 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": []
+}
+
+--- stderr ---
+
+
+# NOTE files after reject count=0
+
+===== upload spaced epub =====
+$ bookbeam files upload 28 /Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/scratch/fixtures/two words.epub --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "book_project_id": 28,
+    "created_at": "2026-10-17T01:55:27.000000Z",
+    "downloads_count": 0,
+    "file_size": 586,
+    "file_type": "epub",
+    "filename": "two words.epub",
+    "id": 30,
+    "updated_at": "2026-10-17T01:55:27.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+# NOTE uploaded file id=30 filename='two words.epub' size=586
+
+===== download explicit output =====
+$ bookbeam files download 28 30 -o /Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/scratch/downloaded.epub --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "bytes_written": 586,
+  "file_id": 30,
+  "path": "/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/scratch/downloaded.epub",
+  "project_id": 28
+}
+
+--- stderr ---
+
+
+# NOTE explicit download exists=True bytes=586 match=True
+
+===== download negotiated filename =====
+$ bookbeam files download 28 30 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "bytes_written": 586,
+  "file_id": 30,
+  "path": "two words.epub",
+  "project_id": 28
+}
+
+--- stderr ---
+
+
+# NOTE negotiated exists=True match=True
+
+===== cancel file delete =====
+$ bookbeam files delete 28 30
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Are you sure you want to delete file #30 from project #28? (y/N): Cancelled.
+
+--- stderr ---
+
+
+===== files after cancel delete =====
+$ bookbeam files list 28 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": [
+    {
+      "book_project_id": 28,
+      "created_at": "2026-10-17T01:55:27.000000Z",
+      "downloads_count": 0,
+      "file_size": 586,
+      "file_type": "epub",
+      "filename": "two words.epub",
+      "id": 30,
+      "updated_at": "2026-10-17T01:55:27.000000Z"
+    }
+  ]
+}
+
+--- stderr ---
+
+
+# NOTE files after cancel=[30]
+
+===== create signup link =====
+$ bookbeam links create 28 --title Sample Chapter --consent Join my newsletter --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "book_project_id": 28,
+    "created_at": "2026-10-17T01:55:28.000000Z",
+    "id": 25,
+    "opt_in_text": "Join my newsletter",
+    "signups_count": 0,
+    "slug": "k065WD3Ex2",
+    "title": "Sample Chapter",
+    "updated_at": "2026-10-17T01:55:28.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+# NOTE link id=25 slug=k065WD3Ex2 title='Sample Chapter' consent='Join my newsletter'
+
+===== links list table =====
+$ bookbeam links list 28
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+ID   TITLE            SLUG         PUBLIC URL                                 CREATED
+25   Sample Chapter   k065WD3Ex2   https://bookbeam.app/download/k065WD3Ex2   2026-10-17T01:55:28.000000Z
+
+--- stderr ---
+
+
+===== links list json =====
+$ bookbeam links list 28 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": [
+    {
+      "book_project_id": 28,
+      "created_at": "2026-10-17T01:55:28.000000Z",
+      "id": 25,
+      "opt_in_text": "Join my newsletter",
+      "signups_count": 0,
+      "slug": "k065WD3Ex2",
+      "title": "Sample Chapter",
+      "updated_at": "2026-10-17T01:55:28.000000Z"
+    }
+  ]
+}
+
+--- stderr ---
+
+
+===== links list trailing-slash host =====
+$ bookbeam --host https://bookbeam.app/ links list 28
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+ID   TITLE            SLUG         PUBLIC URL                                 CREATED
+25   Sample Chapter   k065WD3Ex2   https://bookbeam.app/download/k065WD3Ex2   2026-10-17T01:55:28.000000Z
+
+--- stderr ---
+
+
+# NOTE public page status=200 type=text/html; charset=utf-8 starts=b'<!DOCTYPE html>\n<html lang="en">\n    <head>\n        <meta charset="utf-8">\n     '
+
+===== link title-only update =====
+$ bookbeam links update 28 25 --title Updated Chapter --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "book_project_id": 28,
+    "created_at": "2026-10-17T01:55:28.000000Z",
+    "id": 25,
+    "opt_in_text": "Join my newsletter",
+    "signups_count": 0,
+    "slug": "k065WD3Ex2",
+    "title": "Updated Chapter",
+    "updated_at": "2026-10-17T01:55:29.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+===== links after title update =====
+$ bookbeam links list 28 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": [
+    {
+      "book_project_id": 28,
+      "created_at": "2026-10-17T01:55:28.000000Z",
+      "id": 25,
+      "opt_in_text": "Join my newsletter",
+      "signups_count": 0,
+      "slug": "k065WD3Ex2",
+      "title": "Updated Chapter",
+      "updated_at": "2026-10-17T01:55:29.000000Z"
+    }
+  ]
+}
+
+--- stderr ---
+
+
+# NOTE after title update title='Updated Chapter' consent='Join my newsletter'
+
+===== conflicting consent flags =====
+$ bookbeam links update 28 25 --consent New consent --clear-consent
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam links update <project-id> <link-id> [flags]
+
+Flags:
+      --clear-consent    Clear newsletter consent text
+      --consent string   Updated newsletter consent text
+  -h, --help             help for update
+      --title string     Updated link title
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: cannot specify both --consent and --clear-consent
+
+
+===== clear consent =====
+$ bookbeam links update 28 25 --clear-consent --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "book_project_id": 28,
+    "created_at": "2026-10-17T01:55:28.000000Z",
+    "id": 25,
+    "opt_in_text": null,
+    "signups_count": 0,
+    "slug": "k065WD3Ex2",
+    "title": "Updated Chapter",
+    "updated_at": "2026-10-17T01:55:30.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+===== links after clear consent =====
+$ bookbeam links list 28 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": [
+    {
+      "book_project_id": 28,
+      "created_at": "2026-10-17T01:55:28.000000Z",
+      "id": 25,
+      "opt_in_text": null,
+      "signups_count": 0,
+      "slug": "k065WD3Ex2",
+      "title": "Updated Chapter",
+      "updated_at": "2026-10-17T01:55:30.000000Z"
+    }
+  ]
+}
+
+--- stderr ---
+
+
+# NOTE after clear title='Updated Chapter' consent=None
+
+===== cancel link delete =====
+$ bookbeam links delete 28 25
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Are you sure you want to delete link #25? (y/N): Cancelled.
+
+--- stderr ---
+
+
+===== links after cancel delete =====
+$ bookbeam links list 28 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": [
+    {
+      "book_project_id": 28,
+      "created_at": "2026-10-17T01:55:28.000000Z",
+      "id": 25,
+      "opt_in_text": null,
+      "signups_count": 0,
+      "slug": "k065WD3Ex2",
+      "title": "Updated Chapter",
+      "updated_at": "2026-10-17T01:55:30.000000Z"
+    }
+  ]
+}
+
+--- stderr ---
+
+
+# NOTE links after cancel=[25]
+
+===== set newsletter routing =====
+$ bookbeam projects newsletter 28 --list-id f360d073-6b24-404e-bb01-c8d9d1e1cf16 --tags sci-fi, readers ,et --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "cover_image_path": null,
+    "cover_image_url": null,
+    "created_at": "2026-10-17T01:55:24.000000Z",
+    "description": "Disposable cover and file journey",
+    "files_count": 0,
+    "id": 28,
+    "newsletter_list_id": "f360d073-6b24-404e-bb01-c8d9d1e1cf16",
+    "newsletter_tags": [
+      "sci-fi",
+      "readers",
+      "et"
+    ],
+    "signup_links_count": 0,
+    "title": "Exploratory 2026-10-17 renamed",
+    "updated_at": "2026-10-17T01:55:30.000000Z"
+  },
+  "message": "Project newsletter settings updated successfully."
+}
+
+--- stderr ---
+
+
+===== get after newsletter route =====
+$ bookbeam projects get 28 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "cover_image_path": null,
+    "cover_image_url": null,
+    "created_at": "2026-10-17T01:55:24.000000Z",
+    "description": "Disposable cover and file journey",
+    "files_count": 1,
+    "id": 28,
+    "newsletter_list_id": "f360d073-6b24-404e-bb01-c8d9d1e1cf16",
+    "newsletter_tags": [
+      "sci-fi",
+      "readers",
+      "et"
+    ],
+    "signup_links_count": 1,
+    "title": "Exploratory 2026-10-17 renamed",
+    "updated_at": "2026-10-17T01:55:30.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+# NOTE routing list='f360d073-6b24-404e-bb01-c8d9d1e1cf16' tags=['sci-fi', 'readers', 'et']
+
+===== clear newsletter tags =====
+$ bookbeam projects newsletter 28 --clear-tags --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "cover_image_path": null,
+    "cover_image_url": null,
+    "created_at": "2026-10-17T01:55:24.000000Z",
+    "description": "Disposable cover and file journey",
+    "files_count": 0,
+    "id": 28,
+    "newsletter_list_id": "f360d073-6b24-404e-bb01-c8d9d1e1cf16",
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "Exploratory 2026-10-17 renamed",
+    "updated_at": "2026-10-17T01:55:31.000000Z"
+  },
+  "message": "Project newsletter settings updated successfully."
+}
+
+--- stderr ---
+
+
+===== get after clear tags =====
+$ bookbeam projects get 28 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "cover_image_path": null,
+    "cover_image_url": null,
+    "created_at": "2026-10-17T01:55:24.000000Z",
+    "description": "Disposable cover and file journey",
+    "files_count": 1,
+    "id": 28,
+    "newsletter_list_id": "f360d073-6b24-404e-bb01-c8d9d1e1cf16",
+    "newsletter_tags": null,
+    "signup_links_count": 1,
+    "title": "Exploratory 2026-10-17 renamed",
+    "updated_at": "2026-10-17T01:55:31.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+# NOTE after clear tags list='f360d073-6b24-404e-bb01-c8d9d1e1cf16' tags=None
+
+===== cancel project delete =====
+$ bookbeam projects delete 28
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Are you sure you want to delete project #28? (y/N): Cancelled.
+
+--- stderr ---
+
+
+===== get after cancel project delete =====
+$ bookbeam projects get 28 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "cover_image_path": null,
+    "cover_image_url": null,
+    "created_at": "2026-10-17T01:55:24.000000Z",
+    "description": "Disposable cover and file journey",
+    "files_count": 1,
+    "id": 28,
+    "newsletter_list_id": "f360d073-6b24-404e-bb01-c8d9d1e1cf16",
+    "newsletter_tags": null,
+    "signup_links_count": 1,
+    "title": "Exploratory 2026-10-17 renamed",
+    "updated_at": "2026-10-17T01:55:31.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+# NOTE still present id=28
+
+===== force delete project =====
+$ bookbeam projects delete 28 --force --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "message": "Project deleted successfully."
+}
+
+--- stderr ---
+
+
+===== get deleted project =====
+$ bookbeam projects get 28 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam projects get <project-id> [flags]
+
+Flags:
+  -h, --help   help for get
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: API error (404): No query results for model [App\Models\BookProject] 28
+
+
+===== catalog after delete =====
+$ bookbeam projects list --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "current_page": 1,
+  "data": [
+    {
+      "cover_image_path": null,
+      "cover_image_url": null,
+      "created_at": "2026-09-26T02:01:41.000000Z",
+      "description": "Testing links and newsletter",
+      "files_count": 0,
+      "id": 21,
+      "newsletter_list_id": "18c50c64-242c-4127-ad48-d2fac6321bce",
+      "newsletter_tags": null,
+      "signup_links_count": 0,
+      "title": "Exploratory Journey 2 Links",
+      "updated_at": "2026-10-02T01:26:42.000000Z"
+    },
+    {
+      "cover_image_path": "cover-images/3ZQWSNE5peEhDtjaCtYSw3FGm0wjDyPBmv2CHWix.png",
+      "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/3ZQWSNE5peEhDtjaCtYSw3FGm0wjDyPBmv2CHWix.png",
+      "created_at": "2026-03-26T11:27:38.000000Z",
+      "description": "A 19-page PDF showing how authors built their email lists - strategies, costs, and results from 10 case studies.",
+      "files_count": 1,
+      "id": 6,
+      "newsletter_list_id": "f360d073-6b24-404e-bb01-c8d9d1e1cf16",
+      "newsletter_tags": null,
+      "signup_links_count": 1,
+      "title": "Reader Magnet Playbook",
+      "updated_at": "2026-03-26T11:44:46.000000Z"
+    },
+    {
+      "cover_image_path": "cover-images/yQV7nF4C6zvvpWIdry7fHkcKGxqdwK9Pf2uzl8UO.jpg",
+      "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/yQV7nF4C6zvvpWIdry7fHkcKGxqdwK9Pf2uzl8UO.jpg",
+      "created_at": "2026-03-25T19:58:11.000000Z",
+      "description": "Get Part 1 of my novel Ashes of the Waterfall for free! ",
+      "files_count": 2,
+      "id": 5,
+      "newsletter_list_id": "6ca38df7-a87d-4c93-889e-7c73f486b2ca",
+      "newsletter_tags": null,
+      "signup_links_count": 1,
+      "title": "Ashes of the Waterfall",
+      "updated_at": "2026-03-25T20:48:59.000000Z"
+    },
+    {
+      "cover_image_path": "cover-images/9az3RTZpgaViawoX6Gl82pPUj9ubQEXfKM6WxaWQ.jpg",
+      "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/9az3RTZpgaViawoX6Gl82pPUj9ubQEXfKM6WxaWQ.jpg",
+      "created_at": "2026-03-17T19:58:41.000000Z",
+      "description": "",
+      "files_count": 6,
+      "id": 4,
+      "newsletter_list_id": "c6ca4cc0-e643-43e7-9a6d-2aba6e7e07e5",
+      "newsletter_tags": null,
+      "signup_links_count": 1,
+      "title": "D.W. Stein Sci-fi Starter Library",
+      "updated_at": "2026-03-18T13:33:50.000000Z"
+    },
+    {
+      "cover_image_path": null,
+      "cover_image_url": null,
+      "created_at": "2026-01-31T16:43:16.000000Z",
+      "description": "Test description",
+      "files_count": 0,
+      "id": 3,
+      "newsletter_list_id": null,
+      "newsletter_tags": null,
+      "signup_links_count": 0,
+      "title": "Test for Lemon Squeezy",
+      "updated_at": "2026-01-31T16:43:16.000000Z"
+    },
+    {
+      "cover_image_path": "cover-images/W2wk8eQ29YJ2TSLJK78ePqG1fB4rvJ2GPZBgUttX.png",
+      "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/W2wk8eQ29YJ2TSLJK78ePqG1fB4rvJ2GPZBgUttX.png",
+      "created_at": "2026-01-15T16:36:49.000000Z",
+      "description": "Get two free sci-fi stories \"Open It\" and \"The Deep Blue\" for free now, and be the first to hear about new books in my series! ",
+      "files_count": 2,
+      "id": 2,
+      "newsletter_list_id": null,
+      "newsletter_tags": null,
+      "signup_links_count": 1,
+      "title": "The Deep Blue",
+      "updated_at": "2026-01-15T16:36:49.000000Z"
+    },
+    {
+      "cover_image_path": "cover-images/TdWWwjpEC2KdaFhXgUXgSuHonHbKEOEn1YURvvEp.jpg",
+      "cover_image_url": "https://dml7kyyqr0izx.cloudfront.net/cover-images/TdWWwjpEC2KdaFhXgUXgSuHonHbKEOEn1YURvvEp.jpg",
+      "created_at": "2026-01-15T09:10:44.000000Z",
+      "description": "Tark's life is a magical dumpster fire... ",
+      "files_count": 1,
+      "id": 1,
+      "newsletter_list_id": null,
+      "newsletter_tags": null,
+      "signup_links_count": 1,
+      "title": "Tark: A Half-Serious Magical Adventure",
+      "updated_at": "2026-01-15T14:25:58.000000Z"
+    }
+  ],
+  "first_page_url": "https://bookbeam.app/api/v1/projects?page=1",
+  "from": 1,
+  "last_page": 1,
+  "last_page_url": "https://bookbeam.app/api/v1/projects?page=1",
+  "links": [
+    {
+      "active": false,
+      "label": "\u0026laquo; Previous",
+      "page": null,
+      "url": null
+    },
+    {
+      "active": true,
+      "label": "1",
+      "page": 1,
+      "url": "https://bookbeam.app/api/v1/projects?page=1"
+    },
+    {
+      "active": false,
+      "label": "Next \u0026raquo;",
+      "page": null,
+      "url": null
+    }
+  ],
+  "next_page_url": null,
+  "path": "https://bookbeam.app/api/v1/projects",
+  "per_page": 15,
+  "prev_page_url": null,
+  "to": 7,
+  "total": 7
+}
+
+--- stderr ---
+
+
+# NOTE catalog total=7 ids=[21, 6, 5, 4, 3, 2, 1]
+
+# NOTE journey 2 commands done
+
+===== logs page 99 json =====
+$ bookbeam logs --page 99 --limit 3 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "current_page": 99,
+  "data": [],
+  "first_page_url": "https://bookbeam.app/api/v1/logs?page=1",
+  "from": null,
+  "last_page": 4,
+  "last_page_url": "https://bookbeam.app/api/v1/logs?page=4",
+  "links": [
+    {
+      "active": false,
+      "label": "\u0026laquo; Previous",
+      "page": 98,
+      "url": "https://bookbeam.app/api/v1/logs?page=98"
+    },
+    {
+      "active": false,
+      "label": "1",
+      "page": 1,
+      "url": "https://bookbeam.app/api/v1/logs?page=1"
+    },
+    {
+      "active": false,
+      "label": "2",
+      "page": 2,
+      "url": "https://bookbeam.app/api/v1/logs?page=2"
+    },
+    {
+      "active": false,
+      "label": "3",
+      "page": 3,
+      "url": "https://bookbeam.app/api/v1/logs?page=3"
+    },
+    {
+      "active": false,
+      "label": "4",
+      "page": 4,
+      "url": "https://bookbeam.app/api/v1/logs?page=4"
+    },
+    {
+      "active": false,
+      "label": "Next \u0026raquo;",
+      "page": null,
+      "url": null
+    }
+  ],
+  "next_page_url": null,
+  "path": "https://bookbeam.app/api/v1/logs",
+  "per_page": 3,
+  "prev_page_url": "https://bookbeam.app/api/v1/logs?page=98",
+  "to": null,
+  "total": 11
+}
+
+--- stderr ---
+
+
+===== logs unknown event json =====
+$ bookbeam logs --event no-such-type --limit 3 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "current_page": 1,
+  "data": [
+    {
+      "book_title": "Reader Magnet Playbook",
+      "filename": "the-reader-magnet-playbook.pdf",
+      "id": 5,
+      "occurred_at": "2026-09-15T08:00:01.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "iNS2rgt9RS",
+      "type": "download"
+    },
+    {
+      "book_title": "Reader Magnet Playbook",
+      "id": 6,
+      "newsletter_provider": "mailcoach",
+      "newsletter_provider_success": true,
+      "occurred_at": "2026-09-15T07:59:59.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "iNS2rgt9RS",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    },
+    {
+      "book_title": "Ashes of the Waterfall",
+      "filename": "Ashes-of-the-Waterfall-Print-2026-03-25.pdf",
+      "id": 4,
+      "occurred_at": "2026-03-28T06:46:33.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "cUBRJ6yugg",
+      "type": "download"
+    }
+  ],
+  "first_page_url": "https://bookbeam.app/api/v1/logs?page=1",
+  "from": 1,
+  "last_page": 4,
+  "last_page_url": "https://bookbeam.app/api/v1/logs?page=4",
+  "links": [
+    {
+      "active": false,
+      "label": "\u0026laquo; Previous",
+      "page": null,
+      "url": null
+    },
+    {
+      "active": true,
+      "label": "1",
+      "page": 1,
+      "url": "https://bookbeam.app/api/v1/logs?page=1"
+    },
+    {
+      "active": false,
+      "label": "2",
+      "page": 2,
+      "url": "https://bookbeam.app/api/v1/logs?page=2"
+    },
+    {
+      "active": false,
+      "label": "3",
+      "page": 3,
+      "url": "https://bookbeam.app/api/v1/logs?page=3"
+    },
+    {
+      "active": false,
+      "label": "4",
+      "page": 4,
+      "url": "https://bookbeam.app/api/v1/logs?page=4"
+    },
+    {
+      "active": false,
+      "label": "Next \u0026raquo;",
+      "page": 2,
+      "url": "https://bookbeam.app/api/v1/logs?page=2"
+    }
+  ],
+  "next_page_url": "https://bookbeam.app/api/v1/logs?page=2",
+  "path": "https://bookbeam.app/api/v1/logs",
+  "per_page": 3,
+  "prev_page_url": null,
+  "to": 3,
+  "total": 11
+}
+
+--- stderr ---
+
+
+===== logs limit -5 json =====
+$ bookbeam logs --limit -5 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "current_page": 1,
+  "data": [
+    {
+      "book_title": "Reader Magnet Playbook",
+      "filename": "the-reader-magnet-playbook.pdf",
+      "id": 5,
+      "occurred_at": "2026-09-15T08:00:01.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "iNS2rgt9RS",
+      "type": "download"
+    },
+    {
+      "book_title": "Reader Magnet Playbook",
+      "id": 6,
+      "newsletter_provider": "mailcoach",
+      "newsletter_provider_success": true,
+      "occurred_at": "2026-09-15T07:59:59.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "iNS2rgt9RS",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    },
+    {
+      "book_title": "Ashes of the Waterfall",
+      "filename": "Ashes-of-the-Waterfall-Print-2026-03-25.pdf",
+      "id": 4,
+      "occurred_at": "2026-03-28T06:46:33.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "cUBRJ6yugg",
+      "type": "download"
+    },
+    {
+      "book_title": "Ashes of the Waterfall",
+      "filename": "Ashes-of-the-Waterfall-Print-2026-03-25.pdf",
+      "id": 3,
+      "occurred_at": "2026-03-28T06:46:32.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "cUBRJ6yugg",
+      "type": "download"
+    },
+    {
+      "book_title": "Ashes of the Waterfall",
+      "filename": "Ashes-of-the-Waterfall-Print-2026-03-25.pdf",
+      "id": 2,
+      "occurred_at": "2026-03-28T06:46:31.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "cUBRJ6yugg",
+      "type": "download"
+    },
+    {
+      "book_title": "Ashes of the Waterfall",
+      "id": 5,
+      "newsletter_provider": null,
+      "newsletter_provider_success": null,
+      "occurred_at": "2026-03-28T06:46:03.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "cUBRJ6yugg",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    },
+    {
+      "book_title": "Ashes of the Waterfall",
+      "id": 4,
+      "newsletter_provider": null,
+      "newsletter_provider_success": null,
+      "occurred_at": "2026-03-25T20:50:04.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "cUBRJ6yugg",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    },
+    {
+      "book_title": "D.W. Stein Sci-fi Starter Library",
+      "id": 3,
+      "newsletter_provider": null,
+      "newsletter_provider_success": null,
+      "occurred_at": "2026-03-18T14:13:12.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "4T8M69PbQP",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    },
+    {
+      "book_title": "D.W. Stein Sci-fi Starter Library",
+      "id": 2,
+      "newsletter_provider": null,
+      "newsletter_provider_success": null,
+      "occurred_at": "2026-03-18T13:25:59.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "4T8M69PbQP",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    },
+    {
+      "book_title": "Tark: A Half-Serious Magical Adventure",
+      "filename": "Tark-Kindle-2026-01-09.epub",
+      "id": 1,
+      "occurred_at": "2026-02-09T17:42:19.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "vzgLCqi7aE",
+      "type": "download"
+    },
+    {
+      "book_title": "Tark: A Half-Serious Magical Adventure",
+      "id": 1,
+      "newsletter_provider": null,
+      "newsletter_provider_success": null,
+      "occurred_at": "2026-02-09T17:42:14.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "vzgLCqi7aE",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    }
+  ],
+  "first_page_url": "https://bookbeam.app/api/v1/logs?page=1",
+  "from": 1,
+  "last_page": 1,
+  "last_page_url": "https://bookbeam.app/api/v1/logs?page=1",
+  "links": [
+    {
+      "active": false,
+      "label": "\u0026laquo; Previous",
+      "page": null,
+      "url": null
+    },
+    {
+      "active": true,
+      "label": "1",
+      "page": 1,
+      "url": "https://bookbeam.app/api/v1/logs?page=1"
+    },
+    {
+      "active": false,
+      "label": "Next \u0026raquo;",
+      "page": null,
+      "url": null
+    }
+  ],
+  "next_page_url": null,
+  "path": "https://bookbeam.app/api/v1/logs",
+  "per_page": 15,
+  "prev_page_url": null,
+  "to": 11,
+  "total": 11
+}
+
+--- stderr ---
+
+
+===== projects page 2 =====
+$ bookbeam projects list --page 2
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+No book projects found. Create one with 'bookbeam projects create'.
+
+--- stderr ---
+
+
+===== malformed project id =====
+$ bookbeam projects get 28abc
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam projects get <project-id> [flags]
+
+Flags:
+  -h, --help   help for get
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: invalid project id "28abc"
+
+
+===== project id 0 =====
+$ bookbeam projects get 0
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam projects get <project-id> [flags]
+
+Flags:
+  -h, --help   help for get
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: invalid project id "0"
+
+
+===== completion bash head =====
+$ bookbeam completion bash
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+# bash completion for bookbeam                             -*- shell-script -*-
+
+__bookbeam_debug()
+{
+    if [[ -n ${BASH_COMP_DEBUG_FILE:-} ]]; then
+        echo "$*" >> "${BASH_COMP_DEBUG_FILE}"
+    fi
+}
+
+# Homebrew on Macs have version 1.3 of bash-completion which doesn't include
+# _init_completion. This is a very minimal version of that function.
+__bookbeam_init_completion()
+{
+    COMPREPLY=()
+    _get_comp_words_by_ref "$@" cur prev words cword
+}
+
+__bookbeam_index_of_word()
+{
+    local w word=$1
+    shift
+    index=0
+    for w in "$@"; do
+        [[ $w = "$word" ]] && return
+        index=$((index+1))
+    done
+    index=-1
+}
+
+__bookbeam_contains_word()
+{
+    local w word=$1; shift
+    for w in "$@"; do
+        [[ $w = "$word" ]] && return
+    done
+    return 1
+}
+
+__bookbeam_handle_go_custom_completion()
+{
+    __bookbeam_debug "${FUNCNAME[0]}: cur is ${cur}, words[*] is ${words[*]}, #words[@] is ${#words[@]}"
+
+    local shellCompDirectiveError=1
+    local shellCompDirectiveNoSpace=2
+    local shellCompDirectiveNoFileComp=4
+    local shellCompDirectiveFilterFileExt=8
+    local shellCompDirectiveFilterDirs=16
+
+    local out requestComp lastParam lastChar comp directive args
+
+    # Prepare the command to request completions for the program.
+    # Calling ${words[0]} instead of directly bookbeam allows handling aliases
+    args=("${words[@]:1}")
+    # Disable ActiveHelp which is not supported for bash completion v1
+    requestComp="BOOKBEAM_ACTIVE_HELP=0 ${words[0]} __completeNoDesc ${args[*]}"
+
+    lastParam=${words[$((${#words[@]}-1))]}
+    lastChar=${lastParam:$((${#lastParam}-1)):1}
+    __bookbeam_debug "${FUNCNAME[0]}: lastParam ${lastParam}, lastChar ${lastChar}"
+
+    if [ -z "${cur}" ] && [ "${lastChar}" != "=" ]; then
+        # If the last parameter is complete (there is a space following it)
+        # We add an extra empty parameter so we can indicate this to the go method.
+        __bookbeam_debug "${FUNCNAME[0]}: Adding extra empty parameter"
+        requestComp="${requestComp} \"\""
+    fi
+
+    __bookbeam_debug "${FUNCNAME[0]}: calling ${requestComp}"
+    # Use eval to handle any environment variables and such
+    out=$(eval "${requestComp}" 2>/dev/null)
+
+    # Extract the directive integer at the very end of the output following a colon (:)
+    directive=${out##*:}
+    # Remove the directive
+    out=${out%:*}
+    if [ "${directive}" = "${out}" ]; then
+        # There is not directive specified
+        directive=0
+    fi
+    __bookbeam_debug "${FUNCNAME[0]}: the completion directive is: ${directive}"
+    __bookbeam_debug "${FUNCNAME[0]}: the completions are: ${out}"
+
+    if [ $((directive & shellCompDirectiveError)) -ne 0 ]; then
+        # Error code.  No completion.
+        __bookbeam_debug "${FUNCNAME[0]}: received error from custom completion go code"
+        return
+    else
+        if [ $((directive & shellCompDirectiveNoSpace)) -ne 0 ]; then
+            if [[ $(type -t compopt) = "builtin" ]]; then
+                __bookbeam_debug "${FUNCNAME[0]}: activating no space"
+                compopt -o nospace
+            fi
+        fi
+        if [ $((directive & shellCompDirectiveNoFileComp)) -ne 0 ]; then
+            if [[ $(type -t compopt) = "builtin" ]]; then
+                __bookbeam_debug "${FUNCNAME[0]}: activating no file completion"
+                compopt +o default
+            fi
+        fi
+    fi
+
+    if [ $((directive & shellCompDirectiveFilterFileExt)) -ne 0 ]; then
+        # File extension filtering
+        local fullFilter filter filteringCmd
+        # Do not use quotes around the $out variable or else newline
+        # characters will be kept.
+        for filter in ${out}; do
+            fullFilter+="$filter|"
+        done
+
+        filteringCmd="_filedir $fullFilter"
+        __bookbeam_debug "File filtering command: $filteringCmd"
+        $filteringCmd
+    elif [ $((directive & shellCompDirectiveFilterDirs)) -ne 0 ]; then
+        # File completion for directories only
+        local subdir
+        # Use printf to strip any trailing newline
+        subdir=$(printf "%s" "${out}")
+        if [ -n "$subdir" ]; then
+            __bookbeam_debug "Listing directories in $subdir"
+            __bookbeam_handle_subdirs_in_dir_flag "$subdir"
+        else
+            __bookbeam_debug "Listing directories in ."
+            _filedir -d
+        fi
+    else
+        while IFS='' read -r comp; do
+            COMPREPLY+=("$comp")
+        done < <(compgen -W "${out}" -- "$cur")
+    fi
+}
+
+__bookbeam_handle_reply()
+{
+    __bookbeam_debug "${FUNCNAME[0]}"
+    local comp
+    case $cur in
+        -*)
+            if [[ $(type -t compopt) = "builtin" ]]; then
+                compopt -o nospace
+            fi
+            local allflags
+            if [ ${#must_have_one_flag[@]} -ne 0 ]; then
+                allflags=("${must_have_one_flag[@]}")
+            else
+                allflags=("${flags[*]} ${two_word_flags[*]}")
+            fi
+            while IFS='' read -r comp; do
+                COMPREPLY+=("$comp")
+            done < <(compgen -W "${allflags[*]}" -- "$cur")
+            if [[ $(type -t compopt) = "builtin" ]]; then
+                [[ "${COMPREPLY[0]}" == *= ]] || compopt +o nospace
+            fi
+
+            # complete after --flag=abc
+            if [[ $cur == *=* ]]; then
+                if [[ $(type -t compopt) = "builtin" ]]; then
+                    compopt +o nospace
+                fi
+
+                local index flag
+                flag="${cur%=*}"
+                __bookbeam_index_of_word "${flag}" "${flags_with_completion[@]}"
+                COMPREPLY=()
+                if [[ ${index} -ge 0 ]]; then
+                    PREFIX=""
+                    cur="${cur#*=}"
+                    ${flags_completion[${index}]}
+                    if [ -n "${ZSH_VERSION:-}" ]; then
+                        # zsh completion needs --flag= prefix
+                        eval "COMPREPLY=( \"\${COMPREPLY[@]/#/${flag}=}\" )"
+                    fi
+                fi
+            fi
+
+            if [[ -z "${flag_parsing_disabled}" ]]; then
+                # If flag parsing is enabled, we have completed the flags and can return.
+                # If flag parsing is disabled, we may not know all (or any) of the flags, so we fallthrough
+                # to possibly call handle_go_custom_completion.
+                return 0;
+            fi
+            ;;
+    esac
+
+    # check if we are handling a flag with special work handling
+    local index
+    __bookbeam_index_of_word "${prev}" "${flags_with_completion[@]}"
+    if [[ ${index} -ge 0 ]]; then
+        ${flags_completion[${index}]}
+        return
+    fi
+
+    # we are parsing a flag and don't have a special handler, no completion
+    if [[ ${cur} != "${words[cword]}" ]]; then
+        return
+    fi
+
+    local completions
+    completions=("${commands[@]}")
+    if [[ ${#must_have_one_noun[@]} -ne 0 ]]; then
+        completions+=("${must_have_one_noun[@]}")
+    elif [[ -n "${has_completion_function}" ]]; then
+        # if a go completion function is provided, defer to that function
+        __bookbeam_handle_go_custom_completion
+    fi
+    if [[ ${#must_have_one_flag[@]} -ne 0 ]]; then
+        completions+=("${must_have_one_flag[@]}")
+    fi
+    while IFS='' read -r comp; do
+        COMPREPLY+=("$comp")
+    done < <(compgen -W "${completions[*]}" -- "$cur")
+
+    if [[ ${#COMPREPLY[@]} -eq 0 && ${#noun_aliases[@]} -gt 0 && ${#must_have_one_noun[@]} -ne 0 ]]; then
+        while IFS='' read -r comp; do
+            COMPREPLY+=("$comp")
+        done < <(compgen -W "${noun_aliases[*]}" -- "$cur")
+    fi
+
+    if [[ ${#COMPREPLY[@]} -eq 0 ]]; then
+        if declare -F __bookbeam_custom_func >/dev/null; then
+            # try command name qualified custom func
+            __bookbeam_custom_func
+        else
+            # otherwise fall back to unqualified for compatibility
+            declare -F __custom_func >/dev/null && __custom_func
+        fi
+    fi
+
+    # available in bash-completion >= 2, not always present on macOS
+    if declare -F __ltrim_colon_completions >/dev/null; then
+        __ltrim_colon_completions "$cur"
+    fi
+
+    # If there is only 1 completion and it is a flag with an = it will be completed
+    # but we don't want a space after the =
+    if [[ "${#COMPREPLY[@]}" -eq "1" ]] && [[ $(type -t compopt) = "builtin" ]] && [[ "${COMPREPLY[0]}" == --*= ]]; then
+       compopt -o nospace
+    fi
+}
+
+# The arguments should be in the form "ext1|ext2|extn"
+__bookbeam_handle_filename_extension_flag()
+{
+    local ext="$1"
+    _filedir "@(${ext})"
+}
+
+__bookbeam_handle_subdirs_in_dir_flag()
+{
+    local dir="$1"
+    pushd "${dir}" >/dev/null 2>&1 && _filedir -d && popd >/dev/null 2>&1 || return
+}
+
+__bookbeam_handle_flag()
+{
+    __bookbeam_debug "${FUNCNAME[0]}: c is $c words[c] is ${words[c]}"
+
+    # if a command required a flag, and we found it, unset must_have_one_flag()
+    local flagname=${words[c]}
+    local flagvalue=""
+    # if the word contained an =
+    if [[ ${words[c]} == *"="* ]]; then
+        flagvalue=${flagname#*=} # take in as flagvalue after the =
+        flagname=${flagname%=*} # strip everything after the =
+        flagname="${flagname}=" # but put the = back
+    fi
+    __bookbeam_debug "${FUNCNAME[0]}: looking for ${flagname}"
+    if __bookbeam_contains_word "${flagname}" "${must_have_one_flag[@]}"; then
+        must_have_one_flag=()
+    fi
+
+    # if you set a flag which only applies to this command, don't show subcommands
+    if __bookbeam_contains_word "${flagname}" "${local_nonpersistent_flags[@]}"; then
+      commands=()
+    fi
+
+    # keep flag value with flagname as flaghash
+    # flaghash variable is an associative array which is only supported in bash > 3.
+    if [[ -z "${BASH_VERSION:-}" || "${BASH_VERSINFO[0]:-}" -gt 3 ]]; then
+        if [ -n "${flagvalue}" ] ; then
+            flaghash[${flagname}]=${flagvalue}
+        elif [ -n "${words[ $((c+1)) ]}" ] ; then
+            flaghash[${flagname}]=${words[ $((c+1)) ]}
+        else
+            flaghash[${flagname}]="true" # pad "true" for bool flag
+        fi
+    fi
+
+    # skip the argument to a two word flag
+    if [[ ${words[c]} != *"="* ]] && __bookbeam_contains_word "${words[c]}" "${two_word_flags[@]}"; then
+        __bookbeam_debug "${FUNCNAME[0]}: found a flag ${words[c]}, skip the next argument"
+        c=$((c+1))
+        # if we are looking for a flags value, don't show commands
+        if [[ $c -eq $cword ]]; then
+            commands=()
+        fi
+    fi
+
+    c=$((c+1))
+
+}
+
+__bookbeam_handle_noun()
+{
+    __bookbeam_debug "${FUNCNAME[0]}: c is $c words[c] is ${words[c]}"
+
+    if __bookbeam_contains_word "${words[c]}" "${must_have_one_noun[@]}"; then
+        must_have_one_noun=()
+    elif __bookbeam_contains_word "${words[c]}" "${noun_aliases[@]}"; then
+        must_have_one_noun=()
+    fi
+
+    nouns+=("${words[c]}")
+    c=$((c+1))
+}
+
+__bookbeam_handle_command()
+{
+    __bookbeam_debug "${FUNCNAME[0]}: c is $c words[c] is ${words[c]}"
+
+    local next_command
+    if [[ -n ${last_command} ]]; then
+        next_command="_${last_command}_${words[c]//:/__}"
+    else
+        if [[ $c -eq 0 ]]; then
+            next_command="_bookbeam_root_command"
+        else
+            next_command="_${words[c]//:/__}"
+        fi
+    fi
+    c=$((c+1))
+    __bookbeam_debug "${FUNCNAME[0]}: looking for ${next_command}"
+    declare -F "$next_command" >/dev/null && $next_command
+}
+
+__bookbeam_handle_word()
+{
+    if [[ $c -ge $cword ]]; then
+        __bookbeam_handle_reply
+        return
+    fi
+    __bookbeam_debug "${FUNCNAME[0]}: c is $c words[c] is ${words[c]}"
+    if [[ "${words[c]}" == -* ]]; then
+        __bookbeam_handle_flag
+    elif __bookbeam_contains_word "${words[c]}" "${commands[@]}"; then
+        __bookbeam_handle_command
+    elif [[ $c -eq 0 ]]; then
+        __bookbeam_handle_command
+    elif __bookbeam_contains_word "${words[c]}" "${command_aliases[@]}"; then
+        # aliashash variable is an associative array which is only supported in bash > 3.
+        if [[ -z "${BASH_VERSION:-}" || "${BASH_VERSINFO[0]:-}" -gt 3 ]]; then
+            words[c]=${aliashash[${words[c]}]}
+            __bookbeam_handle_command
+        else
+            __bookbeam_handle_noun
+        fi
+    else
+        __bookbeam_handle_noun
+    fi
+    __bookbeam_handle_word
+}
+
+_bookbeam_auth_login()
+{
+    last_command="bookbeam_auth_login"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--token=")
+    two_word_flags+=("--token")
+    local_nonpersistent_flags+=("--token")
+    local_nonpersistent_flags+=("--token=")
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_auth_logout()
+{
+    last_command="bookbeam_auth_logout"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_auth_whoami()
+{
+    last_command="bookbeam_auth_whoami"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_auth()
+{
+    last_command="bookbeam_auth"
+
+    command_aliases=()
+
+    commands=()
+    commands+=("login")
+    commands+=("logout")
+    commands+=("whoami")
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_billing_checkout()
+{
+    last_command="bookbeam_billing_checkout"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_billing_status()
+{
+    last_command="bookbeam_billing_status"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_billing()
+{
+    last_command="bookbeam_billing"
+
+    command_aliases=()
+
+    commands=()
+    commands+=("checkout")
+    commands+=("status")
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_completion()
+{
+    last_command="bookbeam_completion"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--help")
+    flags+=("-h")
+    local_nonpersistent_flags+=("--help")
+    local_nonpersistent_flags+=("-h")
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    must_have_one_noun+=("bash")
+    must_have_one_noun+=("fish")
+    must_have_one_noun+=("powershell")
+    must_have_one_noun+=("zsh")
+    noun_aliases=()
+}
+
+_bookbeam_downloaders_export()
+{
+    last_command="bookbeam_downloaders_export"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--output=")
+    two_word_flags+=("--output")
+    two_word_flags+=("-o")
+    local_nonpersistent_flags+=("--output")
+    local_nonpersistent_flags+=("--output=")
+    local_nonpersistent_flags+=("-o")
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_downloaders_list()
+{
+    last_command="bookbeam_downloaders_list"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--page=")
+    two_word_flags+=("--page")
+    local_nonpersistent_flags+=("--page")
+    local_nonpersistent_flags+=("--page=")
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_downloaders()
+{
+    last_command="bookbeam_downloaders"
+
+    command_aliases=()
+
+    commands=()
+    commands+=("export")
+    commands+=("list")
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_files_delete()
+{
+    last_command="bookbeam_files_delete"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--force")
+    flags+=("-f")
+    local_nonpersistent_flags+=("--force")
+    local_nonpersistent_flags+=("-f")
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_files_download()
+{
+    last_command="bookbeam_files_download"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--output=")
+    two_word_flags+=("--output")
+    two_word_flags+=("-o")
+    local_nonpersistent_flags+=("--output")
+    local_nonpersistent_flags+=("--output=")
+    local_nonpersistent_flags+=("-o")
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_files_list()
+{
+    last_command="bookbeam_files_list"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_files_upload()
+{
+    last_command="bookbeam_files_upload"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_files()
+{
+    last_command="bookbeam_files"
+
+    command_aliases=()
+
+    commands=()
+    commands+=("delete")
+    commands+=("download")
+    commands+=("list")
+    commands+=("upload")
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_help()
+{
+    last_command="bookbeam_help"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    has_completion_function=1
+    noun_aliases=()
+}
+
+_bookbeam_links_create()
+{
+    last_command="bookbeam_links_create"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--consent=")
+    two_word_flags+=("--consent")
+    local_nonpersistent_flags+=("--consent")
+    local_nonpersistent_flags+=("--consent=")
+    flags+=("--title=")
+    two_word_flags+=("--title")
+    local_nonpersistent_flags+=("--title")
+    local_nonpersistent_flags+=("--title=")
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_links_delete()
+{
+    last_command="bookbeam_links_delete"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--force")
+    flags+=("-f")
+    local_nonpersistent_flags+=("--force")
+    local_nonpersistent_flags+=("-f")
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_links_list()
+{
+    last_command="bookbeam_links_list"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_links_update()
+{
+    last_command="bookbeam_links_update"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--clear-consent")
+    local_nonpersistent_flags+=("--clear-consent")
+    flags+=("--consent=")
+    two_word_flags+=("--consent")
+    local_nonpersistent_flags+=("--consent")
+    local_nonpersistent_flags+=("--consent=")
+    flags+=("--title=")
+    two_word_flags+=("--title")
+    local_nonpersistent_flags+=("--title")
+    local_nonpersistent_flags+=("--title=")
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_links()
+{
+    last_command="bookbeam_links"
+
+    command_aliases=()
+
+    commands=()
+    commands+=("create")
+    commands+=("delete")
+    commands+=("list")
+    commands+=("update")
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_logs()
+{
+    last_command="bookbeam_logs"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--event=")
+    two_word_flags+=("--event")
+    local_nonpersistent_flags+=("--event")
+    local_nonpersistent_flags+=("--event=")
+    flags+=("--limit=")
+    two_word_flags+=("--limit")
+    two_word_flags+=("-n")
+    local_nonpersistent_flags+=("--limit")
+    local_nonpersistent_flags+=("--limit=")
+    local_nonpersistent_flags+=("-n")
+    flags+=("--page=")
+    two_word_flags+=("--page")
+    local_nonpersistent_flags+=("--page")
+    local_nonpersistent_flags+=("--page=")
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_metrics()
+{
+    last_command="bookbeam_metrics"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_newsletter_configure()
+{
+    last_command="bookbeam_newsletter_configure"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--api-key=")
+    two_word_flags+=("--api-key")
+    local_nonpersistent_flags+=("--api-key")
+    local_nonpersistent_flags+=("--api-key=")
+    flags+=("--endpoint=")
+    two_word_flags+=("--endpoint")
+    local_nonpersistent_flags+=("--endpoint")
+    local_nonpersistent_flags+=("--endpoint=")
+    flags+=("--provider=")
+    two_word_flags+=("--provider")
+    local_nonpersistent_flags+=("--provider")
+    local_nonpersistent_flags+=("--provider=")
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_newsletter_disconnect()
+{
+    last_command="bookbeam_newsletter_disconnect"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_newsletter_lists()
+{
+    last_command="bookbeam_newsletter_lists"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_newsletter_status()
+{
+    last_command="bookbeam_newsletter_status"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_newsletter_webhook()
+{
+    last_command="bookbeam_newsletter_webhook"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--url=")
+    two_word_flags+=("--url")
+    local_nonpersistent_flags+=("--url")
+    local_nonpersistent_flags+=("--url=")
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_newsletter()
+{
+    last_command="bookbeam_newsletter"
+
+    command_aliases=()
+
+    commands=()
+    commands+=("configure")
+    commands+=("disconnect")
+    commands+=("lists")
+    commands+=("status")
+    commands+=("webhook")
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_projects_create()
+{
+    last_command="bookbeam_projects_create"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--cover=")
+    two_word_flags+=("--cover")
+    local_nonpersistent_flags+=("--cover")
+    local_nonpersistent_flags+=("--cover=")
+    flags+=("--description=")
+    two_word_flags+=("--description")
+    local_nonpersistent_flags+=("--description")
+    local_nonpersistent_flags+=("--description=")
+    flags+=("--title=")
+    two_word_flags+=("--title")
+    local_nonpersistent_flags+=("--title")
+    local_nonpersistent_flags+=("--title=")
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_projects_delete()
+{
+    last_command="bookbeam_projects_delete"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--force")
+    flags+=("-f")
+    local_nonpersistent_flags+=("--force")
+    local_nonpersistent_flags+=("-f")
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_projects_get()
+{
+    last_command="bookbeam_projects_get"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_projects_list()
+{
+    last_command="bookbeam_projects_list"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--page=")
+    two_word_flags+=("--page")
+    local_nonpersistent_flags+=("--page")
+    local_nonpersistent_flags+=("--page=")
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_projects_newsletter()
+{
+    last_command="bookbeam_projects_newsletter"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--clear-tags")
+    local_nonpersistent_flags+=("--clear-tags")
+    flags+=("--list-id=")
+    two_word_flags+=("--list-id")
+    local_nonpersistent_flags+=("--list-id")
+    local_nonpersistent_flags+=("--list-id=")
+    flags+=("--tags=")
+    two_word_flags+=("--tags")
+    local_nonpersistent_flags+=("--tags")
+    local_nonpersistent_flags+=("--tags=")
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_projects_update()
+{
+    last_command="bookbeam_projects_update"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--clear-description")
+    local_nonpersistent_flags+=("--clear-description")
+    flags+=("--cover=")
+    two_word_flags+=("--cover")
+    local_nonpersistent_flags+=("--cover")
+    local_nonpersistent_flags+=("--cover=")
+    flags+=("--description=")
+    two_word_flags+=("--description")
+    local_nonpersistent_flags+=("--description")
+    local_nonpersistent_flags+=("--description=")
+    flags+=("--remove-cover")
+    local_nonpersistent_flags+=("--remove-cover")
+    flags+=("--title=")
+    two_word_flags+=("--title")
+    local_nonpersistent_flags+=("--title")
+    local_nonpersistent_flags+=("--title=")
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_projects()
+{
+    last_command="bookbeam_projects"
+
+    command_aliases=()
+
+    commands=()
+    commands+=("create")
+    commands+=("delete")
+    commands+=("get")
+    commands+=("list")
+    commands+=("newsletter")
+    commands+=("update")
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_whoami()
+{
+    last_command="bookbeam_whoami"
+
+    command_aliases=()
+
+    commands=()
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+_bookbeam_root_command()
+{
+    last_command="bookbeam"
+
+    command_aliases=()
+
+    commands=()
+    commands+=("auth")
+    commands+=("billing")
+    commands+=("completion")
+    commands+=("downloaders")
+    if [[ -z "${BASH_VERSION:-}" || "${BASH_VERSINFO[0]:-}" -gt 3 ]]; then
+        command_aliases+=("downloader")
+        aliashash["downloader"]="downloaders"
+    fi
+    commands+=("files")
+    if [[ -z "${BASH_VERSION:-}" || "${BASH_VERSINFO[0]:-}" -gt 3 ]]; then
+        command_aliases+=("file")
+        aliashash["file"]="files"
+    fi
+    commands+=("help")
+    commands+=("links")
+    if [[ -z "${BASH_VERSION:-}" || "${BASH_VERSINFO[0]:-}" -gt 3 ]]; then
+        command_aliases+=("link")
+        aliashash["link"]="links"
+    fi
+    commands+=("logs")
+    commands+=("metrics")
+    commands+=("newsletter")
+    commands+=("projects")
+    if [[ -z "${BASH_VERSION:-}" || "${BASH_VERSINFO[0]:-}" -gt 3 ]]; then
+        command_aliases+=("project")
+        aliashash["project"]="projects"
+    fi
+    commands+=("whoami")
+
+    flags=()
+    two_word_flags=()
+    local_nonpersistent_flags=()
+    flags_with_completion=()
+    flags_completion=()
+
+    flags+=("--host=")
+    two_word_flags+=("--host")
+    flags+=("--json")
+    flags+=("--quiet")
+    flags+=("-q")
+    flags+=("--token=")
+    two_word_flags+=("--token")
+
+    must_have_one_flag=()
+    must_have_one_noun=()
+    noun_aliases=()
+}
+
+__start_bookbeam()
+{
+    local cur prev words cword split
+    declare -A flaghash 2>/dev/null || :
+    declare -A aliashash 2>/dev/null || :
+    if declare -F _init_completion >/dev/null 2>&1; then
+        _init_completion -s || return
+    else
+        __bookbeam_init_completion -n "=" || return
+    fi
+
+    local c=0
+    local flag_parsing_disabled=
+    local flags=()
+    local two_word_flags=()
+    local local_nonpersistent_flags=()
+    local flags_with_completion=()
+    local flags_completion=()
+    local commands=("bookbeam")
+    local command_aliases=()
+    local must_have_one_flag=()
+    local must_have_one_noun=()
+    local has_completion_function=""
+    local last_command=""
+    local nouns=()
+    local noun_aliases=()
+
+    __bookbeam_handle_word
+}
+
+if [[ $(type -t compopt) = "builtin" ]]; then
+    complete -o default -F __start_bookbeam bookbeam
+else
+    complete -o default -o nospace -F __start_bookbeam bookbeam
+fi
+
+# ex: ts=4 sw=4 et filetype=sh
+
+--- stderr ---
+
+
+===== metrics after cleanup =====
+$ bookbeam metrics --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "total_downloads": 8,
+  "total_files": 12,
+  "total_projects": 7,
+  "total_views": 1516
+}
+
+--- stderr ---
+
+
+===== projects page 2 replay =====
+$ bookbeam projects list --page 2
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+No book projects found. Create one with 'bookbeam projects create'.
+
+--- stderr ---
+
+
+===== projects page 2 json =====
+$ bookbeam projects list --page 2 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "current_page": 2,
+  "data": [],
+  "first_page_url": "https://bookbeam.app/api/v1/projects?page=1",
+  "from": null,
+  "last_page": 1,
+  "last_page_url": "https://bookbeam.app/api/v1/projects?page=1",
+  "links": [
+    {
+      "active": false,
+      "label": "\u0026laquo; Previous",
+      "page": 1,
+      "url": "https://bookbeam.app/api/v1/projects?page=1"
+    },
+    {
+      "active": false,
+      "label": "1",
+      "page": 1,
+      "url": "https://bookbeam.app/api/v1/projects?page=1"
+    },
+    {
+      "active": false,
+      "label": "Next \u0026raquo;",
+      "page": null,
+      "url": null
+    }
+  ],
+  "next_page_url": null,
+  "path": "https://bookbeam.app/api/v1/projects",
+  "per_page": 15,
+  "prev_page_url": "https://bookbeam.app/api/v1/projects?page=1",
+  "to": null,
+  "total": 7
+}
+
+--- stderr ---
+
+
+===== downloaders page 2 =====
+$ bookbeam downloaders list 5 --page 2
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+No downloaders found for this project.
+
+--- stderr ---
+
+
+===== downloaders page 2 json =====
+$ bookbeam downloaders list 5 --page 2 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "current_page": 2,
+  "data": [],
+  "first_page_url": "https://bookbeam.app/api/v1/projects/5/downloaders?page=1",
+  "from": null,
+  "last_page": 1,
+  "last_page_url": "https://bookbeam.app/api/v1/projects/5/downloaders?page=1",
+  "links": [
+    {
+      "active": false,
+      "label": "\u0026laquo; Previous",
+      "page": 1,
+      "url": "https://bookbeam.app/api/v1/projects/5/downloaders?page=1"
+    },
+    {
+      "active": false,
+      "label": "1",
+      "page": 1,
+      "url": "https://bookbeam.app/api/v1/projects/5/downloaders?page=1"
+    },
+    {
+      "active": false,
+      "label": "Next \u0026raquo;",
+      "page": null,
+      "url": null
+    }
+  ],
+  "next_page_url": null,
+  "path": "https://bookbeam.app/api/v1/projects/5/downloaders",
+  "per_page": 15,
+  "prev_page_url": "https://bookbeam.app/api/v1/projects/5/downloaders?page=1",
+  "to": null,
+  "total": 2
+}
+
+--- stderr ---
+
+
+===== downloaders page 2 replay =====
+$ bookbeam downloaders list 5 --page 2
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+No downloaders found for this project.
+
+--- stderr ---
+
