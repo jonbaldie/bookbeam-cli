@@ -695,7 +695,7 @@ func TestNtdLogsEventFilter(t *testing.T) {
 	if err := cmd.RunE(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
-	if buf.String() != "No activity logs recorded.\n" {
+	if buf.String() != "No activity logs matched event \"refund\" on this page.\n" {
 		t.Errorf("got %q", buf.String())
 	}
 }
