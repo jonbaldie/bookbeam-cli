@@ -70,11 +70,19 @@ func downloadersListCmd(a *app) *cobra.Command {
 				})
 			}
 
+			emptyNotice := "No downloaders found for this project."
+			keepFooter := false
+			if resp.Total > 0 && (resp.CurrentPage > resp.LastPage || len(resp.Data) == 0) {
+				emptyNotice = fmt.Sprintf("Page %d is past the last page.", resp.CurrentPage)
+				keepFooter = true
+			}
+
 			return a.printer.Display(output.View{
 				Headers:     []string{"EMAIL", "SIGNUP LINK", "SIGNUP DATE"},
 				Rows:        rows,
 				Footer:      fmt.Sprintf("\nPage %d of %d (Total: %d)", resp.CurrentPage, resp.LastPage, resp.Total),
-				EmptyNotice: "No downloaders found for this project.",
+				EmptyNotice: emptyNotice,
+				KeepFooter:  keepFooter,
 				Data:        doc,
 			})
 		},

@@ -35,6 +35,7 @@ type View struct {
 	Footer      string // info line below a non-empty table, e.g. pagination
 	EmptyNotice string // info line shown instead of a table without rows
 	Data        any    // encoded as JSON under --json, with sensitive fields masked
+	KeepFooter  bool   // preserve Footer when Rows is empty (e.g. past-the-end page or filtered view)
 }
 
 // Display prints v as JSON under --json, otherwise as a table framed by its info lines.
@@ -44,6 +45,9 @@ func (p *Printer) Display(v View) error {
 	}
 	if len(v.Rows) == 0 {
 		p.Info(v.EmptyNotice)
+		if v.KeepFooter && v.Footer != "" {
+			p.Info(v.Footer)
+		}
 		return nil
 	}
 

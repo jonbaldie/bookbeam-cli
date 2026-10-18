@@ -77,11 +77,24 @@ func logsCmd(a *app) *cobra.Command {
 				})
 			}
 
+			emptyNotice := "No activity logs recorded."
+			keepFooter := false
+			if page.Total > 0 {
+				if page.CurrentPage > page.LastPage || len(page.Data) == 0 {
+					emptyNotice = fmt.Sprintf("Page %d is past the last page.", page.CurrentPage)
+					keepFooter = true
+				} else if event != "" && len(rows) == 0 {
+					emptyNotice = fmt.Sprintf("No activity logs matched event %q on this page.", event)
+					keepFooter = true
+				}
+			}
+
 			return a.printer.Display(output.View{
 				Headers:     []string{"TIME", "TYPE", "READER", "BOOK", "FILE"},
 				Rows:        rows,
 				Footer:      logsFooter(page),
-				EmptyNotice: "No activity logs recorded.",
+				EmptyNotice: emptyNotice,
+				KeepFooter:  keepFooter,
 				Data:        doc,
 			})
 		},
@@ -92,9 +105,10 @@ func logsCmd(a *app) *cobra.Command {
 	return cmd
 }
 
-// logsFooter shows where this page sits, but only when there is more than one.
+// logsFooter shows where this page sits, but only when there is more than one
+// or the requested page is past the last page.
 func logsFooter(page ActivityLogPage) string {
-	if page.LastPage <= 1 {
+	if page.LastPage <= 1 && page.CurrentPage <= page.LastPage {
 		return ""
 	}
 	return fmt.Sprintf("\nPage %d of %d (total: %d)", page.CurrentPage, page.LastPage, page.Total)

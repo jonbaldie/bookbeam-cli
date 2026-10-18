@@ -69,6 +69,20 @@ func TestDisplayTextWithoutRowsPrintsEmptyNoticeInsteadOfTable(t *testing.T) {
 	}
 }
 
+func TestDisplayTextWithoutRowsWithKeepFooterPrintsNoticeAndFooter(t *testing.T) {
+	var buf bytes.Buffer
+	p := &Printer{Out: &buf}
+	v := sampleView
+	v.Rows = nil
+	v.KeepFooter = true
+	if err := p.Display(v); err != nil {
+		t.Fatal(err)
+	}
+	if got, want := buf.String(), "Nothing here.\nPage 1 of 1\n"; got != want {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+}
+
 func TestJSONOutputMasksNestedCredentials(t *testing.T) {
 	for _, tc := range []struct {
 		name  string

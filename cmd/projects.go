@@ -103,11 +103,19 @@ func projectsListCmd(a *app) *cobra.Command {
 				})
 			}
 
+			emptyNotice := "No book projects found. Create one with 'bookbeam projects create'."
+			keepFooter := false
+			if listResp.Total > 0 && (listResp.CurrentPage > listResp.LastPage || len(listResp.Data) == 0) {
+				emptyNotice = fmt.Sprintf("Page %d is past the last page.", listResp.CurrentPage)
+				keepFooter = true
+			}
+
 			return a.printer.Display(output.View{
 				Headers:     []string{"ID", "TITLE", "FILES", "LINKS", "CREATED"},
 				Rows:        rows,
 				Footer:      fmt.Sprintf("\nPage %d of %d (Total: %d)", listResp.CurrentPage, listResp.LastPage, listResp.Total),
-				EmptyNotice: "No book projects found. Create one with 'bookbeam projects create'.",
+				EmptyNotice: emptyNotice,
+				KeepFooter:  keepFooter,
 				Data:        doc,
 			})
 		},
