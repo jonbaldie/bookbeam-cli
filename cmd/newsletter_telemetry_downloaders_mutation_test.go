@@ -342,7 +342,7 @@ func TestNtdNewsletterStatusJSONAndErrors(t *testing.T) {
 	if err := cmd.RunE(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
-	if buf.String() != "{\n  \"provider\": \"kit\"\n}\n" {
+	if buf.String() != "{\n  \"configured\": false,\n  \"provider\": \"kit\"\n}\n" {
 		t.Errorf("got %q", buf.String())
 	}
 

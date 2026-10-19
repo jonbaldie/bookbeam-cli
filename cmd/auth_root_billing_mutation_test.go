@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -838,7 +839,7 @@ func TestARBWhoamiJSONAndErrors(t *testing.T) {
 	if err := arbRun(t, whoamiCmd(h.a)); err != nil {
 		t.Fatal(err)
 	}
-	if h.out.String() != "{\n  \"name\": \"Ann\"\n}\n" {
+	if h.out.String() != fmt.Sprintf("{\n  \"api_host\": %q,\n  \"name\": \"Ann\"\n}\n", h.a.settings.Host()) {
 		t.Errorf("got %q", h.out.String())
 	}
 

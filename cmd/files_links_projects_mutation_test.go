@@ -539,7 +539,7 @@ func TestFlpLinksCreate(t *testing.T) {
 
 	a, buf = flpServe(t, 201, `{"data":{"id":1}}`, &reqs)
 	a.printer.JSON = true
-	if err := flpRun(t, linksCreateCmd(a), nil, "8"); err != nil || buf.String() != "{\n  \"data\": {\n    \"id\": 1\n  }\n}\n" {
+	if err := flpRun(t, linksCreateCmd(a), nil, "8"); err != nil || buf.String() != "{\n  \"data\": {\n    \"id\": 1,\n    \"public_url\": \"https://beam.example.com/download/\"\n  }\n}\n" {
 		t.Fatalf("json %v %q", err, buf.String())
 	}
 	a, _ = flpServe(t, 201, `{"data":[]}`, &reqs)

@@ -124,6 +124,49 @@ func TestNewsletterTelemetryBillingCommands(t *testing.T) {
 	}
 }
 
+func TestNewsletterStatusJSONAddsConfigured(t *testing.T) {
+	for _, tc := range []struct {
+		name, body string
+		want       bool
+	}{
+		{"configured", `{"provider":"kit","config":{"api_token":"private"},"extra":12345678901234567}`, true},
+		{"empty token", `{"provider":"kit","config":{"api_token":""},"extra":12345678901234567}`, false},
+		{"empty provider", `{"provider":"","config":{"api_token":"private"},"extra":12345678901234567}`, false},
+		{"both empty", `{"provider":"","config":{"api_token":""},"extra":12345678901234567}`, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				_, _ = w.Write([]byte(tc.body))
+			}))
+			defer ts.Close()
+			var buf bytes.Buffer
+			a := &app{
+				printer:  &output.Printer{Out: &buf, JSON: true},
+				settings: testSettings(t, ts.URL, "test-token"),
+				apiCli:   client.New(ts.URL, "test-token"),
+			}
+			command := newsletterCmd(a)
+			command.SetArgs([]string{"status"})
+			if err := command.Execute(); err != nil {
+				t.Fatal(err)
+			}
+			var got map[string]any
+			decoder := json.NewDecoder(&buf)
+			decoder.UseNumber()
+			if err := decoder.Decode(&got); err != nil {
+				t.Fatal(err)
+			}
+			if got["configured"] != tc.want {
+				t.Errorf("configured = %#v, want %v", got["configured"], tc.want)
+			}
+			config, ok := got["config"].(map[string]any)
+			if !ok || config["api_token"] != "********" || got["extra"] != json.Number("12345678901234567") {
+				t.Errorf("lost fields or unmasked token: %#v", got)
+			}
+		})
+	}
+}
+
 func TestNewsletterStatusUsesProviderAndToken(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

@@ -101,6 +101,32 @@ func TestWhoamiCommand(t *testing.T) {
 	}
 }
 
+func TestWhoamiJSONAddsEffectiveHost(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/v1/user" {
+			http.NotFound(w, r)
+			return
+		}
+		_, _ = w.Write([]byte(`{"id":12345678901234567,"name":"Ann","current_team":null,"extra":"kept"}`))
+	}))
+	defer ts.Close()
+	out := arbCaptureStdout(t, func() {
+		if _, err := ntdRoot(t, "whoami", "--host", ts.URL+"/", "--token", "test-token", "--json"); err != nil {
+			t.Fatal(err)
+		}
+	})
+	var got map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatal(err)
+	}
+	if string(got["api_host"]) != `"`+ts.URL+`"` {
+		t.Errorf("api_host = %s, want %s", got["api_host"], ts.URL)
+	}
+	if string(got["id"]) != "12345678901234567" || string(got["extra"]) != `"kept"` || string(got["current_team"]) != "null" {
+		t.Errorf("lost API fields: %s", out)
+	}
+}
+
 func TestWhoamiJSONMasksNewsletterProviderCredentials(t *testing.T) {
 	const response = `{"name":"Jonathan Baldie","email":"jon@example.com","current_team":{"name":"Subject Zero","newsletter_provider_config":{"api_token":"synthetic-provider-token","api_key":"synthetic-provider-key","api_url":"https://provider.example/api"}}}`
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

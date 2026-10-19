@@ -57,6 +57,10 @@ func linksListCmd(a *app) *cobra.Command {
 				return err
 			}
 
+			doc.EachItem(func(item map[string]any, i int) {
+				item["public_url"] = response.Data[i].PublicURL(a.settings.Host())
+			})
+
 			var rows [][]string
 			for _, l := range response.Data {
 				rows = append(rows, []string{
@@ -134,6 +138,9 @@ func linksCreateCmd(a *app) *cobra.Command {
 				return err
 			}
 			created := response.Data
+			doc.EachItem(func(item map[string]any, _ int) {
+				item["public_url"] = created.PublicURL(a.settings.Host())
+			})
 			return a.printer.Success(doc, fmt.Sprintf("✓ Created signup link #%d: %s", created.ID, created.PublicURL(a.settings.Host())))
 		},
 	}
