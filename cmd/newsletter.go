@@ -62,8 +62,10 @@ func newsletterStatusCmd(a *app) *cobra.Command {
 				webhook = "None"
 			}
 
+			isConfigured := settings.Provider != "" && settings.Config.APIToken != ""
+			doc.Set("configured", isConfigured)
 			configured := "No"
-			if settings.Provider != "" && settings.Config.APIToken != "" {
+			if isConfigured {
 				configured = "Yes"
 			}
 

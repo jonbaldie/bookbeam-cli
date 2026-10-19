@@ -14,6 +14,41 @@ import (
 	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 )
 
+func TestLinksListJSONAddsPublicURLs(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/v1/projects/5/links" || r.Method != http.MethodGet {
+			http.NotFound(w, r)
+			return
+		}
+		_, _ = w.Write([]byte(`{"data":[{"id":1,"slug":"first","extra":12345678901234567},{"id":2,"slug":"second","extra":"kept"}],"total":2}`))
+	}))
+	defer ts.Close()
+	out := arbCaptureStdout(t, func() {
+		if _, err := ntdRoot(t, "links", "list", "5", "--host", ts.URL+"/", "--token", "test-token", "--json"); err != nil {
+			t.Fatal(err)
+		}
+	})
+	var got struct {
+		Data []struct {
+			PublicURL string          `json:"public_url"`
+			Extra     json.RawMessage `json:"extra"`
+		} `json:"data"`
+		Total int `json:"total"`
+	}
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatal(err)
+	}
+	if len(got.Data) != 2 || got.Total != 2 {
+		t.Fatalf("lost API fields: %s", out)
+	}
+	if got.Data[0].PublicURL != ts.URL+"/download/first" || got.Data[1].PublicURL != ts.URL+"/download/second" {
+		t.Errorf("missing or wrong public URLs: %s", out)
+	}
+	if string(got.Data[0].Extra) != "12345678901234567" || string(got.Data[1].Extra) != `"kept"` {
+		t.Errorf("lost API fields: %s", out)
+	}
+}
+
 func TestLinksAndDownloadersCommands(t *testing.T) {
 	a := &app{}
 	downloadersExportCmd := downloadersExportCmd(a)
@@ -340,6 +375,38 @@ func TestLinksUpdateNoFlagsPreservesAll(t *testing.T) {
 	}
 	if receivedPutBody["opt_in_text"] != "Join my VIP mailing list" {
 		t.Errorf("expected PUT opt_in_text to preserve 'Join my VIP mailing list', got %v", receivedPutBody["opt_in_text"])
+	}
+}
+
+func TestLinksCreateJSONAddsPublicURL(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/v1/projects/5/links" || r.Method != http.MethodPost {
+			http.NotFound(w, r)
+			return
+		}
+		_, _ = w.Write([]byte(`{"data":{"id":301,"slug":"new-slug","extra":12345678901234567},"message":"created"}`))
+	}))
+	defer ts.Close()
+	out := arbCaptureStdout(t, func() {
+		if _, err := ntdRoot(t, "links", "create", "5", "--host", ts.URL+"/", "--token", "test-token", "--json"); err != nil {
+			t.Fatal(err)
+		}
+	})
+	var got struct {
+		Data struct {
+			PublicURL string          `json:"public_url"`
+			Extra     json.RawMessage `json:"extra"`
+		} `json:"data"`
+		Message string `json:"message"`
+	}
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatal(err)
+	}
+	if got.Data.PublicURL != ts.URL+"/download/new-slug" {
+		t.Errorf("missing or wrong public URL: %s", out)
+	}
+	if string(got.Data.Extra) != "12345678901234567" || got.Message != "created" {
+		t.Errorf("lost API fields: %s", out)
 	}
 }
 

@@ -77,17 +77,7 @@ func logsCmd(a *app) *cobra.Command {
 				})
 			}
 
-			emptyNotice := "No activity logs recorded."
-			keepFooter := false
-			if page.Total > 0 {
-				if page.CurrentPage > page.LastPage || len(page.Data) == 0 {
-					emptyNotice = fmt.Sprintf("Page %d is past the last page.", page.CurrentPage)
-					keepFooter = true
-				} else if event != "" && len(rows) == 0 {
-					emptyNotice = fmt.Sprintf("No activity logs matched event %q on this page.", event)
-					keepFooter = true
-				}
-			}
+			emptyNotice, keepFooter := logsEmptyNotice(page, event, len(rows))
 
 			return a.printer.Display(output.View{
 				Headers:     []string{"TIME", "TYPE", "READER", "BOOK", "FILE"},
@@ -103,6 +93,19 @@ func logsCmd(a *app) *cobra.Command {
 	cmd.Flags().IntP("limit", "n", 50, "Maximum number of log events to show (capped at 100)")
 	cmd.Flags().String("event", "", "Filter table rows by event type (e.g. signup, download); --json stays unfiltered")
 	return cmd
+}
+
+// logsEmptyNotice distinguishes an empty history from an empty page or filter result.
+func logsEmptyNotice(page ActivityLogPage, event string, rowCount int) (string, bool) {
+	if page.Total > 0 {
+		if page.CurrentPage > page.LastPage || len(page.Data) == 0 {
+			return fmt.Sprintf("Page %d is past the last page.", page.CurrentPage), true
+		}
+		if event != "" && rowCount == 0 {
+			return fmt.Sprintf("No activity logs matched event %q on this page.", event), true
+		}
+	}
+	return "No activity logs recorded.", false
 }
 
 // logsFooter shows where this page sits, but only when there is more than one

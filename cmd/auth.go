@@ -132,6 +132,8 @@ func whoamiCmd(a *app) *cobra.Command {
 				return fmt.Errorf("failed to parse profile response: %w", err)
 			}
 
+			doc.Set("api_host", a.settings.Host())
+
 			teamName := "Personal"
 			if profile.CurrentTeam != nil && profile.CurrentTeam.Name != "" {
 				teamName = profile.CurrentTeam.Name
