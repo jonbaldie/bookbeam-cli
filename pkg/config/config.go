@@ -142,9 +142,15 @@ func (s *Settings) Token() string {
 
 // StoreToken replaces the stored token and saves the config-file layer; an
 // empty token clears it. Every other stored field keeps its on-disk value.
+// It is all-or-nothing: on error, neither Token nor config.json has changed.
 func (s *Settings) StoreToken(token string) error {
-	s.stored.Token = token
-	return save(&s.stored, s.path)
+	candidate := s.stored
+	candidate.Token = token
+	if err := save(&candidate, s.path); err != nil {
+		return err
+	}
+	s.stored = candidate
+	return nil
 }
 
 // load reads the config-file layer at path over the defaults; a missing file
@@ -165,9 +171,27 @@ func load(path string) (*Config, error) {
 	return cfg, nil
 }
 
-// save writes the config-file layer to path with owner-only permissions.
+// configFile is the part of *os.File that save writes a candidate through.
+type configFile interface {
+	Write(data []byte) (int, error)
+	Close() error
+	Name() string
+}
+
+// createTemp opens a private (0600) temporary file in dir. Tests replace it
+// to inject write and close failures.
+var createTemp = func(dir, pattern string) (configFile, error) {
+	return os.CreateTemp(dir, pattern)
+}
+
+// save commits the config-file layer to path with owner-only permissions. It
+// writes a complete temporary file beside path and renames it over path, so a
+// failure leaves any previous config.json untouched and no temporary file
+// behind. The rename replaces config.json on every platform; it is not synced
+// to disk, so it does not promise durability across power loss.
 func save(cfg *Config, path string) error {
-	if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
+	dir := filepath.Dir(path)
+	if err := os.MkdirAll(dir, 0700); err != nil {
 		return err
 	}
 
@@ -176,9 +200,26 @@ func save(cfg *Config, path string) error {
 		return err
 	}
 
-	if err := os.Chmod(path, 0600); err != nil && !errors.Is(err, os.ErrNotExist) {
+	tmp, err := createTemp(dir, ".config-*.json.tmp")
+	if err != nil {
 		return err
 	}
+	if err := replace(tmp, data, path); err != nil {
+		_ = os.Remove(tmp.Name())
+		return err
+	}
+	return nil
+}
 
-	return os.WriteFile(path, data, 0600)
+// replace writes data to tmp and closes it, then renames it over path only
+// once both have succeeded.
+func replace(tmp configFile, data []byte, path string) error {
+	_, err := tmp.Write(data)
+	if closeErr := tmp.Close(); err == nil {
+		err = closeErr
+	}
+	if err != nil {
+		return err
+	}
+	return os.Rename(tmp.Name(), path)
 }

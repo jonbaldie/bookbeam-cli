@@ -212,22 +212,6 @@ func TestStoreTokenEnforcesPrivatePermissionsOnExistingFile(t *testing.T) {
 	}
 }
 
-func TestStoreTokenReportsChmodFailure(t *testing.T) {
-	if runtime.GOOS == "windows" {
-		t.Skip("POSIX permissions not applicable on Windows")
-	}
-	dir := t.TempDir()
-	configPath := filepath.Join(dir, "config.json")
-	if err := os.WriteFile(configPath, []byte(`{"host":"https://existing.example"}`), 0644); err != nil {
-		t.Fatal(err)
-	}
-	s := &Settings{path: configPath + "/"}
-	err := s.StoreToken("new")
-	if err == nil {
-		t.Fatal("expected chmod error on path with trailing slash")
-	}
-}
-
 func TestStoreTokenReportsDirectoryCreationFailure(t *testing.T) {
 	blocker := filepath.Join(t.TempDir(), "blocker")
 	if err := os.WriteFile(blocker, []byte("x"), 0600); err != nil {
@@ -242,7 +226,9 @@ func TestStoreTokenReportsDirectoryCreationFailure(t *testing.T) {
 	}
 }
 
-func TestStoreTokenReportsWriteFailure(t *testing.T) {
+// A config.json that cannot be replaced (here, a directory) stays in place,
+// and the stored token keeps its previous value.
+func TestStoreTokenReportsReplaceFailure(t *testing.T) {
 	dir := t.TempDir()
 	s, err := Resolve(dir, envOf(nil), Overrides{})
 	if err != nil {
@@ -251,10 +237,108 @@ func TestStoreTokenReportsWriteFailure(t *testing.T) {
 	if err := os.Mkdir(filepath.Join(dir, "config.json"), 0700); err != nil {
 		t.Fatal(err)
 	}
-	var pathErr *fs.PathError
-	if err := s.StoreToken("t"); !errors.As(err, &pathErr) || pathErr.Op != "open" {
-		t.Fatalf("expected open path error, got %v", err)
+	var linkErr *os.LinkError
+	if err := s.StoreToken("t"); !errors.As(err, &linkErr) || linkErr.Op != "rename" {
+		t.Fatalf("expected rename link error, got %v", err)
 	}
+	if s.Token() != "" {
+		t.Errorf("Token() after failed store = %q, want empty", s.Token())
+	}
+	info, err := os.Stat(filepath.Join(dir, "config.json"))
+	if err != nil || !info.IsDir() {
+		t.Fatalf("config.json directory should be untouched: %v", err)
+	}
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries) != 1 {
+		t.Errorf("temporary file left behind: %d entries", len(entries))
+	}
+}
+
+// faultyFile writes through to a real temporary file, but fails part-way
+// through the write or on close.
+type faultyFile struct {
+	*os.File
+	failWrite, failClose bool
+}
+
+var errInjected = errors.New("injected failure")
+
+func (f *faultyFile) Write(data []byte) (int, error) {
+	if f.failWrite {
+		n, _ := f.File.Write(data[:len(data)/2])
+		return n, errInjected
+	}
+	return f.File.Write(data)
+}
+
+func (f *faultyFile) Close() error {
+	err := f.File.Close()
+	if f.failClose {
+		return errInjected
+	}
+	return err
+}
+
+// injectFault makes save write its temporary file through a faultyFile.
+func injectFault(t *testing.T, failWrite, failClose bool) {
+	t.Helper()
+	real := createTemp
+	t.Cleanup(func() { createTemp = real })
+	createTemp = func(dir, pattern string) (configFile, error) {
+		f, err := os.CreateTemp(dir, pattern)
+		if err != nil {
+			return nil, err
+		}
+		return &faultyFile{File: f, failWrite: failWrite, failClose: failClose}, nil
+	}
+}
+
+// Regression test for #84: a failed write or close while storing or clearing
+// the token leaves config.json, the directory and Token() as they were.
+func TestStoreTokenFailureKeepsPreviousConfig(t *testing.T) {
+	const previous = `{"host":"https://file.example","token":"old-token"}`
+	for _, fault := range []string{"write", "close"} {
+		for _, token := range []string{"new-token", ""} {
+			t.Run(fault+"/token="+token, func(t *testing.T) {
+				dir := writeConfig(t, previous)
+				s, err := Resolve(dir, envOf(nil), Overrides{})
+				if err != nil {
+					t.Fatal(err)
+				}
+				injectFault(t, fault == "write", fault == "close")
+				if err := s.StoreToken(token); !errors.Is(err, errInjected) {
+					t.Fatalf("StoreToken error = %v, want injected failure", err)
+				}
+				if s.Token() != "old-token" {
+					t.Errorf("Token() after failed store = %q, want %q", s.Token(), "old-token")
+				}
+				assertConfigUnchanged(t, dir, previous)
+			})
+		}
+	}
+}
+
+// A failure to create the temporary file is reported and changes nothing.
+func TestStoreTokenReportsTempFileCreationFailure(t *testing.T) {
+	const previous = `{"host":"https://file.example","token":"old-token"}`
+	dir := writeConfig(t, previous)
+	s, err := Resolve(dir, envOf(nil), Overrides{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	real := createTemp
+	t.Cleanup(func() { createTemp = real })
+	createTemp = func(string, string) (configFile, error) { return nil, errInjected }
+	if err := s.StoreToken("new-token"); !errors.Is(err, errInjected) {
+		t.Fatalf("StoreToken error = %v, want injected failure", err)
+	}
+	if s.Token() != "old-token" {
+		t.Errorf("Token() after failed store = %q, want %q", s.Token(), "old-token")
+	}
+	assertConfigUnchanged(t, dir, previous)
 }
 
 func TestResolveUnreadableConfigFile(t *testing.T) {
@@ -378,5 +462,28 @@ func TestStoreTokenKeepsStoredHostAsWritten(t *testing.T) {
 	want := "{\n  \"host\": \"https://file.example/\",\n  \"token\": \"t\"\n}"
 	if got := readConfig(t, dir); got != want {
 		t.Errorf("saved %q, want %q", got, want)
+	}
+}
+
+// assertConfigUnchanged checks that dir holds only config.json, still with
+// the previous bytes, and that they still resolve.
+func assertConfigUnchanged(t *testing.T, dir, previous string) {
+	t.Helper()
+	if got := readConfig(t, dir); got != previous {
+		t.Errorf("config.json = %q, want unchanged %q", got, previous)
+	}
+	if _, err := Resolve(dir, envOf(nil), Overrides{}); err != nil {
+		t.Errorf("config.json no longer resolves: %v", err)
+	}
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries) != 1 || entries[0].Name() != "config.json" {
+		var names []string
+		for _, e := range entries {
+			names = append(names, e.Name())
+		}
+		t.Errorf("config directory holds %v, want only config.json", names)
 	}
 }
