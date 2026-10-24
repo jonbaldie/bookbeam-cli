@@ -1,0 +1,9 @@
+date: 2026-10-24T01:52:01Z
+docker containers before 38 after 38 new-ids 0
+docker images (unique ids) before 867 after 867 new-ids 0  (setup.log's 887 counted duplicate ids from 'docker images -aq')
+docker volumes before 28 after 28 new-ids 0
+created by this run: containers 0 images 0 volumes 0; no docker create/run/build/pull was invoked
+real config sha256 after: a488da2b03fe0582c61df018ca8e2e5d8bbb0729becf16ec812a02fc9428bac1 (unchanged)
+workspace .exploratory-run removed (binary, modcache, isolated config, downloads, partial files)
+TMPDIR fixtures, issue drafts, driver wrapper, docker inventories removed; pre-existing tmp8lbrguk3/tmpqyptc5ua untouched
+live: project 29 (files 31-34, link 26) deleted; GET 404; public link 404; catalog back to 7 projects / 12 files; webhook back to null; provider unchanged
