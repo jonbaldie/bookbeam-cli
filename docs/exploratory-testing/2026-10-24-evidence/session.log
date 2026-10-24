@@ -1,0 +1,1417 @@
+
+===== whoami =====
+$ bookbeam whoami
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Property      Value
+Name          Jonathan Baldie
+Email         [EMAIL]
+Active Team   Jonathan's Team
+API Host      https://bookbeam.app
+
+--- stderr ---
+
+
+===== whoami --json =====
+$ bookbeam whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "api_host": "https://bookbeam.app",
+  "created_at": "2026-01-15T09:09:55.000000Z",
+  "current_team": {
+    "created_at": "2026-01-15T09:09:55.000000Z",
+    "id": 1,
+    "name": "Jonathan's Team",
+    "newsletter_provider": "mailcoach",
+    "newsletter_provider_config": {
+      "api_token": "********",
+      "api_url": "https://subject-zero.mailcoach.app",
+      "default_list_id": null
+    },
+    "newsletter_webhook_url": null,
+    "personal_team": true,
+    "updated_at": "2026-09-30T02:33:56.000000Z",
+    "user_id": 1
+  },
+  "current_team_id": 1,
+  "email": "[EMAIL]",
+  "email_verified_at": null,
+  "id": 1,
+  "name": "Jonathan Baldie",
+  "profile_photo_path": null,
+  "profile_photo_url": "https://ui-avatars.com/api/?name=J+B\u0026color=7F9CF5\u0026background=EBF4FF",
+  "two_factor_confirmed_at": null,
+  "updated_at": "2026-01-23T07:42:39.000000Z"
+}
+
+--- stderr ---
+
+
+===== projects list =====
+$ bookbeam projects list
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+ID   TITLE                                    FILES   LINKS   CREATED
+21   Exploratory Journey 2 Links              0       0       2026-09-26T02:01:41.000000Z
+6    Reader Magnet Playbook                   1       1       2026-03-26T11:27:38.000000Z
+5    Ashes of the Waterfall                   2       1       2026-03-25T19:58:11.000000Z
+4    D.W. Stein Sci-fi Starter Library        6       1       2026-03-17T19:58:41.000000Z
+3    Test for Lemon Squeezy                   0       0       2026-01-31T16:43:16.000000Z
+2    The Deep Blue                            2       1       2026-01-15T16:36:49.000000Z
+1    Tark: A Half-Serious Magical Adventure   1       1       2026-01-15T09:10:44.000000Z
+
+Page 1 of 1 (Total: 7)
+
+--- stderr ---
+
+
+===== metrics =====
+$ bookbeam metrics
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Metric                     Total
+Total Book Projects        7
+Total Uploaded Files       12
+Total Reader Downloads     8
+Total Landing Page Views   1527
+
+--- stderr ---
+
+
+===== whoami --json =====
+$ bookbeam whoami --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "api_host": "https://bookbeam.app",
+  "created_at": "2026-01-15T09:09:55.000000Z",
+  "current_team": {
+    "created_at": "2026-01-15T09:09:55.000000Z",
+    "id": 1,
+    "name": "Jonathan's Team",
+    "newsletter_provider": "mailcoach",
+    "newsletter_provider_config": {
+      "api_token": "********",
+      "api_url": "https://subject-zero.mailcoach.app",
+      "default_list_id": null
+    },
+    "newsletter_webhook_url": null,
+    "personal_team": true,
+    "updated_at": "2026-09-30T02:33:56.000000Z",
+    "user_id": 1
+  },
+  "current_team_id": 1,
+  "email": "[EMAIL]",
+  "email_verified_at": null,
+  "id": 1,
+  "name": "Jonathan Baldie",
+  "profile_photo_path": null,
+  "profile_photo_url": "https://ui-avatars.com/api/?name=J+B\u0026color=7F9CF5\u0026background=EBF4FF",
+  "two_factor_confirmed_at": null,
+  "updated_at": "2026-01-23T07:42:39.000000Z"
+}
+
+--- stderr ---
+
+
+===== newsletter status =====
+$ bookbeam newsletter status
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Setting            Value
+Active Provider    MAILCOACH
+Configured         Yes
+Webhook Endpoint   None
+
+--- stderr ---
+
+
+===== newsletter status --json =====
+$ bookbeam newsletter status --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "config": {
+    "api_token": "********",
+    "api_url": "https://subject-zero.mailcoach.app",
+    "default_list_id": null
+  },
+  "configured": true,
+  "provider": "mailcoach",
+  "webhook_url": null
+}
+
+--- stderr ---
+
+
+===== links list 5 =====
+$ bookbeam links list 5
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+ID   TITLE                    SLUG         PUBLIC URL                                 CREATED
+7    Ashes of the Waterfall   cUBRJ6yugg   https://bookbeam.app/download/cUBRJ6yugg   2026-03-25T20:34:37.000000Z
+
+--- stderr ---
+
+
+===== links list 5 --json =====
+$ bookbeam links list 5 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": [
+    {
+      "book_project_id": 5,
+      "created_at": "2026-03-25T20:34:37.000000Z",
+      "id": 7,
+      "opt_in_text": "Read the first third of my debut space opera novel for free! ",
+      "public_url": "https://bookbeam.app/download/cUBRJ6yugg",
+      "signups_count": 2,
+      "slug": "cUBRJ6yugg",
+      "title": "Ashes of the Waterfall",
+      "updated_at": "2026-10-23T22:05:06.000000Z"
+    }
+  ]
+}
+
+--- stderr ---
+
+
+===== --host HTTPS://BookBeam.app/ links list 5 --json =====
+$ bookbeam --host HTTPS://BookBeam.app/ links list 5 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": [
+    {
+      "book_project_id": 5,
+      "created_at": "2026-03-25T20:34:37.000000Z",
+      "id": 7,
+      "opt_in_text": "Read the first third of my debut space opera novel for free! ",
+      "public_url": "https://BookBeam.app/download/cUBRJ6yugg",
+      "signups_count": 2,
+      "slug": "cUBRJ6yugg",
+      "title": "Ashes of the Waterfall",
+      "updated_at": "2026-10-23T22:05:06.000000Z"
+    }
+  ]
+}
+
+--- stderr ---
+
+
+===== projects list --page 2 =====
+$ bookbeam projects list --page 2
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Error: unknown command "projects list --page 2" for "bookbeam"
+
+
+===== downloaders list 5 --page 2 =====
+$ bookbeam downloaders list 5 --page 2
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Error: unknown command "downloaders list 5 --page 2" for "bookbeam"
+
+
+===== downloaders list 5 =====
+$ bookbeam downloaders list 5
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Error: unknown command "downloaders list 5" for "bookbeam"
+
+
+===== logs --limit 3 =====
+$ bookbeam logs --limit 3
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Error: unknown command "logs --limit 3" for "bookbeam"
+
+
+===== logs --page 99 --limit 3 =====
+$ bookbeam logs --page 99 --limit 3
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Error: unknown command "logs --page 99 --limit 3" for "bookbeam"
+
+
+===== logs --limit 3 --event no-such-type =====
+$ bookbeam logs --limit 3 --event no-such-type
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Error: unknown command "logs --limit 3 --event no-such-type" for "bookbeam"
+
+
+===== logs --limit 3 --event signup =====
+$ bookbeam logs --limit 3 --event signup
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Error: unknown command "logs --limit 3 --event signup" for "bookbeam"
+
+
+===== logs --limit 3 --json =====
+$ bookbeam logs --limit 3 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "current_page": 1,
+  "data": [
+    {
+      "book_title": "Reader Magnet Playbook",
+      "filename": "the-reader-magnet-playbook.pdf",
+      "id": 5,
+      "occurred_at": "2026-09-15T08:00:01.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "iNS2rgt9RS",
+      "type": "download"
+    },
+    {
+      "book_title": "Reader Magnet Playbook",
+      "id": 6,
+      "newsletter_provider": "mailcoach",
+      "newsletter_provider_success": true,
+      "occurred_at": "2026-09-15T07:59:59.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "iNS2rgt9RS",
+      "type": "signup",
+      "webhook_status": null,
+      "webhook_success": null
+    },
+    {
+      "book_title": "Ashes of the Waterfall",
+      "filename": "Ashes-of-the-Waterfall-Print-2026-03-25.pdf",
+      "id": 4,
+      "occurred_at": "2026-03-28T06:46:33.000000Z",
+      "reader_email": "[EMAIL]",
+      "signup_link_slug": "cUBRJ6yugg",
+      "type": "download"
+    }
+  ],
+  "first_page_url": "https://bookbeam.app/api/v1/logs?page=1",
+  "from": 1,
+  "last_page": 4,
+  "last_page_url": "https://bookbeam.app/api/v1/logs?page=4",
+  "links": [
+    {
+      "active": false,
+      "label": "\u0026laquo; Previous",
+      "page": null,
+      "url": null
+    },
+    {
+      "active": true,
+      "label": "1",
+      "page": 1,
+      "url": "https://bookbeam.app/api/v1/logs?page=1"
+    },
+    {
+      "active": false,
+      "label": "2",
+      "page": 2,
+      "url": "https://bookbeam.app/api/v1/logs?page=2"
+    },
+    {
+      "active": false,
+      "label": "3",
+      "page": 3,
+      "url": "https://bookbeam.app/api/v1/logs?page=3"
+    },
+    {
+      "active": false,
+      "label": "4",
+      "page": 4,
+      "url": "https://bookbeam.app/api/v1/logs?page=4"
+    },
+    {
+      "active": false,
+      "label": "Next \u0026raquo;",
+      "page": 2,
+      "url": "https://bookbeam.app/api/v1/logs?page=2"
+    }
+  ],
+  "next_page_url": "https://bookbeam.app/api/v1/logs?page=2",
+  "path": "https://bookbeam.app/api/v1/logs",
+  "per_page": 3,
+  "prev_page_url": null,
+  "to": 3,
+  "total": 11
+}
+
+--- stderr ---
+
+
+# NOTE: the seven exit=1 entries above were a driver error (zsh did not word-split the argument string; each was one argv). Repeated below with correct argv.
+
+===== projects list --page 2 =====
+$ bookbeam projects list --page 2
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Page 2 is past the last page.
+
+Page 2 of 1 (Total: 7)
+
+--- stderr ---
+
+
+===== downloaders list 5 --page 2 =====
+$ bookbeam downloaders list 5 --page 2
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Page 2 is past the last page.
+
+Page 2 of 1 (Total: 2)
+
+--- stderr ---
+
+
+===== downloaders list 5 =====
+$ bookbeam downloaders list 5
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+EMAIL                         SIGNUP LINK              SIGNUP DATE
+[EMAIL]         Ashes of the Waterfall   2026-03-28 06:46:03
+[EMAIL]   Ashes of the Waterfall   2026-03-25 20:50:04
+
+Page 1 of 1 (Total: 2)
+
+--- stderr ---
+
+
+===== logs --limit 3 =====
+$ bookbeam logs --limit 3
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+TIME                          TYPE       READER                                 BOOK                     FILE
+2026-09-15T08:00:01.000000Z   download   [EMAIL]   Reader Magnet Playbook   the-reader-magnet-playbook.pdf
+2026-09-15T07:59:59.000000Z   signup     [EMAIL]   Reader Magnet Playbook   
+2026-03-28T06:46:33.000000Z   download   [EMAIL]                  Ashes of the Waterfall   Ashes-of-the-Waterfall-Print-2026-03-25.pdf
+
+Page 1 of 4 (total: 11)
+
+--- stderr ---
+
+
+===== logs --page 99 --limit 3 =====
+$ bookbeam logs --page 99 --limit 3
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Page 99 is past the last page.
+
+Page 99 of 4 (total: 11)
+
+--- stderr ---
+
+
+===== logs --limit 3 --event no-such-type =====
+$ bookbeam logs --limit 3 --event no-such-type
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+No activity logs matched event "no-such-type" on this page.
+
+Page 1 of 4 (total: 11)
+
+--- stderr ---
+
+
+===== logs --limit 3 --event signup =====
+$ bookbeam logs --limit 3 --event signup
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+TIME                          TYPE     READER                                 BOOK                     FILE
+2026-09-15T07:59:59.000000Z   signup   [EMAIL]   Reader Magnet Playbook   
+
+Page 1 of 4 (total: 11)
+
+--- stderr ---
+
+
+===== projects get 999999 --json =====
+$ bookbeam projects get 999999 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam projects get <project-id> [flags]
+
+Flags:
+  -h, --help   help for get
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: API error (404): No query results for model [App\Models\BookProject] 999999
+
+
+===== projects get abc --json =====
+$ bookbeam projects get abc --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam projects get <project-id> [flags]
+
+Flags:
+  -h, --help   help for get
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: invalid project id "abc"
+
+
+===== projects list --json =====
+$ bookbeam projects list --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/scratch/../configs/empty
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam projects list [flags]
+
+Flags:
+  -h, --help       help for list
+      --page int   Page number (default 1)
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: API error (401): Unauthenticated.
+
+
+===== projects create --title Exploratory 2026-10-24 Transfers --description Disposable; delete me --json =====
+$ bookbeam projects create --title Exploratory 2026-10-24 Transfers --description Disposable; delete me --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "cover_image_path": null,
+    "cover_image_url": null,
+    "created_at": "2026-10-24T01:47:11.000000Z",
+    "description": "Disposable; delete me",
+    "files_count": 0,
+    "id": 29,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 0,
+    "title": "Exploratory 2026-10-24 Transfers",
+    "updated_at": "2026-10-24T01:47:11.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+===== files upload 0 /Users/jonathanbaldie/.fleet/events/scratch/9cefea6d9cc493e8f3112b91aade112a7988241a734e8b8c287c487239020a1f/fixtures/small.epub =====
+$ bookbeam files upload 0 /Users/jonathanbaldie/.fleet/events/scratch/9cefea6d9cc493e8f3112b91aade112a7988241a734e8b8c287c487239020a1f/fixtures/small.epub
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam files upload <project-id> <file-path> [flags]
+
+Flags:
+  -h, --help   help for upload
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: invalid project id "0"
+
+
+===== files upload 29 /Users/jonathanbaldie/.fleet/events/scratch/9cefea6d9cc493e8f3112b91aade112a7988241a734e8b8c287c487239020a1f/fixtures/small.epub =====
+$ bookbeam files upload 29 /Users/jonathanbaldie/.fleet/events/scratch/9cefea6d9cc493e8f3112b91aade112a7988241a734e8b8c287c487239020a1f/fixtures/small.epub
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Uploading small.epub (1127 bytes) to project #29...
+✓ Uploaded file #31 (small.epub) successfully.
+
+--- stderr ---
+
+
+===== files upload 29 /Users/jonathanbaldie/.fleet/events/scratch/9cefea6d9cc493e8f3112b91aade112a7988241a734e8b8c287c487239020a1f/fixtures/big.epub =====
+$ bookbeam files upload 29 /Users/jonathanbaldie/.fleet/events/scratch/9cefea6d9cc493e8f3112b91aade112a7988241a734e8b8c287c487239020a1f/fixtures/big.epub
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Uploading big.epub (26215629 bytes) to project #29...
+✓ Uploaded file #32 (big.epub) successfully.
+
+--- stderr ---
+
+
+===== files list 29 =====
+$ bookbeam files list 29
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+ID   FILENAME     FORMAT   SIZE (BYTES)   DOWNLOADS   CREATED
+31   small.epub   EPUB     1127           0           2026-10-24T01:47:16.000000Z
+32   big.epub     EPUB     26215629       0           2026-10-24T01:47:30.000000Z
+
+--- stderr ---
+
+
+===== files download 29 32 =====
+$ bookbeam files download 29 32
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Downloading file to big.epub...
+✓ Download complete (26215629 bytes written to big.epub).
+
+--- stderr ---
+
+
+===== files download 29 32 -o explicit.epub --json =====
+$ bookbeam files download 29 32 -o explicit.epub --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "bytes_written": 26215629,
+  "file_id": 32,
+  "path": "explicit.epub",
+  "project_id": 29
+}
+
+--- stderr ---
+
+
+===== files download 29 31 -o adir =====
+$ bookbeam files download 29 31 -o adir
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+Downloading file to adir...
+
+--- stderr ---
+Usage:
+  bookbeam files download <project-id> <file-id> [flags]
+
+Flags:
+  -h, --help            help for download
+  -o, --output string   Destination file path
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to create destination file: open adir: is a directory
+
+
+===== files download 29 31 -o nosuch/dir/x.epub =====
+$ bookbeam files download 29 31 -o nosuch/dir/x.epub
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+Downloading file to nosuch/dir/x.epub...
+
+--- stderr ---
+Usage:
+  bookbeam files download <project-id> <file-id> [flags]
+
+Flags:
+  -h, --help            help for download
+  -o, --output string   Destination file path
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: failed to create destination file: open nosuch/dir/x.epub: no such file or directory
+
+
+===== files download 29 99999 -o should-not-exist.epub =====
+$ bookbeam files download 29 99999 -o should-not-exist.epub
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam files download <project-id> <file-id> [flags]
+
+Flags:
+  -h, --help            help for download
+  -o, --output string   Destination file path
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: API error (404): No query results for model [App\Models\BookFile] 99999
+
+
+===== files list 29 =====
+$ bookbeam files list 29
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+ID   FILENAME     FORMAT   SIZE (BYTES)   DOWNLOADS   CREATED
+31   small.epub   EPUB     1127           0           2026-10-24T01:47:16.000000Z
+32   big.epub     EPUB     26215629       0           2026-10-24T01:47:30.000000Z
+
+--- stderr ---
+
+
+===== metrics =====
+$ bookbeam metrics
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Metric                     Total
+Total Book Projects        8
+Total Uploaded Files       14
+Total Reader Downloads     8
+Total Landing Page Views   1527
+
+--- stderr ---
+
+
+===== interrupted download (SIGINT after 1.5s) =====
+$ bookbeam files download 29 32 -o keep.epub
+reference: 26215629 bytes sha256=4024f4f23cd0708b
+dest before: 26215629 bytes sha256=4024f4f23cd0708b
+dest at signal: 4517402 bytes sha256=a99a409a59344304
+exit=-2
+--- stdout ---
+Downloading file to keep.epub...
+
+--- stderr ---
+
+dest after: 4533786 bytes sha256=20a2fed6d48f8b08
+
+===== interrupted download (SIGINT after 1.0s) =====
+$ bookbeam files download 29 32 -o keep2.epub
+reference: 26215629 bytes sha256=4024f4f23cd0708b
+dest before: 26215629 bytes sha256=4024f4f23cd0708b
+dest at signal: 2245146 bytes sha256=bf708903893629f1
+exit=-2
+--- stdout ---
+Downloading file to keep2.epub...
+
+--- stderr ---
+
+dest after: 2297370 bytes sha256=1b595451695ed78a
+
+===== interrupted download (SIGINT after 1.5s) =====
+$ bookbeam files download 29 32 -o fresh.epub
+reference: 26215629 bytes sha256=4024f4f23cd0708b
+dest before: absent
+dest at signal: 6283822 bytes sha256=eb2521ec796a1f68
+exit=-2
+--- stdout ---
+Downloading file to fresh.epub...
+
+--- stderr ---
+
+dest after: 6349358 bytes sha256=57af5017ba2966b9
+
+===== interrupted download (SIGTERM after 2s) =====
+$ bookbeam files download 29 32 -o fresh2.epub
+reference: 26215629 bytes sha256=4024f4f23cd0708b
+dest before: absent
+dest at signal: 8721291 bytes sha256=6a50252cc4db57fe
+exit=-15
+--- stdout ---
+Downloading file to fresh2.epub...
+
+--- stderr ---
+
+dest after: 8790923 bytes sha256=3aae4c41442135fd
+
+===== interrupted upload (SIGINT after 5s) =====
+$ bookbeam files upload 29 /Users/jonathanbaldie/.fleet/events/scratch/9cefea6d9cc493e8f3112b91aade112a7988241a734e8b8c287c487239020a1f/fixtures/big.epub
+exit=-2
+--- stdout ---
+Uploading big.epub (26215629 bytes) to project #29...
+
+--- stderr ---
+
+
+===== files list 29 =====
+$ bookbeam files list 29
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+ID   FILENAME     FORMAT   SIZE (BYTES)   DOWNLOADS   CREATED
+31   small.epub   EPUB     1127           0           2026-10-24T01:47:16.000000Z
+32   big.epub     EPUB     26215629       0           2026-10-24T01:47:30.000000Z
+
+--- stderr ---
+
+
+===== files upload 29 /Users/jonathanbaldie/.fleet/events/scratch/9cefea6d9cc493e8f3112b91aade112a7988241a734e8b8c287c487239020a1f/fixtures/Café — Ünïcode.epub =====
+$ bookbeam files upload 29 /Users/jonathanbaldie/.fleet/events/scratch/9cefea6d9cc493e8f3112b91aade112a7988241a734e8b8c287c487239020a1f/fixtures/Café — Ünïcode.epub
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Uploading Café — Ünïcode.epub (1127 bytes) to project #29...
+✓ Uploaded file #33 (Café — Ünïcode.epub) successfully.
+
+--- stderr ---
+
+
+===== files upload 29 /Users/jonathanbaldie/.fleet/events/scratch/9cefea6d9cc493e8f3112b91aade112a7988241a734e8b8c287c487239020a1f/fixtures/small.epub --json =====
+$ bookbeam files upload 29 /Users/jonathanbaldie/.fleet/events/scratch/9cefea6d9cc493e8f3112b91aade112a7988241a734e8b8c287c487239020a1f/fixtures/small.epub --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "book_project_id": 29,
+    "created_at": "2026-10-24T01:49:09.000000Z",
+    "downloads_count": 0,
+    "file_size": 1127,
+    "file_type": "epub",
+    "filename": "small.epub",
+    "id": 34,
+    "updated_at": "2026-10-24T01:49:09.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+===== files list 29 =====
+$ bookbeam files list 29
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+ID   FILENAME              FORMAT   SIZE (BYTES)   DOWNLOADS   CREATED
+31   small.epub            EPUB     1127           0           2026-10-24T01:47:16.000000Z
+32   big.epub              EPUB     26215629       0           2026-10-24T01:47:30.000000Z
+33   Café — Ünïcode.epub   EPUB     1127           0           2026-10-24T01:49:09.000000Z
+34   small.epub            EPUB     1127           0           2026-10-24T01:49:09.000000Z
+
+--- stderr ---
+
+
+===== files download 29 33 =====
+$ bookbeam files download 29 33
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Downloading file to Caf ncode.epub...
+✓ Download complete (1127 bytes written to Caf ncode.epub).
+
+--- stderr ---
+
+
+===== links create 29 --title Exploratory sample --consent Join my list --json =====
+$ bookbeam links create 29 --title Exploratory sample --consent Join my list --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "book_project_id": 29,
+    "created_at": "2026-10-24T01:49:34.000000Z",
+    "id": 26,
+    "opt_in_text": "Join my list",
+    "public_url": "https://bookbeam.app/download/nADUSZq5Oh",
+    "signups_count": 0,
+    "slug": "nADUSZq5Oh",
+    "title": "Exploratory sample",
+    "updated_at": "2026-10-24T01:49:34.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+===== curl public_url =====
+$ curl https://bookbeam.app/download/nADUSZq5Oh
+200 text/html; charset=utf-8, contains title: 0
+
+===== links delete 29 26 =====
+$ bookbeam links delete 29 26
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Are you sure you want to delete link #26? (y/N): Cancelled.
+
+--- stderr ---
+
+
+===== links list 29 --json =====
+$ bookbeam links list 29 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": [
+    {
+      "book_project_id": 29,
+      "created_at": "2026-10-24T01:49:34.000000Z",
+      "id": 26,
+      "opt_in_text": "Join my list",
+      "public_url": "https://bookbeam.app/download/nADUSZq5Oh",
+      "signups_count": 0,
+      "slug": "nADUSZq5Oh",
+      "title": "Exploratory sample",
+      "updated_at": "2026-10-24T01:49:40.000000Z"
+    }
+  ]
+}
+
+--- stderr ---
+
+
+===== newsletter webhook --url https://example.com/bookbeam-exploratory-2026-10-24 =====
+$ bookbeam newsletter webhook --url https://example.com/bookbeam-exploratory-2026-10-24
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+✓ Configured webhook URL: https://example.com/bookbeam-exploratory-2026-10-24
+
+--- stderr ---
+
+
+===== newsletter status =====
+$ bookbeam newsletter status
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Setting            Value
+Active Provider    MAILCOACH
+Configured         Yes
+Webhook Endpoint   https://example.com/bookbeam-exploratory-2026-10-24
+
+--- stderr ---
+
+
+===== newsletter status --json =====
+$ bookbeam newsletter status --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "config": {
+    "api_token": "********",
+    "api_url": "https://subject-zero.mailcoach.app",
+    "default_list_id": null
+  },
+  "configured": true,
+  "provider": "mailcoach",
+  "webhook_url": "https://example.com/bookbeam-exploratory-2026-10-24"
+}
+
+--- stderr ---
+
+
+===== newsletter webhook --url not-a-url =====
+$ bookbeam newsletter webhook --url not-a-url
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam newsletter webhook [flags]
+
+Flags:
+  -h, --help         help for webhook
+      --url string   Target webhook URL (empty string clears webhook)
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: API error (422): The webhook url field must be a valid URL.
+
+
+===== newsletter webhook --url ftp://example.com/x =====
+$ bookbeam newsletter webhook --url ftp://example.com/x
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+✓ Configured webhook URL: ftp://example.com/x
+
+--- stderr ---
+
+
+===== newsletter status --json =====
+$ bookbeam newsletter status --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "config": {
+    "api_token": "********",
+    "api_url": "https://subject-zero.mailcoach.app",
+    "default_list_id": null
+  },
+  "configured": true,
+  "provider": "mailcoach",
+  "webhook_url": "ftp://example.com/x"
+}
+
+--- stderr ---
+
+
+===== newsletter webhook --url https://example.com/bookbeam-exploratory-2026-10-24 =====
+$ bookbeam newsletter webhook --url https://example.com/bookbeam-exploratory-2026-10-24
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+✓ Configured webhook URL: https://example.com/bookbeam-exploratory-2026-10-24
+
+--- stderr ---
+
+
+===== newsletter webhook --help =====
+$ bookbeam newsletter webhook --help
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Set or clear subscriber notification webhook URL
+
+Usage:
+  bookbeam newsletter webhook [flags]
+
+Flags:
+  -h, --help         help for webhook
+      --url string   Target webhook URL (empty string clears webhook)
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+--- stderr ---
+
+
+===== newsletter webhook =====
+$ bookbeam newsletter webhook
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+✓ Cleared newsletter webhook URL.
+
+--- stderr ---
+
+
+===== newsletter status --json =====
+$ bookbeam newsletter status --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "config": {
+    "api_token": "********",
+    "api_url": "https://subject-zero.mailcoach.app",
+    "default_list_id": null
+  },
+  "configured": true,
+  "provider": "mailcoach",
+  "webhook_url": null
+}
+
+--- stderr ---
+
+
+===== newsletter webhook --url https://example.com/bookbeam-exploratory-2026-10-24 =====
+$ bookbeam newsletter webhook --url https://example.com/bookbeam-exploratory-2026-10-24
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+✓ Configured webhook URL: https://example.com/bookbeam-exploratory-2026-10-24
+
+--- stderr ---
+
+
+===== newsletter status --json =====
+$ bookbeam newsletter status --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "config": {
+    "api_token": "********",
+    "api_url": "https://subject-zero.mailcoach.app",
+    "default_list_id": null
+  },
+  "configured": true,
+  "provider": "mailcoach",
+  "webhook_url": "https://example.com/bookbeam-exploratory-2026-10-24"
+}
+
+--- stderr ---
+
+
+===== newsletter webhook --quiet =====
+$ bookbeam newsletter webhook --quiet
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+
+--- stderr ---
+
+
+===== newsletter status --json =====
+$ bookbeam newsletter status --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "config": {
+    "api_token": "********",
+    "api_url": "https://subject-zero.mailcoach.app",
+    "default_list_id": null
+  },
+  "configured": true,
+  "provider": "mailcoach",
+  "webhook_url": null
+}
+
+--- stderr ---
+
+
+===== newsletter webhook --url https://example.com/bookbeam-exploratory-2026-10-24 =====
+$ bookbeam newsletter webhook --url https://example.com/bookbeam-exploratory-2026-10-24
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+✓ Configured webhook URL: https://example.com/bookbeam-exploratory-2026-10-24
+
+--- stderr ---
+
+
+===== newsletter status --json =====
+$ bookbeam newsletter status --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "config": {
+    "api_token": "********",
+    "api_url": "https://subject-zero.mailcoach.app",
+    "default_list_id": null
+  },
+  "configured": true,
+  "provider": "mailcoach",
+  "webhook_url": "https://example.com/bookbeam-exploratory-2026-10-24"
+}
+
+--- stderr ---
+
+
+===== newsletter webhook --quiet =====
+$ bookbeam newsletter webhook --quiet
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+
+--- stderr ---
+
+
+===== newsletter status --json =====
+$ bookbeam newsletter status --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "config": {
+    "api_token": "********",
+    "api_url": "https://subject-zero.mailcoach.app",
+    "default_list_id": null
+  },
+  "configured": true,
+  "provider": "mailcoach",
+  "webhook_url": null
+}
+
+--- stderr ---
+
+
+===== newsletter webhook --url https://example.com/bookbeam-exploratory-2026-10-24 =====
+$ bookbeam newsletter webhook --url https://example.com/bookbeam-exploratory-2026-10-24
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+✓ Configured webhook URL: https://example.com/bookbeam-exploratory-2026-10-24
+
+--- stderr ---
+
+
+===== newsletter webhook --url  =====
+$ bookbeam newsletter webhook --url 
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+✓ Cleared newsletter webhook URL.
+
+--- stderr ---
+
+
+===== newsletter status =====
+$ bookbeam newsletter status
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Setting            Value
+Active Provider    MAILCOACH
+Configured         Yes
+Webhook Endpoint   None
+
+--- stderr ---
+
+
+===== newsletter configure =====
+$ bookbeam newsletter configure
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam newsletter configure [flags]
+
+Flags:
+      --api-key string    Provider API secret key (required)
+      --endpoint string   API endpoint URL (required for Mailcoach)
+  -h, --help              help for configure
+      --provider string   Provider type: kit, mailcoach, or mailerlite (required)
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: --provider is required (kit, mailcoach, or mailerlite)
+
+
+===== newsletter configure --provider mailcoach =====
+$ bookbeam newsletter configure --provider mailcoach
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam newsletter configure [flags]
+
+Flags:
+      --api-key string    Provider API secret key (required)
+      --endpoint string   API endpoint URL (required for Mailcoach)
+  -h, --help              help for configure
+      --provider string   Provider type: kit, mailcoach, or mailerlite (required)
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: --api-key is required
+
+
+===== newsletter status --json =====
+$ bookbeam newsletter status --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "config": {
+    "api_token": "********",
+    "api_url": "https://subject-zero.mailcoach.app",
+    "default_list_id": null
+  },
+  "configured": true,
+  "provider": "mailcoach",
+  "webhook_url": null
+}
+
+--- stderr ---
+
+
+===== projects delete 29 =====
+$ bookbeam projects delete 29
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Are you sure you want to delete project #29? (y/N): Cancelled.
+
+--- stderr ---
+
+
+===== projects get 29 --json =====
+$ bookbeam projects get 29 --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "data": {
+    "cover_image_path": null,
+    "cover_image_url": null,
+    "created_at": "2026-10-24T01:47:11.000000Z",
+    "description": "Disposable; delete me",
+    "files_count": 4,
+    "id": 29,
+    "newsletter_list_id": null,
+    "newsletter_tags": null,
+    "signup_links_count": 1,
+    "title": "Exploratory 2026-10-24 Transfers",
+    "updated_at": "2026-10-24T01:47:11.000000Z"
+  }
+}
+
+--- stderr ---
+
+
+===== projects delete 29 --force =====
+$ bookbeam projects delete 29 --force
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+✓ Deleted book project #29
+
+--- stderr ---
+
+
+===== projects get 29 =====
+$ bookbeam projects get 29
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=1
+--- stdout ---
+
+--- stderr ---
+Usage:
+  bookbeam projects get <project-id> [flags]
+
+Flags:
+  -h, --help   help for get
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Error: API error (404): No query results for model [App\Models\BookProject] 29
+
+public link after delete: 404
+
+===== projects list =====
+$ bookbeam projects list
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+ID   TITLE                                    FILES   LINKS   CREATED
+21   Exploratory Journey 2 Links              0       0       2026-09-26T02:01:41.000000Z
+6    Reader Magnet Playbook                   1       1       2026-03-26T11:27:38.000000Z
+5    Ashes of the Waterfall                   2       1       2026-03-25T19:58:11.000000Z
+4    D.W. Stein Sci-fi Starter Library        6       1       2026-03-17T19:58:41.000000Z
+3    Test for Lemon Squeezy                   0       0       2026-01-31T16:43:16.000000Z
+2    The Deep Blue                            2       1       2026-01-15T16:36:49.000000Z
+1    Tark: A Half-Serious Magical Adventure   1       1       2026-01-15T09:10:44.000000Z
+
+Page 1 of 1 (Total: 7)
+
+--- stderr ---
+
+
+===== metrics =====
+$ bookbeam metrics
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+Metric                     Total
+Total Book Projects        7
+Total Uploaded Files       12
+Total Reader Downloads     8
+Total Landing Page Views   1527
+
+--- stderr ---
+
+
+===== newsletter status --json =====
+$ bookbeam newsletter status --json
+# BOOKBEAM_CONFIG_DIR=/Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/configs/live
+exit=0
+--- stdout ---
+{
+  "config": {
+    "api_token": "********",
+    "api_url": "https://subject-zero.mailcoach.app",
+    "default_list_id": null
+  },
+  "configured": true,
+  "provider": "mailcoach",
+  "webhook_url": null
+}
+
+--- stderr ---
+

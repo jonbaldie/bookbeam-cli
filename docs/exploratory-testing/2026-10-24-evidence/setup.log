@@ -1,0 +1,18 @@
+date: 2026-10-24T01:45:42Z start
+rev: 3810870eabf43ffba2ceeed01f7eabbcaacaad74
+go: go version go1.26.3 darwin/arm64
+GOCACHE: /Users/jonathanbaldie/.fleet/caches/go-build
+TMPDIR: /Users/jonathanbaldie/.fleet/events/scratch/9cefea6d9cc493e8f3112b91aade112a7988241a734e8b8c287c487239020a1f
+GOMODCACHE: /Users/jonathanbaldie/Code-2/github.com/jonbaldie/bookbeam-cli/.exploratory-run/modcache
+GOFLAGS: -mod=readonly
+go.mod sha256 before: 43a534ff350e915b0c7c37ad171c4157a73e65146e11b6794d719438cfc809be
+go.sum sha256 before: 8443a862d2e8b05ac34298d963911aa22b0e54978185655078ae2e83346cfa51
+all modules verified
+build exit=0
+go.mod sha256 after: 43a534ff350e915b0c7c37ad171c4157a73e65146e11b6794d719438cfc809be
+go.sum sha256 after: 8443a862d2e8b05ac34298d963911aa22b0e54978185655078ae2e83346cfa51
+binary: .exploratory-run/bookbeam: Mach-O 64-bit executable arm64
+not a symlink
+real config sha256 before: a488da2b03fe0582c61df018ca8e2e5d8bbb0729becf16ec812a02fc9428bac1
+real config mode: 600 dir 700
+docker before: 38 containers, 887 images (867 unique ids), 28 volumes
