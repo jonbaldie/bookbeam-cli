@@ -139,6 +139,10 @@ func newsletterWebhookCmd(a *app) *cobra.Command {
 		Use:   "webhook",
 		Short: "Set or clear subscriber notification webhook URL",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// An omitted --url must not clear the webhook; only an explicit --url "" does.
+			if !cmd.Flags().Changed("url") {
+				return fmt.Errorf(`--url is required (use --url "" to clear the webhook)`)
+			}
 			webhookURL, _ := cmd.Flags().GetString("url")
 			payload := map[string]string{
 				"webhook_url": webhookURL,
@@ -156,7 +160,7 @@ func newsletterWebhookCmd(a *app) *cobra.Command {
 			return a.printer.Success(responseDocument(raw), msg)
 		},
 	}
-	cmd.Flags().String("url", "", "Target webhook URL (empty string clears webhook)")
+	cmd.Flags().String("url", "", "Target webhook URL (required; empty string clears webhook)")
 	return cmd
 }
 
