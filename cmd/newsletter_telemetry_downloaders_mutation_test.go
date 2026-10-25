@@ -511,6 +511,7 @@ func TestNtdNewsletterWebhook(t *testing.T) {
 	ts, _ := ntdServer(t, 200, `{"webhook_url":null}`)
 	a, buf := ntdApp(ts.URL, true)
 	cmd := newsletterWebhookCmd(a)
+	_ = cmd.Flags().Set("url", "")
 	if err := cmd.RunE(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
@@ -521,6 +522,7 @@ func TestNtdNewsletterWebhook(t *testing.T) {
 	ts, _ = ntdServer(t, 422, `{"message":"Bad URL"}`)
 	a, buf = ntdApp(ts.URL, false)
 	cmd = newsletterWebhookCmd(a)
+	_ = cmd.Flags().Set("url", "not a url")
 	if err := cmd.RunE(cmd, nil); err == nil || err.Error() != "API error (422): Bad URL" {
 		t.Errorf("expected API error, got %v", err)
 	}

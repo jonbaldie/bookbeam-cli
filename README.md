@@ -146,8 +146,9 @@ bookbeam newsletter configure --provider mailerlite --api-key "ml_secret_key"
 # Query available mailing lists and tags
 bookbeam newsletter lists
 
-# Set or clear subscriber webhook URL
+# Set or clear subscriber webhook URL (--url is required; pass an empty string to clear)
 bookbeam newsletter webhook --url "https://hooks.zapier.com/..."
+bookbeam newsletter webhook --url ""
 
 # Disconnect active provider
 bookbeam newsletter disconnect
