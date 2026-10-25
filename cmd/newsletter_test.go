@@ -12,6 +12,55 @@ import (
 	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 )
 
+func TestNewsletterWebhookRequiresExplicitURL(t *testing.T) {
+	for _, mode := range []string{"normal", "quiet", "json"} {
+		t.Run(mode, func(t *testing.T) {
+			ts, seen := ntdServer(t, http.StatusOK, `{"webhook_url":null}`)
+			isolateHome(t)
+			t.Setenv("BOOKBEAM_HOST", ts.URL)
+			t.Setenv("BOOKBEAM_TOKEN", "test-token")
+			root := NewRootCmd()
+			var buf bytes.Buffer
+			root.SetOut(&buf)
+			root.SetErr(&buf)
+			args := []string{"newsletter", "webhook"}
+			if mode != "normal" {
+				args = append(args, "--"+mode)
+			}
+			root.SetArgs(args)
+			err := root.Execute()
+			if err == nil || !strings.Contains(err.Error(), "--url") {
+				t.Errorf("expected an error naming --url, got %v", err)
+			}
+			if len(*seen) != 0 {
+				t.Errorf("omitted --url must not contact the API, got %+v", *seen)
+			}
+		})
+	}
+}
+
+func TestNewsletterWebhookExplicitURL(t *testing.T) {
+	for _, url := range []string{"https://example.com/hook", ""} {
+		t.Run(url, func(t *testing.T) {
+			ts, seen := ntdServer(t, http.StatusOK, `{}`)
+			a, _ := ntdApp(ts.URL, false)
+			command := newsletterCmd(a)
+			command.SetArgs([]string{"webhook", "--url", url})
+			if err := command.Execute(); err != nil {
+				t.Fatal(err)
+			}
+			req := ntdOnly(t, seen)
+			if req.Method != http.MethodPut || req.Path != "/api/v1/settings/newsletter/webhook" {
+				t.Errorf("unexpected request: %+v", req)
+			}
+			body := ntdJSONBody(t, req.Body)
+			if value, ok := body["webhook_url"]; !ok || value != url || len(body) != 1 {
+				t.Errorf("unexpected webhook payload: %v", body)
+			}
+		})
+	}
+}
+
 func TestNewsletterTelemetryBillingCommands(t *testing.T) {
 	a := &app{}
 	billingStatusCmd := billingStatusCmd(a)
