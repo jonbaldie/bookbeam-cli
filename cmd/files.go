@@ -152,15 +152,9 @@ func filesDownloadCmd(a *app) *cobra.Command {
 
 			a.printer.Info(fmt.Sprintf("Downloading file to %s...", destPath))
 
-			outFile, err := os.Create(destPath)
+			n, err := saveDownload(destPath, resp.Body)
 			if err != nil {
-				return fmt.Errorf("failed to create destination file: %w", err)
-			}
-			defer outFile.Close()
-
-			n, err := io.Copy(outFile, resp.Body)
-			if err != nil {
-				return fmt.Errorf("failed to write file contents: %w", err)
+				return err
 			}
 
 			result := downloadResult{ProjectID: projectID, FileID: fileID, Path: destPath, BytesWritten: n}
@@ -169,6 +163,30 @@ func filesDownloadCmd(a *app) *cobra.Command {
 	}
 	cmd.Flags().StringP("output", "o", "", "Destination file path")
 	return cmd
+}
+
+// saveDownload stages beside the destination so a failed or interrupted copy
+// never changes the final path. A process killed before cleanup may leave a
+// hidden temporary file, but never a partial book under the destination name.
+func saveDownload(destPath string, body io.Reader) (int64, error) {
+	file, err := os.CreateTemp(filepath.Dir(destPath), ".bookbeam-download-*")
+	if err != nil {
+		return 0, fmt.Errorf("failed to create destination file: %w", err)
+	}
+	defer os.Remove(file.Name())
+	defer file.Close()
+
+	n, err := io.Copy(file, body)
+	if err != nil {
+		return 0, fmt.Errorf("failed to write file contents: %w", err)
+	}
+	if err := file.Close(); err != nil {
+		return 0, fmt.Errorf("failed to close downloaded file: %w", err)
+	}
+	if err := os.Rename(file.Name(), destPath); err != nil {
+		return 0, fmt.Errorf("failed to save downloaded file: %w", err)
+	}
+	return n, nil
 }
 
 func resolveDownloadDestination(outputFlag, dispositionHeader string, projectID, fileID int) string {
