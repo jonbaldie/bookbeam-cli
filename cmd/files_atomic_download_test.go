@@ -51,7 +51,7 @@ func TestFilesDownloadFailurePreservesDestination(t *testing.T) {
 						t.Fatal(err)
 					}
 				}
-				err := cmd.RunE(cmd, []string{"7", "16"})
+				err := runCommand(cmd, []string{"7", "16"})
 				if !errors.Is(err, io.ErrUnexpectedEOF) {
 					t.Fatalf("expected interrupted body, got %v", err)
 				}

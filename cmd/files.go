@@ -53,7 +53,7 @@ func filesListCmd(a *app) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%d/files", projectID), nil)
+			raw, err := a.apiCli.GetWithContext(cmd.Context(), fmt.Sprintf("/api/v1/projects/%d/files", projectID), nil)
 			if err != nil {
 				return err
 			}
@@ -112,7 +112,7 @@ func filesUploadCmd(a *app) *cobra.Command {
 
 			a.printer.Info(fmt.Sprintf("Uploading %s (%d bytes) to project #%d...", filepath.Base(filePath), stat.Size(), projectID))
 
-			raw, err := a.apiCli.PostMultipart(fmt.Sprintf("/api/v1/projects/%d/files", projectID), nil, "file", filePath)
+			raw, err := a.apiCli.PostMultipartWithContext(cmd.Context(), fmt.Sprintf("/api/v1/projects/%d/files", projectID), nil, "file", filePath)
 			if err != nil {
 				return err
 			}
@@ -142,7 +142,7 @@ func filesDownloadCmd(a *app) *cobra.Command {
 			}
 			outputFlag, _ := cmd.Flags().GetString("output")
 
-			resp, err := a.apiCli.Request(http.MethodGet, fmt.Sprintf("/api/v1/projects/%d/files/%d/download", projectID, fileID), nil, "")
+			resp, err := a.apiCli.RequestWithContext(cmd.Context(), http.MethodGet, fmt.Sprintf("/api/v1/projects/%d/files/%d/download", projectID, fileID), nil, "")
 			if err != nil {
 				return err
 			}
@@ -237,7 +237,7 @@ func filesDeleteCmd(a *app) *cobra.Command {
 				return nil
 			}
 
-			raw, err := a.apiCli.Delete(fmt.Sprintf("/api/v1/projects/%d/files/%d", projectID, fileID))
+			raw, err := a.apiCli.DeleteWithContext(cmd.Context(), fmt.Sprintf("/api/v1/projects/%d/files/%d", projectID, fileID))
 			if err != nil {
 				return err
 			}

@@ -55,7 +55,7 @@ func logsCmd(a *app) *cobra.Command {
 				query.Set("per_page", strconv.Itoa(min(limit, maxLogsPerPage)))
 			}
 
-			raw, err := a.apiCli.Get("/api/v1/logs", query)
+			raw, err := a.apiCli.GetWithContext(cmd.Context(), "/api/v1/logs", query)
 			if err != nil {
 				return err
 			}
@@ -136,7 +136,7 @@ func metricsCmd(a *app) *cobra.Command {
 		Use:   "metrics",
 		Short: "Display aggregated catalog and reader engagement metrics",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			raw, err := a.apiCli.Get("/api/v1/dashboard/metrics", nil)
+			raw, err := a.apiCli.GetWithContext(cmd.Context(), "/api/v1/dashboard/metrics", nil)
 			if err != nil {
 				return err
 			}

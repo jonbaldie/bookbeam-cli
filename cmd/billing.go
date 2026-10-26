@@ -75,7 +75,7 @@ func billingStatusCmd(a *app) *cobra.Command {
 		Use:   "status",
 		Short: "Show current team subscription status and active plan",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			raw, err := a.apiCli.Get("/api/v1/billing", nil)
+			raw, err := a.apiCli.GetWithContext(cmd.Context(), "/api/v1/billing", nil)
 			if err != nil {
 				return err
 			}
@@ -114,7 +114,7 @@ func billingCheckoutCmd(a *app) *cobra.Command {
 		Use:   "checkout",
 		Short: "Open or display the checkout link for the active plan",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			raw, err := a.apiCli.Get("/api/v1/billing", nil)
+			raw, err := a.apiCli.GetWithContext(cmd.Context(), "/api/v1/billing", nil)
 			if err != nil {
 				return err
 			}

@@ -47,7 +47,7 @@ func TestWhoamiJSONRedactsCredentialsAtOutputBoundary(t *testing.T) {
 		apiCli:   client.New(ts.URL, "test-token"),
 	}
 	cmd := whoamiCmd(a)
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatalf("run whoami: %v", err)
 	}
 	assertCredentialsRedacted(t, buf.String(), []string{"WHOAMI_TOKEN_SENTINEL", "WHOAMI_KEY_SENTINEL", "WHOAMI_AUTH_SENTINEL"}, 3)
@@ -72,7 +72,7 @@ func TestNewsletterStatusJSONRedactsCredentialsAtOutputBoundary(t *testing.T) {
 		apiCli:   client.New(ts.URL, "test-token"),
 	}
 	cmd := newsletterStatusCmd(a)
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatalf("run newsletter status: %v", err)
 	}
 	assertCredentialsRedacted(t, buf.String(), []string{"STATUS_TOKEN_SENTINEL", "STATUS_PASSWORD_SENTINEL"}, 2)
@@ -108,7 +108,7 @@ func TestNewsletterConfigureJSONRedactsResponseWithoutChangingRequest(t *testing
 	if err := cmd.Flags().Set("api-key", requestSecret); err != nil {
 		t.Fatal(err)
 	}
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatalf("run newsletter configure: %v", err)
 	}
 	if got := request["api_token"]; got != requestSecret {

@@ -28,7 +28,7 @@ func TestFilesDownloadSignalChild(t *testing.T) {
 	if err := cmd.Flags().Set("output", os.Getenv("BOOKBEAM_TEST_DOWNLOAD_OUTPUT")); err != nil {
 		t.Fatal(err)
 	}
-	if err := cmd.RunE(cmd, []string{"7", "16"}); err != nil {
+	if err := runCommand(cmd, []string{"7", "16"}); err != nil {
 		t.Fatal(err)
 	}
 	t.Fatal("download unexpectedly completed")

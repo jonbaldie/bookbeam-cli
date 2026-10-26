@@ -56,7 +56,7 @@ func TestFilesListAndUpload(t *testing.T) {
 	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
-	err := filesListCmd.RunE(filesListCmd, []string{"10"})
+	err := runCommand(filesListCmd, []string{"10"})
 	if err != nil {
 		t.Fatalf("unexpected files list error: %v", err)
 	}
@@ -77,7 +77,7 @@ func TestFilesListAndUpload(t *testing.T) {
 	}
 
 	buf.Reset()
-	err = filesUploadCmd.RunE(filesUploadCmd, []string{"10", dummyFile})
+	err = runCommand(filesUploadCmd, []string{"10", dummyFile})
 	if err != nil {
 		t.Fatalf("unexpected upload error: %v", err)
 	}
@@ -311,7 +311,7 @@ func TestFilesDownloadCmd(t *testing.T) {
 		a.apiCli = client.New(ts.URL, "test-token")
 
 		filesDownloadCmd.Flags().Set("output", "")
-		err := filesDownloadCmd.RunE(filesDownloadCmd, []string{"7", "16"})
+		err := runCommand(filesDownloadCmd, []string{"7", "16"})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -334,7 +334,7 @@ func TestFilesDownloadCmd(t *testing.T) {
 		a.apiCli = client.New(ts.URL, "test-token")
 
 		filesDownloadCmd.Flags().Set("output", "")
-		err := filesDownloadCmd.RunE(filesDownloadCmd, []string{"7", "99"})
+		err := runCommand(filesDownloadCmd, []string{"7", "99"})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -356,7 +356,7 @@ func TestFilesDownloadCmd(t *testing.T) {
 		filesDownloadCmd.Flags().Set("output", customDest)
 		defer filesDownloadCmd.Flags().Set("output", "")
 
-		err := filesDownloadCmd.RunE(filesDownloadCmd, []string{"7", "16"})
+		err := runCommand(filesDownloadCmd, []string{"7", "16"})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -378,7 +378,7 @@ func TestFilesDownloadCmd(t *testing.T) {
 		filesDownloadCmd.Flags().Set("output", customDest)
 		defer filesDownloadCmd.Flags().Set("output", "")
 
-		err := filesDownloadCmd.RunE(filesDownloadCmd, []string{"7", "16"})
+		err := runCommand(filesDownloadCmd, []string{"7", "16"})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -409,7 +409,7 @@ func TestFilesDownloadCmd(t *testing.T) {
 		filesDownloadCmd.Flags().Set("output", customDest)
 		defer filesDownloadCmd.Flags().Set("output", "")
 
-		err := filesDownloadCmd.RunE(filesDownloadCmd, []string{"7", "16"})
+		err := runCommand(filesDownloadCmd, []string{"7", "16"})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -426,7 +426,7 @@ func TestFilesDownloadCmd(t *testing.T) {
 		a.apiCli = client.New(ts.URL, "test-token")
 
 		filesDownloadCmd.Flags().Set("output", "")
-		err := filesDownloadCmd.RunE(filesDownloadCmd, []string{"7", "404"})
+		err := runCommand(filesDownloadCmd, []string{"7", "404"})
 		if err == nil {
 			t.Fatal("expected error, got nil")
 		}
@@ -440,7 +440,7 @@ func TestFilesDownloadCmd(t *testing.T) {
 		filesDownloadCmd.Flags().Set("output", "/non/existent/dir/file.epub")
 		defer filesDownloadCmd.Flags().Set("output", "")
 
-		err := filesDownloadCmd.RunE(filesDownloadCmd, []string{"7", "16"})
+		err := runCommand(filesDownloadCmd, []string{"7", "16"})
 		if err == nil {
 			t.Fatal("expected error for invalid destination path, got nil")
 		}
@@ -468,7 +468,7 @@ func TestFilesDeleteCmd(t *testing.T) {
 		filesDeleteCmd.Flags().Set("force", "true")
 		defer filesDeleteCmd.Flags().Set("force", "false")
 
-		err := filesDeleteCmd.RunE(filesDeleteCmd, []string{"7", "16"})
+		err := runCommand(filesDeleteCmd, []string{"7", "16"})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -486,7 +486,7 @@ func TestFilesDeleteCmd(t *testing.T) {
 		filesDeleteCmd.Flags().Set("force", "true")
 		defer filesDeleteCmd.Flags().Set("force", "false")
 
-		err := filesDeleteCmd.RunE(filesDeleteCmd, []string{"7", "16"})
+		err := runCommand(filesDeleteCmd, []string{"7", "16"})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -503,7 +503,7 @@ func TestFilesDeleteCmd(t *testing.T) {
 
 		filesDeleteCmd.Flags().Set("force", "false")
 
-		err := filesDeleteCmd.RunE(filesDeleteCmd, []string{"7", "16"})
+		err := runCommand(filesDeleteCmd, []string{"7", "16"})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -520,7 +520,7 @@ func TestFilesDeleteCmd(t *testing.T) {
 		filesDeleteCmd.Flags().Set("force", "true")
 		defer filesDeleteCmd.Flags().Set("force", "false")
 
-		err := filesDeleteCmd.RunE(filesDeleteCmd, []string{"7", "999"})
+		err := runCommand(filesDeleteCmd, []string{"7", "999"})
 		if err == nil {
 			t.Fatal("expected error, got nil")
 		}
@@ -533,7 +533,7 @@ func TestFilesDeleteCmd(t *testing.T) {
 
 		filesDeleteCmd.Flags().Set("force", "false")
 
-		err := filesDeleteCmd.RunE(filesDeleteCmd, []string{"7", "16"})
+		err := runCommand(filesDeleteCmd, []string{"7", "16"})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -549,7 +549,7 @@ func TestFilesDeleteCmd(t *testing.T) {
 
 		filesDeleteCmd.Flags().Set("force", "false")
 
-		err := filesDeleteCmd.RunE(filesDeleteCmd, []string{"7", "16"})
+		err := runCommand(filesDeleteCmd, []string{"7", "16"})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -582,7 +582,7 @@ func TestFilesListAndUploadVariations(t *testing.T) {
 		a.printer = &output.Printer{Out: &buf, JSON: false}
 		a.apiCli = client.New(ts.URL, "test-token")
 
-		err := filesListCmd.RunE(filesListCmd, []string{"1"})
+		err := runCommand(filesListCmd, []string{"1"})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -597,7 +597,7 @@ func TestFilesListAndUploadVariations(t *testing.T) {
 		defer func() { a.printer.JSON = false }()
 		a.apiCli = client.New(ts.URL, "test-token")
 
-		err := filesListCmd.RunE(filesListCmd, []string{"2"})
+		err := runCommand(filesListCmd, []string{"2"})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -612,7 +612,7 @@ func TestFilesListAndUploadVariations(t *testing.T) {
 		_ = os.WriteFile(txtFile, []byte("some notes"), 0644)
 
 		a.apiCli = client.New(ts.URL, "test-token")
-		err := filesUploadCmd.RunE(filesUploadCmd, []string{"1", txtFile})
+		err := runCommand(filesUploadCmd, []string{"1", txtFile})
 		if err == nil || !strings.Contains(err.Error(), "unsupported file extension") {
 			t.Fatalf("expected unsupported extension error, got: %v", err)
 		}
@@ -620,7 +620,7 @@ func TestFilesListAndUploadVariations(t *testing.T) {
 
 	t.Run("upload non-existent file", func(t *testing.T) {
 		a.apiCli = client.New(ts.URL, "test-token")
-		err := filesUploadCmd.RunE(filesUploadCmd, []string{"1", "/non/existent/file.epub"})
+		err := runCommand(filesUploadCmd, []string{"1", "/non/existent/file.epub"})
 		if err == nil || !strings.Contains(err.Error(), "file not found") {
 			t.Fatalf("expected file not found error, got: %v", err)
 		}

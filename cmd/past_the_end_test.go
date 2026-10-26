@@ -34,7 +34,7 @@ func TestProjectsListPastTheEndPage(t *testing.T) {
 		cmd := projectsListCmd(a)
 		_ = cmd.Flags().Set("page", "2")
 
-		if err := cmd.RunE(cmd, []string{}); err != nil {
+		if err := runCommand(cmd, []string{}); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 
@@ -60,7 +60,7 @@ func TestProjectsListPastTheEndPage(t *testing.T) {
 		cmd := projectsListCmd(a)
 		_ = cmd.Flags().Set("page", "2")
 
-		if err := cmd.RunE(cmd, []string{}); err != nil {
+		if err := runCommand(cmd, []string{}); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 
@@ -96,7 +96,7 @@ func TestDownloadersListPastTheEndPage(t *testing.T) {
 		cmd := downloadersListCmd(a)
 		_ = cmd.Flags().Set("page", "2")
 
-		if err := cmd.RunE(cmd, []string{"5"}); err != nil {
+		if err := runCommand(cmd, []string{"5"}); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 
@@ -122,7 +122,7 @@ func TestDownloadersListPastTheEndPage(t *testing.T) {
 		cmd := downloadersListCmd(a)
 		_ = cmd.Flags().Set("page", "2")
 
-		if err := cmd.RunE(cmd, []string{"5"}); err != nil {
+		if err := runCommand(cmd, []string{"5"}); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 
@@ -159,7 +159,7 @@ func TestLogsPastTheEndPage(t *testing.T) {
 		_ = cmd.Flags().Set("page", "99")
 		_ = cmd.Flags().Set("limit", "3")
 
-		if err := cmd.RunE(cmd, []string{}); err != nil {
+		if err := runCommand(cmd, []string{}); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 
@@ -186,7 +186,7 @@ func TestLogsPastTheEndPage(t *testing.T) {
 		_ = cmd.Flags().Set("page", "99")
 		_ = cmd.Flags().Set("limit", "3")
 
-		if err := cmd.RunE(cmd, []string{}); err != nil {
+		if err := runCommand(cmd, []string{}); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 
@@ -230,7 +230,7 @@ func TestLogsEventFilterNoMatchesOnPage(t *testing.T) {
 	_ = cmd.Flags().Set("event", "no-such-type")
 	_ = cmd.Flags().Set("limit", "3")
 
-	if err := cmd.RunE(cmd, []string{}); err != nil {
+	if err := runCommand(cmd, []string{}); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
@@ -266,7 +266,7 @@ func TestTrulyEmptyCollectionsKeepStandardNotice(t *testing.T) {
 			apiCli:   client.New(ts.URL, "test-token"),
 		}
 		cmd := projectsListCmd(a)
-		if err := cmd.RunE(cmd, []string{}); err != nil {
+		if err := runCommand(cmd, []string{}); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 		if got, want := buf.String(), "No book projects found. Create one with 'bookbeam projects create'.\n"; got != want {
@@ -293,7 +293,7 @@ func TestTrulyEmptyCollectionsKeepStandardNotice(t *testing.T) {
 			apiCli:   client.New(ts.URL, "test-token"),
 		}
 		cmd := downloadersListCmd(a)
-		if err := cmd.RunE(cmd, []string{"5"}); err != nil {
+		if err := runCommand(cmd, []string{"5"}); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 		if got, want := buf.String(), "No downloaders found for this project.\n"; got != want {
@@ -320,7 +320,7 @@ func TestTrulyEmptyCollectionsKeepStandardNotice(t *testing.T) {
 			apiCli:   client.New(ts.URL, "test-token"),
 		}
 		cmd := logsCmd(a)
-		if err := cmd.RunE(cmd, []string{}); err != nil {
+		if err := runCommand(cmd, []string{}); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 		if got, want := buf.String(), "No activity logs recorded.\n"; got != want {

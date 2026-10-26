@@ -22,7 +22,7 @@ func TestDirectTokenLoginAndLogout(t *testing.T) {
 	a.settings = testSettings(t, "http://localhost:8000", "")
 	_ = loginCmd.Flags().Set("token", "direct-token-abc")
 
-	err := loginCmd.RunE(loginCmd, []string{})
+	err := runCommand(loginCmd, []string{})
 	if err != nil {
 		t.Fatalf("unexpected login error: %v", err)
 	}
@@ -36,7 +36,7 @@ func TestDirectTokenLoginAndLogout(t *testing.T) {
 	}
 
 	buf.Reset()
-	err = logoutCmd.RunE(logoutCmd, []string{})
+	err = runCommand(logoutCmd, []string{})
 	if err != nil {
 		t.Fatalf("unexpected logout error: %v", err)
 	}
@@ -84,7 +84,7 @@ func TestWhoamiCommand(t *testing.T) {
 	a.settings = testSettings(t, ts.URL, "valid-token")
 	a.apiCli = client.New(ts.URL, "valid-token")
 
-	err := whoamiCmd.RunE(whoamiCmd, []string{})
+	err := runCommand(whoamiCmd, []string{})
 	if err != nil {
 		t.Fatalf("unexpected whoami error: %v", err)
 	}
@@ -165,7 +165,7 @@ func TestWhoamiJSONMasksNewsletterProviderCredentials(t *testing.T) {
 					t.Fatalf("find auth whoami command: %v", err)
 				}
 			}
-			if err := command.RunE(command, nil); err != nil {
+			if err := runCommand(command, nil); err != nil {
 				t.Fatalf("run whoami: %v", err)
 			}
 

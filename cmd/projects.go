@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -81,7 +82,7 @@ func projectsListCmd(a *app) *cobra.Command {
 				query.Set("page", strconv.Itoa(page))
 			}
 
-			raw, err := a.apiCli.Get("/api/v1/projects", query)
+			raw, err := a.apiCli.GetWithContext(cmd.Context(), "/api/v1/projects", query)
 			if err != nil {
 				return err
 			}
@@ -134,7 +135,7 @@ func projectsGetCmd(a *app) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%d", projectID), nil)
+			raw, err := a.apiCli.GetWithContext(cmd.Context(), fmt.Sprintf("/api/v1/projects/%d", projectID), nil)
 			if err != nil {
 				return err
 			}
@@ -185,11 +186,11 @@ func projectsCreateCmd(a *app) *cobra.Command {
 			if cover != "" {
 				form := formBody{}
 				fields.writeTo(form)
-				raw, err = a.apiCli.PostMultipart("/api/v1/projects", form, "cover_image", cover)
+				raw, err = a.apiCli.PostMultipartWithContext(cmd.Context(), "/api/v1/projects", form, "cover_image", cover)
 			} else {
 				payload := jsonBody{}
 				fields.writeTo(payload)
-				raw, err = a.apiCli.Post("/api/v1/projects", payload)
+				raw, err = a.apiCli.PostWithContext(cmd.Context(), "/api/v1/projects", payload)
 			}
 
 			if err != nil {
@@ -239,11 +240,11 @@ func projectsUpdateCmd(a *app) *cobra.Command {
 			if cover.value != "" {
 				form := formBody{"_method": "PUT"}
 				fields.writeTo(form)
-				raw, err = a.apiCli.PostMultipart(fmt.Sprintf("/api/v1/projects/%d", projectID), form, "cover_image", cover.value)
+				raw, err = a.apiCli.PostMultipartWithContext(cmd.Context(), fmt.Sprintf("/api/v1/projects/%d", projectID), form, "cover_image", cover.value)
 			} else {
 				payload := jsonBody{}
 				fields.writeTo(payload)
-				raw, err = a.apiCli.Put(fmt.Sprintf("/api/v1/projects/%d", projectID), payload)
+				raw, err = a.apiCli.PutWithContext(cmd.Context(), fmt.Sprintf("/api/v1/projects/%d", projectID), payload)
 			}
 
 			if err != nil {
@@ -277,7 +278,7 @@ func projectsDeleteCmd(a *app) *cobra.Command {
 				return nil
 			}
 
-			raw, err := a.apiCli.Delete(fmt.Sprintf("/api/v1/projects/%d", projectID))
+			raw, err := a.apiCli.DeleteWithContext(cmd.Context(), fmt.Sprintf("/api/v1/projects/%d", projectID))
 			if err != nil {
 				return err
 			}
@@ -289,8 +290,8 @@ func projectsDeleteCmd(a *app) *cobra.Command {
 	return cmd
 }
 
-func fetchExistingProject(a *app, projectID int) (*ProjectItem, error) {
-	raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%d", projectID), nil)
+func fetchExistingProject(ctx context.Context, a *app, projectID int) (*ProjectItem, error) {
+	raw, err := a.apiCli.GetWithContext(ctx, fmt.Sprintf("/api/v1/projects/%d", projectID), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -339,13 +340,13 @@ func projectsNewsletterCmd(a *app) *cobra.Command {
 			}
 
 			payload, err := projectNewsletterPayload(listID, tags, func() (*ProjectItem, error) {
-				return fetchExistingProject(a, projectID)
+				return fetchExistingProject(cmd.Context(), a, projectID)
 			})
 			if err != nil {
 				return err
 			}
 
-			raw, err := a.apiCli.Put(fmt.Sprintf("/api/v1/projects/%d/newsletter", projectID), payload)
+			raw, err := a.apiCli.PutWithContext(cmd.Context(), fmt.Sprintf("/api/v1/projects/%d/newsletter", projectID), payload)
 			if err != nil {
 				return err
 			}
