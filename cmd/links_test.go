@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -102,7 +103,7 @@ func TestLinksAndDownloadersCommands(t *testing.T) {
 	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
-	err := linksListCmd.RunE(linksListCmd, []string{"5"})
+	err := runCommand(linksListCmd, []string{"5"})
 	if err != nil {
 		t.Fatalf("unexpected links list error: %v", err)
 	}
@@ -111,7 +112,7 @@ func TestLinksAndDownloadersCommands(t *testing.T) {
 	}
 
 	buf.Reset()
-	err = downloadersListCmd.RunE(downloadersListCmd, []string{"5"})
+	err = runCommand(downloadersListCmd, []string{"5"})
 	if err != nil {
 		t.Fatalf("unexpected downloaders list error: %v", err)
 	}
@@ -129,7 +130,7 @@ func TestLinksAndDownloadersCommands(t *testing.T) {
 	_ = downloadersExportCmd.Flags().Set("output", exportFile)
 
 	buf.Reset()
-	err = downloadersExportCmd.RunE(downloadersExportCmd, []string{"5"})
+	err = runCommand(downloadersExportCmd, []string{"5"})
 	if err != nil {
 		t.Fatalf("unexpected export error: %v", err)
 	}
@@ -204,7 +205,7 @@ func TestLinksUpdateOnlyConsent(t *testing.T) {
 
 	_ = linksUpdateCmd.Flags().Set("consent", "Updated consent text")
 
-	err := linksUpdateCmd.RunE(linksUpdateCmd, []string{"5", "201"})
+	err := runCommand(linksUpdateCmd, []string{"5", "201"})
 	if err != nil {
 		t.Fatalf("links update failed with error: %v", err)
 	}
@@ -231,7 +232,7 @@ func TestLinksUpdateOnlyTitlePreservesConsent(t *testing.T) {
 
 	_ = linksUpdateCmd.Flags().Set("title", "New Magnet Title")
 
-	err := linksUpdateCmd.RunE(linksUpdateCmd, []string{"5", "201"})
+	err := runCommand(linksUpdateCmd, []string{"5", "201"})
 	if err != nil {
 		t.Fatalf("links update failed with error: %v", err)
 	}
@@ -258,7 +259,7 @@ func TestLinksUpdateClearConsent(t *testing.T) {
 
 	_ = linksUpdateCmd.Flags().Set("clear-consent", "true")
 
-	err := linksUpdateCmd.RunE(linksUpdateCmd, []string{"5", "201"})
+	err := runCommand(linksUpdateCmd, []string{"5", "201"})
 	if err != nil {
 		t.Fatalf("links update failed: %v", err)
 	}
@@ -280,7 +281,7 @@ func TestLinksUpdateBothConsentAndClearConsentError(t *testing.T) {
 	_ = linksUpdateCmd.Flags().Set("consent", "Some consent")
 	_ = linksUpdateCmd.Flags().Set("clear-consent", "true")
 
-	err := linksUpdateCmd.RunE(linksUpdateCmd, []string{"5", "201"})
+	err := runCommand(linksUpdateCmd, []string{"5", "201"})
 	if err == nil {
 		t.Fatal("expected error when both --consent and --clear-consent are specified, got nil")
 	}
@@ -302,7 +303,7 @@ func TestLinksUpdateLinkNotFound(t *testing.T) {
 
 	_ = linksUpdateCmd.Flags().Set("consent", "New consent")
 
-	err := linksUpdateCmd.RunE(linksUpdateCmd, []string{"5", "999"})
+	err := runCommand(linksUpdateCmd, []string{"5", "999"})
 	if err == nil {
 		t.Fatal("expected error when link not found, got nil")
 	}
@@ -340,7 +341,7 @@ func TestLinksUpdateBothTitleAndConsentExplicit(t *testing.T) {
 	_ = linksUpdateCmd.Flags().Set("title", "Explicit Title")
 	_ = linksUpdateCmd.Flags().Set("consent", "Explicit Consent")
 
-	err := linksUpdateCmd.RunE(linksUpdateCmd, []string{"5", "201"})
+	err := runCommand(linksUpdateCmd, []string{"5", "201"})
 	if err != nil {
 		t.Fatalf("links update failed: %v", err)
 	}
@@ -365,7 +366,7 @@ func TestLinksUpdateNoFlagsPreservesAll(t *testing.T) {
 	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
-	err := linksUpdateCmd.RunE(linksUpdateCmd, []string{"5", "201"})
+	err := runCommand(linksUpdateCmd, []string{"5", "201"})
 	if err != nil {
 		t.Fatalf("links update with no flags failed: %v", err)
 	}
@@ -464,7 +465,7 @@ func TestLinksCreateAndForceDelete(t *testing.T) {
 	_ = linksCreateCmd.Flags().Set("title", "Fresh Link")
 	_ = linksCreateCmd.Flags().Set("consent", "Consent Text")
 
-	err := linksCreateCmd.RunE(linksCreateCmd, []string{"5"})
+	err := runCommand(linksCreateCmd, []string{"5"})
 	if err != nil {
 		t.Fatalf("create failed: %v", err)
 	}
@@ -476,7 +477,7 @@ func TestLinksCreateAndForceDelete(t *testing.T) {
 	}
 
 	_ = linksDeleteCmd.Flags().Set("force", "true")
-	err = linksDeleteCmd.RunE(linksDeleteCmd, []string{"5", "301"})
+	err = runCommand(linksDeleteCmd, []string{"5", "301"})
 	if err != nil {
 		t.Fatalf("delete failed: %v", err)
 	}
@@ -503,7 +504,7 @@ func TestLinksUpdateJSONOutput(t *testing.T) {
 	_ = linksUpdateCmd.Flags().Set("title", "JSON Title")
 	_ = linksUpdateCmd.Flags().Set("consent", "JSON Consent")
 
-	err := linksUpdateCmd.RunE(linksUpdateCmd, []string{"5", "201"})
+	err := runCommand(linksUpdateCmd, []string{"5", "201"})
 	if err != nil {
 		t.Fatalf("update with JSON output failed: %v", err)
 	}
@@ -546,7 +547,7 @@ func TestLinksUpdateEmptyExistingConsent(t *testing.T) {
 
 	_ = linksUpdateCmd.Flags().Set("title", "Updated Title Only")
 
-	err := linksUpdateCmd.RunE(linksUpdateCmd, []string{"5", "201"})
+	err := runCommand(linksUpdateCmd, []string{"5", "201"})
 	if err != nil {
 		t.Fatalf("update failed: %v", err)
 	}
@@ -570,7 +571,7 @@ func TestLinksUpdateAPIErrors(t *testing.T) {
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	// Should fail fetching existing
-	err := linksUpdateCmd.RunE(linksUpdateCmd, []string{"5", "201"})
+	err := runCommand(linksUpdateCmd, []string{"5", "201"})
 	if err == nil || !strings.Contains(err.Error(), "500") {
 		t.Fatalf("expected error containing 500 during fetch, got: %v", err)
 	}
@@ -578,7 +579,7 @@ func TestLinksUpdateAPIErrors(t *testing.T) {
 	// Should fail on PUT when title and consent are given
 	_ = linksUpdateCmd.Flags().Set("title", "T")
 	_ = linksUpdateCmd.Flags().Set("consent", "C")
-	err = linksUpdateCmd.RunE(linksUpdateCmd, []string{"5", "201"})
+	err = runCommand(linksUpdateCmd, []string{"5", "201"})
 	if err == nil || !strings.Contains(err.Error(), "500") {
 		t.Fatalf("expected error containing 500 during PUT, got: %v", err)
 	}
@@ -595,7 +596,7 @@ func TestFetchExistingLinkInvalidJSON(t *testing.T) {
 	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
-	_, err := fetchExistingLink(a, 5, 201)
+	_, err := fetchExistingLink(context.Background(), a, 5, 201)
 	if err == nil || !strings.Contains(err.Error(), "invalid character") {
 		t.Fatalf("expected json unmarshal error with 'invalid character', got: %v", err)
 	}
@@ -628,7 +629,7 @@ func TestLinksCreateVariations(t *testing.T) {
 	}()
 
 	_ = linksCreateCmd.Flags().Set("title", "Only Title")
-	err := linksCreateCmd.RunE(linksCreateCmd, []string{"5"})
+	err := runCommand(linksCreateCmd, []string{"5"})
 	if err != nil {
 		t.Fatalf("create failed: %v", err)
 	}
@@ -662,7 +663,7 @@ func TestLinksDeleteJSONOutput(t *testing.T) {
 		a.printer = &output.Printer{Out: os.Stdout, JSON: false}
 	}()
 
-	err := linksDeleteCmd.RunE(linksDeleteCmd, []string{"5", "501"})
+	err := runCommand(linksDeleteCmd, []string{"5", "501"})
 	if err != nil {
 		t.Fatalf("delete failed: %v", err)
 	}

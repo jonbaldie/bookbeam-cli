@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/jonbaldie/bookbeam-cli/pkg/client"
@@ -17,7 +20,7 @@ type app struct {
 	apiCli   *client.Client
 	printer  *output.Printer
 	openURL  func(url string)
-	sleep    func(d time.Duration)
+	sleep    func(context.Context, time.Duration) error
 }
 
 // NewRootCmd builds the full bookbeam command tree over the process
@@ -28,7 +31,7 @@ func NewRootCmd() *cobra.Command {
 
 // newRootCmd builds the command tree, resolving settings from getenv and home.
 func newRootCmd(getenv func(string) string, home func() (string, error)) *cobra.Command {
-	a := &app{openURL: openBrowser, sleep: time.Sleep}
+	a := &app{openURL: openBrowser, sleep: waitContext}
 	var host, token string
 	var jsonOutput, quiet bool
 
@@ -88,5 +91,18 @@ func resolveSettings(getenv func(string) string, home func() (string, error), fl
 
 // Execute runs the command tree and returns the error that ended it.
 func Execute() error {
-	return NewRootCmd().Execute()
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	return NewRootCmd().ExecuteContext(ctx)
+}
+
+func waitContext(ctx context.Context, duration time.Duration) error {
+	timer := time.NewTimer(duration)
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+		return nil
+	}
 }

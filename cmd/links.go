@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -44,7 +45,7 @@ func linksListCmd(a *app) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%d/links", projectID), nil)
+			raw, err := a.apiCli.GetWithContext(cmd.Context(), fmt.Sprintf("/api/v1/projects/%d/links", projectID), nil)
 			if err != nil {
 				return err
 			}
@@ -82,8 +83,8 @@ func linksListCmd(a *app) *cobra.Command {
 	}
 }
 
-func fetchExistingLink(a *app, projectID, linkID int) (*SignupLinkItem, error) {
-	raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%d/links", projectID), nil)
+func fetchExistingLink(ctx context.Context, a *app, projectID, linkID int) (*SignupLinkItem, error) {
+	raw, err := a.apiCli.GetWithContext(ctx, fmt.Sprintf("/api/v1/projects/%d/links", projectID), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +126,7 @@ func linksCreateCmd(a *app) *cobra.Command {
 				payload["opt_in_text"] = consent
 			}
 
-			raw, err := a.apiCli.Post(fmt.Sprintf("/api/v1/projects/%d/links", projectID), payload)
+			raw, err := a.apiCli.PostWithContext(cmd.Context(), fmt.Sprintf("/api/v1/projects/%d/links", projectID), payload)
 			if err != nil {
 				return err
 			}
@@ -167,13 +168,13 @@ func linksUpdateCmd(a *app) *cobra.Command {
 			}
 
 			payload, err := linkUpdatePayload(title, consent, func() (*SignupLinkItem, error) {
-				return fetchExistingLink(a, projectID, linkID)
+				return fetchExistingLink(cmd.Context(), a, projectID, linkID)
 			})
 			if err != nil {
 				return err
 			}
 
-			raw, err := a.apiCli.Put(fmt.Sprintf("/api/v1/projects/%d/links/%d", projectID, linkID), payload)
+			raw, err := a.apiCli.PutWithContext(cmd.Context(), fmt.Sprintf("/api/v1/projects/%d/links/%d", projectID, linkID), payload)
 			if err != nil {
 				return err
 			}
@@ -203,7 +204,7 @@ func linksDeleteCmd(a *app) *cobra.Command {
 				return nil
 			}
 
-			raw, err := a.apiCli.Delete(fmt.Sprintf("/api/v1/projects/%d/links/%d", projectID, linkID))
+			raw, err := a.apiCli.DeleteWithContext(cmd.Context(), fmt.Sprintf("/api/v1/projects/%d/links/%d", projectID, linkID))
 			if err != nil {
 				return err
 			}

@@ -137,7 +137,7 @@ func TestNewsletterTelemetryBillingCommands(t *testing.T) {
 	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
-	err := newsletterStatusCmd.RunE(newsletterStatusCmd, []string{})
+	err := runCommand(newsletterStatusCmd, []string{})
 	if err != nil {
 		t.Fatalf("unexpected newsletter status error: %v", err)
 	}
@@ -146,7 +146,7 @@ func TestNewsletterTelemetryBillingCommands(t *testing.T) {
 	}
 
 	buf.Reset()
-	err = logsCmd.RunE(logsCmd, []string{})
+	err = runCommand(logsCmd, []string{})
 	if err != nil {
 		t.Fatalf("unexpected logs error: %v", err)
 	}
@@ -155,7 +155,7 @@ func TestNewsletterTelemetryBillingCommands(t *testing.T) {
 	}
 
 	buf.Reset()
-	err = metricsCmd.RunE(metricsCmd, []string{})
+	err = runCommand(metricsCmd, []string{})
 	if err != nil {
 		t.Fatalf("unexpected metrics error: %v", err)
 	}
@@ -164,7 +164,7 @@ func TestNewsletterTelemetryBillingCommands(t *testing.T) {
 	}
 
 	buf.Reset()
-	err = billingStatusCmd.RunE(billingStatusCmd, []string{})
+	err = runCommand(billingStatusCmd, []string{})
 	if err != nil {
 		t.Fatalf("unexpected billing status error: %v", err)
 	}
@@ -234,7 +234,7 @@ func TestNewsletterStatusUsesProviderAndToken(t *testing.T) {
 		apiCli:   client.New(ts.URL, "test-token"),
 	}
 	cmd := newsletterStatusCmd(a)
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatalf("unexpected newsletter status error: %v", err)
 	}
 	got := buf.String()
@@ -267,7 +267,7 @@ func TestNewsletterListsUsesDataArray(t *testing.T) {
 		apiCli:   client.New(ts.URL, "test-token"),
 	}
 	cmd := newsletterListsCmd(a)
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatalf("unexpected newsletter lists error: %v", err)
 	}
 	got := buf.String()
@@ -316,7 +316,7 @@ func TestNewsletterConfigureMatchesProviderAPIContract(t *testing.T) {
 	_ = cmd.Flags().Set("api-key", "mc_secret_key")
 	_ = cmd.Flags().Set("endpoint", "https://mailcoach.example.com")
 
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatalf("configure failed: %v", err)
 	}
 	got := *validated
@@ -346,7 +346,7 @@ func TestNewsletterConfigureOmitsAPIURLWithoutEndpoint(t *testing.T) {
 	_ = cmd.Flags().Set("provider", "mailerlite")
 	_ = cmd.Flags().Set("api-key", "ml_secret_key")
 
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatalf("configure failed: %v", err)
 	}
 	got := *validated

@@ -77,7 +77,7 @@ func flpRun(t *testing.T, c *cobra.Command, flags map[string]string, args ...str
 			t.Fatalf("set flag %s: %v", k, err)
 		}
 	}
-	return c.RunE(c, args)
+	return runCommand(c, args)
 }
 
 func flpWriteFile(t *testing.T, name, content string) string {

@@ -50,7 +50,7 @@ func downloadersListCmd(a *app) *cobra.Command {
 				query.Set("page", strconv.Itoa(page))
 			}
 
-			raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%d/downloaders", projectID), query)
+			raw, err := a.apiCli.GetWithContext(cmd.Context(), fmt.Sprintf("/api/v1/projects/%d/downloaders", projectID), query)
 			if err != nil {
 				return err
 			}
@@ -109,7 +109,7 @@ func downloadersExportCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			raw, err := a.apiCli.Get(fmt.Sprintf("/api/v1/projects/%d/export-downloaders", projectID), nil)
+			raw, err := a.apiCli.GetWithContext(cmd.Context(), fmt.Sprintf("/api/v1/projects/%d/export-downloaders", projectID), nil)
 			if err != nil {
 				return err
 			}

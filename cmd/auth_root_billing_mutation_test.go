@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -93,14 +94,14 @@ func arbNewHarness(t *testing.T, handler http.HandlerFunc, jsonOut bool) *arbHar
 		apiCli:   client.New(base, "tok"),
 		printer:  &output.Printer{Out: h.out, JSON: jsonOut},
 		openURL:  func(url string) { h.opened = append(h.opened, url) },
-		sleep:    func(d time.Duration) { h.sleeps = append(h.sleeps, d) },
+		sleep:    func(_ context.Context, d time.Duration) error { h.sleeps = append(h.sleeps, d); return nil },
 	}
 	return h
 }
 
 func arbRun(t *testing.T, cmd *cobra.Command, args ...string) error {
 	t.Helper()
-	return cmd.RunE(cmd, args)
+	return runCommand(cmd, args)
 }
 
 type arbFailingWriter struct{}
@@ -432,7 +433,7 @@ func TestARBCompletionRejectsBadArgs(t *testing.T) {
 
 func TestARBCompletionUnsupportedShellDirect(t *testing.T) {
 	cmd := completionCmd()
-	err := cmd.RunE(cmd, []string{"tcsh"})
+	err := runCommand(cmd, []string{"tcsh"})
 	if err == nil || err.Error() != "unsupported shell type tcsh" {
 		t.Fatalf("got %v", err)
 	}
@@ -640,8 +641,8 @@ func TestARBPollDeviceTokenStopsAtDeadline(t *testing.T) {
 		arbWriteJSON(w, 400, `{"error":"authorization_pending"}`)
 	}))
 	defer ts.Close()
-	sleep := func(time.Duration) { time.Sleep(600 * time.Millisecond) }
-	_, err := pollDeviceToken(client.New(ts.URL, ""), DeviceCodeResponse{DeviceCode: "d", ExpiresIn: 1, Interval: 1}, sleep)
+	sleep := func(context.Context, time.Duration) error { time.Sleep(600 * time.Millisecond); return nil }
+	_, err := pollDeviceToken(context.Background(), client.New(ts.URL, ""), DeviceCodeResponse{DeviceCode: "d", ExpiresIn: 1, Interval: 1}, sleep)
 	if err == nil || !strings.Contains(err.Error(), "timed out") {
 		t.Fatalf("got %v", err)
 	}
@@ -728,7 +729,7 @@ func TestARBPollDeviceTokenNetworkError(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
 	url := ts.URL
 	ts.Close()
-	token, err := pollDeviceToken(client.New(url, ""), DeviceCodeResponse{ExpiresIn: 60, Interval: 1}, func(time.Duration) {})
+	token, err := pollDeviceToken(context.Background(), client.New(url, ""), DeviceCodeResponse{ExpiresIn: 60, Interval: 1}, func(context.Context, time.Duration) error { return nil })
 	if err == nil || token != "" {
 		t.Fatalf("got %q, %v", token, err)
 	}

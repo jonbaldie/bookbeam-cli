@@ -142,7 +142,7 @@ func TestNtdDownloadersListRequestsPageAndPrintsTable(t *testing.T) {
 	a, buf := ntdApp(ts.URL, false)
 	cmd := downloadersListCmd(a)
 
-	if err := cmd.RunE(cmd, []string{"9"}); err != nil {
+	if err := runCommand(cmd, []string{"9"}); err != nil {
 		t.Fatal(err)
 	}
 	req := ntdOnly(t, seen)
@@ -165,7 +165,7 @@ func TestNtdDownloadersListPageFlag(t *testing.T) {
 		a, _ := ntdApp(ts.URL, false)
 		cmd := downloadersListCmd(a)
 		_ = cmd.Flags().Set("page", page)
-		if err := cmd.RunE(cmd, []string{"9"}); err != nil {
+		if err := runCommand(cmd, []string{"9"}); err != nil {
 			t.Fatal(err)
 		}
 		if got := ntdOnly(t, seen).Query; got != query {
@@ -178,7 +178,7 @@ func TestNtdDownloadersListEmptyJSONAndErrors(t *testing.T) {
 	ts, _ := ntdServer(t, 200, `{"data":[],"current_page":1,"last_page":1,"total":0}`)
 	a, buf := ntdApp(ts.URL, false)
 	cmd := downloadersListCmd(a)
-	if err := cmd.RunE(cmd, []string{"9"}); err != nil {
+	if err := runCommand(cmd, []string{"9"}); err != nil {
 		t.Fatal(err)
 	}
 	if buf.String() != "No downloaders found for this project.\n" {
@@ -188,7 +188,7 @@ func TestNtdDownloadersListEmptyJSONAndErrors(t *testing.T) {
 	ts, _ = ntdServer(t, 200, `{"data":[{"email":"x"}]}`)
 	a, buf = ntdApp(ts.URL, true)
 	cmd = downloadersListCmd(a)
-	if err := cmd.RunE(cmd, []string{"9"}); err != nil {
+	if err := runCommand(cmd, []string{"9"}); err != nil {
 		t.Fatal(err)
 	}
 	if buf.String() != "{\n  \"data\": [\n    {\n      \"email\": \"x\"\n    }\n  ]\n}\n" {
@@ -198,7 +198,7 @@ func TestNtdDownloadersListEmptyJSONAndErrors(t *testing.T) {
 	ts, _ = ntdServer(t, 200, `not json`)
 	a, buf = ntdApp(ts.URL, false)
 	cmd = downloadersListCmd(a)
-	if err := cmd.RunE(cmd, []string{"9"}); err == nil {
+	if err := runCommand(cmd, []string{"9"}); err == nil {
 		t.Error("expected parse error")
 	}
 	if buf.Len() != 0 {
@@ -208,7 +208,7 @@ func TestNtdDownloadersListEmptyJSONAndErrors(t *testing.T) {
 	ts, _ = ntdServer(t, 403, `{"message":"Forbidden"}`)
 	a, buf = ntdApp(ts.URL, false)
 	cmd = downloadersListCmd(a)
-	if err := cmd.RunE(cmd, []string{"9"}); err == nil || err.Error() != "API error (403): Forbidden" {
+	if err := runCommand(cmd, []string{"9"}); err == nil || err.Error() != "API error (403): Forbidden" {
 		t.Errorf("expected API error, got %v", err)
 	}
 	if buf.Len() != 0 {
@@ -223,7 +223,7 @@ func TestNtdDownloadersExportWritesCSV(t *testing.T) {
 	dest := filepath.Join(t.TempDir(), "out.csv")
 	_ = cmd.Flags().Set("output", dest)
 
-	if err := cmd.RunE(cmd, []string{"12"}); err != nil {
+	if err := runCommand(cmd, []string{"12"}); err != nil {
 		t.Fatal(err)
 	}
 	req := ntdOnly(t, seen)
@@ -257,7 +257,7 @@ func TestNtdDownloadersExportDefaultPath(t *testing.T) {
 	}
 	t.Cleanup(func() { _ = os.Chdir(wd) })
 
-	if err := cmd.RunE(cmd, []string{"12"}); err != nil {
+	if err := runCommand(cmd, []string{"12"}); err != nil {
 		t.Fatal(err)
 	}
 	data, err := os.ReadFile(filepath.Join(dir, "downloaders-project-12.csv"))
@@ -275,7 +275,7 @@ func TestNtdDownloadersExportErrors(t *testing.T) {
 	cmd := downloadersExportCmd(a)
 	dest := filepath.Join(t.TempDir(), "out.csv")
 	_ = cmd.Flags().Set("output", dest)
-	if err := cmd.RunE(cmd, []string{"12"}); err == nil || err.Error() != "API error (404): Not found" {
+	if err := runCommand(cmd, []string{"12"}); err == nil || err.Error() != "API error (404): Not found" {
 		t.Errorf("expected API error, got %v", err)
 	}
 	if _, err := os.Stat(dest); !os.IsNotExist(err) {
@@ -289,7 +289,7 @@ func TestNtdDownloadersExportErrors(t *testing.T) {
 	a, buf = ntdApp(ts.URL, false)
 	cmd = downloadersExportCmd(a)
 	_ = cmd.Flags().Set("output", filepath.Join(t.TempDir(), "missing", "out.csv"))
-	err := cmd.RunE(cmd, []string{"12"})
+	err := runCommand(cmd, []string{"12"})
 	if err == nil || !strings.HasPrefix(err.Error(), "failed to save CSV file: ") {
 		t.Errorf("expected save error, got %v", err)
 	}
@@ -321,7 +321,7 @@ func TestNtdNewsletterStatusText(t *testing.T) {
 			ts, seen := ntdServer(t, 200, tc.body)
 			a, buf := ntdApp(ts.URL, false)
 			cmd := newsletterStatusCmd(a)
-			if err := cmd.RunE(cmd, nil); err != nil {
+			if err := runCommand(cmd, nil); err != nil {
 				t.Fatal(err)
 			}
 			req := ntdOnly(t, seen)
@@ -339,7 +339,7 @@ func TestNtdNewsletterStatusJSONAndErrors(t *testing.T) {
 	ts, _ := ntdServer(t, 200, `{"provider":"kit"}`)
 	a, buf := ntdApp(ts.URL, true)
 	cmd := newsletterStatusCmd(a)
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
 	if buf.String() != "{\n  \"configured\": false,\n  \"provider\": \"kit\"\n}\n" {
@@ -349,7 +349,7 @@ func TestNtdNewsletterStatusJSONAndErrors(t *testing.T) {
 	ts, _ = ntdServer(t, 200, `[1]`)
 	a, buf = ntdApp(ts.URL, false)
 	cmd = newsletterStatusCmd(a)
-	if err := cmd.RunE(cmd, nil); err == nil {
+	if err := runCommand(cmd, nil); err == nil {
 		t.Error("expected parse error")
 	}
 	if buf.Len() != 0 {
@@ -359,7 +359,7 @@ func TestNtdNewsletterStatusJSONAndErrors(t *testing.T) {
 	ts, _ = ntdServer(t, 500, `{"message":"Boom"}`)
 	a, buf = ntdApp(ts.URL, false)
 	cmd = newsletterStatusCmd(a)
-	if err := cmd.RunE(cmd, nil); err == nil || err.Error() != "API error (500): Boom" {
+	if err := runCommand(cmd, nil); err == nil || err.Error() != "API error (500): Boom" {
 		t.Errorf("expected API error, got %v", err)
 	}
 	if buf.Len() != 0 {
@@ -380,7 +380,7 @@ func TestNtdNewsletterConfigureValidation(t *testing.T) {
 		cmd := newsletterConfigureCmd(a)
 		_ = cmd.Flags().Set("provider", tc.provider)
 		_ = cmd.Flags().Set("api-key", tc.apiKey)
-		err := cmd.RunE(cmd, nil)
+		err := runCommand(cmd, nil)
 		if err == nil || err.Error() != tc.want {
 			t.Errorf("got %v, want %q", err, tc.want)
 		}
@@ -398,7 +398,7 @@ func TestNtdNewsletterConfigureSendsProvider(t *testing.T) {
 	_ = cmd.Flags().Set("api-key", "secret")
 	_ = cmd.Flags().Set("endpoint", "https://example.com/api")
 
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
 	req := ntdOnly(t, seen)
@@ -420,7 +420,7 @@ func TestNtdNewsletterConfigureWithoutEndpointJSONAndError(t *testing.T) {
 	cmd := newsletterConfigureCmd(a)
 	_ = cmd.Flags().Set("provider", "kit")
 	_ = cmd.Flags().Set("api-key", "secret")
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
 	body := ntdJSONBody(t, ntdOnly(t, seen).Body)
@@ -436,7 +436,7 @@ func TestNtdNewsletterConfigureWithoutEndpointJSONAndError(t *testing.T) {
 	cmd = newsletterConfigureCmd(a)
 	_ = cmd.Flags().Set("provider", "kit")
 	_ = cmd.Flags().Set("api-key", "bad")
-	if err := cmd.RunE(cmd, nil); err == nil || err.Error() != "API error (422): Invalid key" {
+	if err := runCommand(cmd, nil); err == nil || err.Error() != "API error (422): Invalid key" {
 		t.Errorf("expected API error, got %v", err)
 	}
 	if buf.Len() != 0 {
@@ -448,7 +448,7 @@ func TestNtdNewsletterDisconnect(t *testing.T) {
 	ts, seen := ntdServer(t, 200, `{"message":"ok"}`)
 	a, buf := ntdApp(ts.URL, false)
 	cmd := newsletterDisconnectCmd(a)
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
 	req := ntdOnly(t, seen)
@@ -462,7 +462,7 @@ func TestNtdNewsletterDisconnect(t *testing.T) {
 	ts, _ = ntdServer(t, 200, `{"message":"ok"}`)
 	a, buf = ntdApp(ts.URL, true)
 	cmd = newsletterDisconnectCmd(a)
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
 	if buf.String() != "{\n  \"message\": \"ok\"\n}\n" {
@@ -472,7 +472,7 @@ func TestNtdNewsletterDisconnect(t *testing.T) {
 	ts, _ = ntdServer(t, 500, `{"message":"Boom"}`)
 	a, buf = ntdApp(ts.URL, false)
 	cmd = newsletterDisconnectCmd(a)
-	if err := cmd.RunE(cmd, nil); err == nil || err.Error() != "API error (500): Boom" {
+	if err := runCommand(cmd, nil); err == nil || err.Error() != "API error (500): Boom" {
 		t.Errorf("expected API error, got %v", err)
 	}
 	if buf.Len() != 0 {
@@ -492,7 +492,7 @@ func TestNtdNewsletterWebhook(t *testing.T) {
 		a, buf := ntdApp(ts.URL, false)
 		cmd := newsletterWebhookCmd(a)
 		_ = cmd.Flags().Set("url", tc.url)
-		if err := cmd.RunE(cmd, nil); err != nil {
+		if err := runCommand(cmd, nil); err != nil {
 			t.Fatal(err)
 		}
 		req := ntdOnly(t, seen)
@@ -512,7 +512,7 @@ func TestNtdNewsletterWebhook(t *testing.T) {
 	a, buf := ntdApp(ts.URL, true)
 	cmd := newsletterWebhookCmd(a)
 	_ = cmd.Flags().Set("url", "")
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
 	if buf.String() != "{\n  \"webhook_url\": null\n}\n" {
@@ -523,7 +523,7 @@ func TestNtdNewsletterWebhook(t *testing.T) {
 	a, buf = ntdApp(ts.URL, false)
 	cmd = newsletterWebhookCmd(a)
 	_ = cmd.Flags().Set("url", "https://example.com/hook")
-	if err := cmd.RunE(cmd, nil); err == nil || err.Error() != "API error (422): Bad URL" {
+	if err := runCommand(cmd, nil); err == nil || err.Error() != "API error (422): Bad URL" {
 		t.Errorf("expected API error, got %v", err)
 	}
 	if buf.Len() != 0 {
@@ -549,7 +549,7 @@ func TestNtdNewsletterListsText(t *testing.T) {
 			ts, seen := ntdServer(t, 200, tc.body)
 			a, buf := ntdApp(ts.URL, false)
 			cmd := newsletterListsCmd(a)
-			if err := cmd.RunE(cmd, nil); err != nil {
+			if err := runCommand(cmd, nil); err != nil {
 				t.Fatal(err)
 			}
 			req := ntdOnly(t, seen)
@@ -567,7 +567,7 @@ func TestNtdNewsletterListsJSONAndErrors(t *testing.T) {
 	ts, _ := ntdServer(t, 200, `{"lists":[]}`)
 	a, buf := ntdApp(ts.URL, true)
 	cmd := newsletterListsCmd(a)
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
 	if buf.String() != "{\n  \"lists\": []\n}\n" {
@@ -577,7 +577,7 @@ func TestNtdNewsletterListsJSONAndErrors(t *testing.T) {
 	ts, _ = ntdServer(t, 200, `nope`)
 	a, buf = ntdApp(ts.URL, false)
 	cmd = newsletterListsCmd(a)
-	if err := cmd.RunE(cmd, nil); err == nil {
+	if err := runCommand(cmd, nil); err == nil {
 		t.Error("expected parse error")
 	}
 	if buf.Len() != 0 {
@@ -587,7 +587,7 @@ func TestNtdNewsletterListsJSONAndErrors(t *testing.T) {
 	ts, _ = ntdServer(t, 400, `{"message":"Not configured"}`)
 	a, buf = ntdApp(ts.URL, false)
 	cmd = newsletterListsCmd(a)
-	if err := cmd.RunE(cmd, nil); err == nil || err.Error() != "API error (400): Not configured" {
+	if err := runCommand(cmd, nil); err == nil || err.Error() != "API error (400): Not configured" {
 		t.Errorf("expected API error, got %v", err)
 	}
 	if buf.Len() != 0 {
@@ -629,7 +629,7 @@ func TestNtdLogsQueryFlags(t *testing.T) {
 				_ = cmd.Flags().Set("limit", tc.limit)
 			}
 			_ = cmd.Flags().Set("event", tc.event)
-			if err := cmd.RunE(cmd, nil); err != nil {
+			if err := runCommand(cmd, nil); err != nil {
 				t.Fatal(err)
 			}
 			req := ntdOnly(t, seen)
@@ -645,7 +645,7 @@ func TestNtdLogsProductionShape(t *testing.T) {
 	ts, _ := ntdServer(t, 200, ntdLogsPage)
 	a, buf := ntdApp(ts.URL, false)
 	cmd := logsCmd(a)
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatalf("logs failed on the production shape: %v", err)
 	}
 	want := "TIME                          TYPE       READER               BOOK                     FILE\n" +
@@ -674,7 +674,7 @@ func TestNtdLogsEventFilter(t *testing.T) {
 			a, buf := ntdApp(ts.URL, false)
 			cmd := logsCmd(a)
 			_ = cmd.Flags().Set("event", tc.event)
-			if err := cmd.RunE(cmd, nil); err != nil {
+			if err := runCommand(cmd, nil); err != nil {
 				t.Fatal(err)
 			}
 			for _, want := range tc.wantRows {
@@ -694,7 +694,7 @@ func TestNtdLogsEventFilter(t *testing.T) {
 	a, buf := ntdApp(ts.URL, false)
 	cmd := logsCmd(a)
 	_ = cmd.Flags().Set("event", "refund")
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
 	if buf.String() != "No activity logs matched event \"refund\" on this page.\n" {
@@ -706,7 +706,7 @@ func TestNtdLogsOutput(t *testing.T) {
 	ts, _ := ntdServer(t, 200, `{"data":[]}`)
 	a, buf := ntdApp(ts.URL, false)
 	cmd := logsCmd(a)
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
 	if buf.String() != "No activity logs recorded.\n" {
@@ -718,7 +718,7 @@ func TestNtdLogsOutput(t *testing.T) {
 	a, buf = ntdApp(ts.URL, true)
 	cmd = logsCmd(a)
 	_ = cmd.Flags().Set("event", "signup")
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
 	if buf.String() != "{\n  \"data\": [\n    {\n      \"id\": 1\n    }\n  ]\n}\n" {
@@ -728,7 +728,7 @@ func TestNtdLogsOutput(t *testing.T) {
 	ts, _ = ntdServer(t, 200, `[{"id":1}]`)
 	a, buf = ntdApp(ts.URL, false)
 	cmd = logsCmd(a)
-	if err := cmd.RunE(cmd, nil); err == nil {
+	if err := runCommand(cmd, nil); err == nil {
 		t.Error("expected parse error")
 	}
 	if buf.Len() != 0 {
@@ -738,7 +738,7 @@ func TestNtdLogsOutput(t *testing.T) {
 	ts, _ = ntdServer(t, 401, `{"message":"Unauthenticated."}`)
 	a, buf = ntdApp(ts.URL, false)
 	cmd = logsCmd(a)
-	if err := cmd.RunE(cmd, nil); err == nil || err.Error() != "API error (401): Unauthenticated." {
+	if err := runCommand(cmd, nil); err == nil || err.Error() != "API error (401): Unauthenticated." {
 		t.Errorf("expected API error, got %v", err)
 	}
 	if buf.Len() != 0 {
@@ -750,7 +750,7 @@ func TestNtdMetrics(t *testing.T) {
 	ts, seen := ntdServer(t, 200, `{"total_projects":3,"total_files":14,"total_downloads":159,"total_views":2653}`)
 	a, buf := ntdApp(ts.URL, false)
 	cmd := metricsCmd(a)
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
 	req := ntdOnly(t, seen)
@@ -769,7 +769,7 @@ func TestNtdMetrics(t *testing.T) {
 	ts, _ = ntdServer(t, 200, `{"total_projects":3}`)
 	a, buf = ntdApp(ts.URL, true)
 	cmd = metricsCmd(a)
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
 	if buf.String() != "{\n  \"total_projects\": 3\n}\n" {
@@ -779,7 +779,7 @@ func TestNtdMetrics(t *testing.T) {
 	ts, _ = ntdServer(t, 200, `{"total_projects":"many"}`)
 	a, buf = ntdApp(ts.URL, false)
 	cmd = metricsCmd(a)
-	if err := cmd.RunE(cmd, nil); err == nil {
+	if err := runCommand(cmd, nil); err == nil {
 		t.Error("expected parse error")
 	}
 	if buf.Len() != 0 {
@@ -789,7 +789,7 @@ func TestNtdMetrics(t *testing.T) {
 	ts, _ = ntdServer(t, 500, `{"message":"Boom"}`)
 	a, buf = ntdApp(ts.URL, false)
 	cmd = metricsCmd(a)
-	if err := cmd.RunE(cmd, nil); err == nil || err.Error() != "API error (500): Boom" {
+	if err := runCommand(cmd, nil); err == nil || err.Error() != "API error (500): Boom" {
 		t.Errorf("expected API error, got %v", err)
 	}
 	if buf.Len() != 0 {
@@ -804,7 +804,7 @@ func TestNtdDownloadersExportJSON(t *testing.T) {
 	dest := filepath.Join(t.TempDir(), "out.csv")
 	_ = cmd.Flags().Set("output", dest)
 
-	if err := cmd.RunE(cmd, []string{"12"}); err != nil {
+	if err := runCommand(cmd, []string{"12"}); err != nil {
 		t.Fatal(err)
 	}
 	var got map[string]any

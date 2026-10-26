@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -59,7 +60,7 @@ func TestProjectsListAndCreate(t *testing.T) {
 	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
-	err := projectsListCmd.RunE(projectsListCmd, []string{})
+	err := runCommand(projectsListCmd, []string{})
 	if err != nil {
 		t.Fatalf("unexpected list error: %v", err)
 	}
@@ -70,7 +71,7 @@ func TestProjectsListAndCreate(t *testing.T) {
 
 	buf.Reset()
 	_ = projectsCreateCmd.Flags().Set("title", "New Novel")
-	err = projectsCreateCmd.RunE(projectsCreateCmd, []string{})
+	err = runCommand(projectsCreateCmd, []string{})
 	if err != nil {
 		t.Fatalf("unexpected create error: %v", err)
 	}
@@ -105,7 +106,7 @@ func TestProjectsUpdateConflictingCoverFlags(t *testing.T) {
 	_ = projectsUpdateCmd.Flags().Set("cover", coverFile)
 	_ = projectsUpdateCmd.Flags().Set("remove-cover", "true")
 
-	err := projectsUpdateCmd.RunE(projectsUpdateCmd, []string{"42"})
+	err := runCommand(projectsUpdateCmd, []string{"42"})
 	if err == nil {
 		t.Fatal("expected error when passing both --cover and --remove-cover, but got nil")
 	}
@@ -140,7 +141,7 @@ func TestProjectsUpdateRemoveCoverJSON(t *testing.T) {
 
 	_ = projectsUpdateCmd.Flags().Set("remove-cover", "true")
 
-	err := projectsUpdateCmd.RunE(projectsUpdateCmd, []string{"42"})
+	err := runCommand(projectsUpdateCmd, []string{"42"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -251,7 +252,7 @@ func TestProjectsUpdateCoverMethodSpoofing(t *testing.T) {
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = projectsUpdateCmd.Flags().Set("cover", coverFile)
-	err := projectsUpdateCmd.RunE(projectsUpdateCmd, []string{"42"})
+	err := runCommand(projectsUpdateCmd, []string{"42"})
 	if err != nil {
 		t.Fatalf("expected cover update to succeed, got error: %v", err)
 	}
@@ -291,7 +292,7 @@ func TestProjectsListVariations(t *testing.T) {
 
 	// Test page flag
 	_ = projectsListCmd.Flags().Set("page", "2")
-	err := projectsListCmd.RunE(projectsListCmd, []string{})
+	err := runCommand(projectsListCmd, []string{})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -302,7 +303,7 @@ func TestProjectsListVariations(t *testing.T) {
 	// Test empty list message
 	buf.Reset()
 	_ = projectsListCmd.Flags().Set("page", "99")
-	err = projectsListCmd.RunE(projectsListCmd, []string{})
+	err = runCommand(projectsListCmd, []string{})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -314,7 +315,7 @@ func TestProjectsListVariations(t *testing.T) {
 	buf.Reset()
 	a.printer = &output.Printer{Out: &buf, JSON: true}
 	_ = projectsListCmd.Flags().Set("page", "1")
-	err = projectsListCmd.RunE(projectsListCmd, []string{})
+	err = runCommand(projectsListCmd, []string{})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -351,7 +352,7 @@ func TestProjectsGetVariations(t *testing.T) {
 	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
-	err := projectsGetCmd.RunE(projectsGetCmd, []string{"42"})
+	err := runCommand(projectsGetCmd, []string{"42"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -362,7 +363,7 @@ func TestProjectsGetVariations(t *testing.T) {
 	// Test JSON output
 	buf.Reset()
 	a.printer = &output.Printer{Out: &buf, JSON: true}
-	err = projectsGetCmd.RunE(projectsGetCmd, []string{"42"})
+	err = runCommand(projectsGetCmd, []string{"42"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -371,7 +372,7 @@ func TestProjectsGetVariations(t *testing.T) {
 	}
 
 	// Test API error
-	err = projectsGetCmd.RunE(projectsGetCmd, []string{"999"})
+	err = runCommand(projectsGetCmd, []string{"999"})
 	if err == nil {
 		t.Fatal("expected error for non-existent project, got nil")
 	}
@@ -406,7 +407,7 @@ func TestProjectsCreateVariations(t *testing.T) {
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	// Missing title error
-	err := projectsCreateCmd.RunE(projectsCreateCmd, []string{})
+	err := runCommand(projectsCreateCmd, []string{})
 	if err == nil || !strings.Contains(err.Error(), "--title is required") {
 		t.Fatalf("expected --title is required error, got: %v", err)
 	}
@@ -414,7 +415,7 @@ func TestProjectsCreateVariations(t *testing.T) {
 	// Create with title and description
 	_ = projectsCreateCmd.Flags().Set("title", "Desc Book")
 	_ = projectsCreateCmd.Flags().Set("description", "A great book")
-	err = projectsCreateCmd.RunE(projectsCreateCmd, []string{})
+	err = runCommand(projectsCreateCmd, []string{})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -428,7 +429,7 @@ func TestProjectsCreateVariations(t *testing.T) {
 	_ = projectsCreateCmd.Flags().Set("title", "Cover Book")
 	_ = projectsCreateCmd.Flags().Set("description", "With cover")
 	_ = projectsCreateCmd.Flags().Set("cover", dummyCover)
-	err = projectsCreateCmd.RunE(projectsCreateCmd, []string{})
+	err = runCommand(projectsCreateCmd, []string{})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -441,7 +442,7 @@ func TestProjectsCreateVariations(t *testing.T) {
 	a.printer = &output.Printer{Out: &buf, JSON: true}
 	_ = projectsCreateCmd.Flags().Set("cover", "")
 	_ = projectsCreateCmd.Flags().Set("title", "JSON Book")
-	err = projectsCreateCmd.RunE(projectsCreateCmd, []string{})
+	err = runCommand(projectsCreateCmd, []string{})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -481,7 +482,7 @@ func TestProjectsUpdateVariations(t *testing.T) {
 	// Update title and description
 	_ = projectsUpdateCmd.Flags().Set("title", "Updated Title")
 	_ = projectsUpdateCmd.Flags().Set("description", "Updated Desc")
-	err := projectsUpdateCmd.RunE(projectsUpdateCmd, []string{"42"})
+	err := runCommand(projectsUpdateCmd, []string{"42"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -495,7 +496,7 @@ func TestProjectsUpdateVariations(t *testing.T) {
 	_ = projectsUpdateCmd.Flags().Set("cover", dummyCover)
 	_ = projectsUpdateCmd.Flags().Set("title", "Cover Update")
 	_ = projectsUpdateCmd.Flags().Set("description", "Cover Desc")
-	err = projectsUpdateCmd.RunE(projectsUpdateCmd, []string{"42"})
+	err = runCommand(projectsUpdateCmd, []string{"42"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -507,7 +508,7 @@ func TestProjectsUpdateVariations(t *testing.T) {
 	buf.Reset()
 	a.printer = &output.Printer{Out: &buf, JSON: true}
 	_ = projectsUpdateCmd.Flags().Set("cover", "")
-	err = projectsUpdateCmd.RunE(projectsUpdateCmd, []string{"42"})
+	err = runCommand(projectsUpdateCmd, []string{"42"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -538,7 +539,7 @@ func TestProjectsDeleteVariations(t *testing.T) {
 
 	// Delete with force
 	_ = projectsDeleteCmd.Flags().Set("force", "true")
-	err := projectsDeleteCmd.RunE(projectsDeleteCmd, []string{"42"})
+	err := runCommand(projectsDeleteCmd, []string{"42"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -553,7 +554,7 @@ func TestProjectsDeleteVariations(t *testing.T) {
 	buf.Reset()
 	a.printer = &output.Printer{Out: &buf, JSON: true}
 	_ = projectsDeleteCmd.Flags().Set("force", "false")
-	err = projectsDeleteCmd.RunE(projectsDeleteCmd, []string{"42"})
+	err = runCommand(projectsDeleteCmd, []string{"42"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -601,7 +602,7 @@ func TestProjectsNewsletterOmittingTagsPreservesExisting(t *testing.T) {
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = cmd.Flags().Set("list-id", "list-abc")
-	err := cmd.RunE(cmd, []string{"42"})
+	err := runCommand(cmd, []string{"42"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -626,7 +627,7 @@ func TestProjectsNewsletterOmittingListIDPreservesExisting(t *testing.T) {
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = cmd.Flags().Set("tags", "new-tag")
-	err := cmd.RunE(cmd, []string{"42"})
+	err := runCommand(cmd, []string{"42"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -651,7 +652,7 @@ func TestProjectsNewsletterClearTags(t *testing.T) {
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = cmd.Flags().Set("clear-tags", "true")
-	err := cmd.RunE(cmd, []string{"42"})
+	err := runCommand(cmd, []string{"42"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -669,7 +670,7 @@ func TestProjectsNewsletterTagsAndClearTagsError(t *testing.T) {
 	cmd := projectsNewsletterCmd(a)
 	_ = cmd.Flags().Set("tags", "vip")
 	_ = cmd.Flags().Set("clear-tags", "true")
-	err := cmd.RunE(cmd, []string{"42"})
+	err := runCommand(cmd, []string{"42"})
 	if err == nil || !strings.Contains(err.Error(), "cannot specify both --tags and --clear-tags") {
 		t.Fatalf("expected mutually exclusive error, got: %v", err)
 	}
@@ -678,7 +679,7 @@ func TestProjectsNewsletterTagsAndClearTagsError(t *testing.T) {
 func TestProjectsNewsletterNoModificationError(t *testing.T) {
 	a := &app{}
 	cmd := projectsNewsletterCmd(a)
-	err := cmd.RunE(cmd, []string{"42"})
+	err := runCommand(cmd, []string{"42"})
 	if err == nil || !strings.Contains(err.Error(), "specify --list-id, --tags, or --clear-tags") {
 		t.Fatalf("expected missing modification error, got: %v", err)
 	}
@@ -706,7 +707,7 @@ func TestProjectsNewsletterFetchError(t *testing.T) {
 	a.apiCli = client.New(ts.URL, "test-token")
 
 	_ = cmd.Flags().Set("tags", "vip")
-	err := cmd.RunE(cmd, []string{"42"})
+	err := runCommand(cmd, []string{"42"})
 	if err == nil || !strings.Contains(err.Error(), "500") {
 		t.Fatalf("expected fetch API error containing 500, got: %v", err)
 	}
@@ -726,7 +727,7 @@ func TestFetchExistingProjectInvalidJSON(t *testing.T) {
 	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
-	_, err := fetchExistingProject(a, 42)
+	_, err := fetchExistingProject(context.Background(), a, 42)
 	if err == nil || !strings.Contains(err.Error(), "invalid character") {
 		t.Fatalf("expected json unmarshal error with 'invalid character', got: %v", err)
 	}
@@ -748,7 +749,7 @@ func TestProjectsNewsletterVariations(t *testing.T) {
 	a.settings = testSettings(t, ts.URL, "test-token")
 	a.apiCli = client.New(ts.URL, "test-token")
 
-	err := projectsNewsletterCmd.RunE(projectsNewsletterCmd, []string{"42"})
+	err := runCommand(projectsNewsletterCmd, []string{"42"})
 	if err == nil || !strings.Contains(err.Error(), "specify --list-id, --tags, or --clear-tags") {
 		t.Fatalf("expected missing modification error, got: %v", err)
 	}
@@ -756,7 +757,7 @@ func TestProjectsNewsletterVariations(t *testing.T) {
 	// With list-id and tags
 	_ = projectsNewsletterCmd.Flags().Set("list-id", "list-abc")
 	_ = projectsNewsletterCmd.Flags().Set("tags", "vip,beta")
-	err = projectsNewsletterCmd.RunE(projectsNewsletterCmd, []string{"42"})
+	err = runCommand(projectsNewsletterCmd, []string{"42"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -767,7 +768,7 @@ func TestProjectsNewsletterVariations(t *testing.T) {
 	// With JSON output
 	buf.Reset()
 	a.printer = &output.Printer{Out: &buf, JSON: true}
-	err = projectsNewsletterCmd.RunE(projectsNewsletterCmd, []string{"42"})
+	err = runCommand(projectsNewsletterCmd, []string{"42"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -841,7 +842,7 @@ func TestProjectsNewsletterArrayTags(t *testing.T) {
 
 	// 1. projects list succeeds when projects have tags array or null
 	listCmd := projectsListCmd(a)
-	err := listCmd.RunE(listCmd, []string{})
+	err := runCommand(listCmd, []string{})
 	if err != nil {
 		t.Fatalf("projects list failed: %v", err)
 	}
@@ -852,7 +853,7 @@ func TestProjectsNewsletterArrayTags(t *testing.T) {
 	// 2. projects get succeeds for tagged project and untagged project
 	buf.Reset()
 	getCmd := projectsGetCmd(a)
-	err = getCmd.RunE(getCmd, []string{"22"})
+	err = runCommand(getCmd, []string{"22"})
 	if err != nil {
 		t.Fatalf("projects get 22 failed: %v", err)
 	}
@@ -861,7 +862,7 @@ func TestProjectsNewsletterArrayTags(t *testing.T) {
 	}
 
 	buf.Reset()
-	err = getCmd.RunE(getCmd, []string{"23"})
+	err = runCommand(getCmd, []string{"23"})
 	if err != nil {
 		t.Fatalf("projects get 23 failed: %v", err)
 	}
@@ -872,7 +873,7 @@ func TestProjectsNewsletterArrayTags(t *testing.T) {
 	// 3. projects newsletter --clear-tags clears tags on project with existing tags
 	newsletterCmd1 := projectsNewsletterCmd(a)
 	_ = newsletterCmd1.Flags().Set("clear-tags", "true")
-	err = newsletterCmd1.RunE(newsletterCmd1, []string{"22"})
+	err = runCommand(newsletterCmd1, []string{"22"})
 	if err != nil {
 		t.Fatalf("projects newsletter --clear-tags failed: %v", err)
 	}
@@ -887,7 +888,7 @@ func TestProjectsNewsletterArrayTags(t *testing.T) {
 	receivedPut = nil
 	newsletterCmd2 := projectsNewsletterCmd(a)
 	_ = newsletterCmd2.Flags().Set("list-id", "new-list-id")
-	err = newsletterCmd2.RunE(newsletterCmd2, []string{"22"})
+	err = runCommand(newsletterCmd2, []string{"22"})
 	if err != nil {
 		t.Fatalf("projects newsletter --list-id failed: %v", err)
 	}
@@ -923,7 +924,7 @@ func TestProjectsUpdateClearDescriptionJSON(t *testing.T) {
 
 	_ = projectsUpdateCmd.Flags().Set("clear-description", "true")
 
-	err := projectsUpdateCmd.RunE(projectsUpdateCmd, []string{"42"})
+	err := runCommand(projectsUpdateCmd, []string{"42"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -973,7 +974,7 @@ func TestProjectsUpdateClearDescriptionMultipart(t *testing.T) {
 	_ = projectsUpdateCmd.Flags().Set("cover", coverFile)
 	_ = projectsUpdateCmd.Flags().Set("clear-description", "true")
 
-	err := projectsUpdateCmd.RunE(projectsUpdateCmd, []string{"42"})
+	err := runCommand(projectsUpdateCmd, []string{"42"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -1002,7 +1003,7 @@ func TestProjectsUpdateConflictingDescriptionFlags(t *testing.T) {
 	_ = projectsUpdateCmd.Flags().Set("description", "New synopsis")
 	_ = projectsUpdateCmd.Flags().Set("clear-description", "true")
 
-	err := projectsUpdateCmd.RunE(projectsUpdateCmd, []string{"42"})
+	err := runCommand(projectsUpdateCmd, []string{"42"})
 	if err == nil {
 		t.Fatal("expected error when passing both --description and --clear-description, but got nil")
 	}

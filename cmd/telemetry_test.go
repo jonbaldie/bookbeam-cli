@@ -31,7 +31,7 @@ func TestLogsPageQuery(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			if err := cmd.RunE(cmd, nil); err != nil {
+			if err := runCommand(cmd, nil); err != nil {
 				t.Fatal(err)
 			}
 			req := ntdOnly(t, seen)
@@ -46,7 +46,7 @@ func TestLogsPaginationFooter(t *testing.T) {
 	ts, _ := ntdServer(t, 200, logsMiddlePage)
 	a, buf := ntdApp(ts.URL, false)
 	cmd := logsCmd(a)
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
 	want := "TIME                          TYPE       READER               BOOK                     FILE\n" +
@@ -62,7 +62,7 @@ func TestLogsSinglePageHasNoFooter(t *testing.T) {
 	ts, _ := ntdServer(t, 200, ntdLogsPage)
 	a, buf := ntdApp(ts.URL, false)
 	cmd := logsCmd(a)
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
 	if got := buf.String(); len(got) == 0 || strings.Contains(got, "Page ") {
@@ -74,7 +74,7 @@ func TestLogsJSONKeepsPagination(t *testing.T) {
 	ts, _ := ntdServer(t, 200, logsMiddlePage)
 	a, buf := ntdApp(ts.URL, true)
 	cmd := logsCmd(a)
-	if err := cmd.RunE(cmd, nil); err != nil {
+	if err := runCommand(cmd, nil); err != nil {
 		t.Fatal(err)
 	}
 	for _, want := range []string{`"current_page": 2`, `"last_page": 6`, `"total": 58`, `"per_page": 10`} {

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -63,7 +64,7 @@ func loginCmd(a *app) *cobra.Command {
 			codePayload := map[string]string{
 				"client_id": "bookbeam-cli",
 			}
-			rawResp, err := a.apiCli.Post("/api/v1/oauth/device/code", codePayload)
+			rawResp, err := a.apiCli.PostWithContext(cmd.Context(), "/api/v1/oauth/device/code", codePayload)
 			if err != nil {
 				return fmt.Errorf("failed to request device authorization code: %w", err)
 			}
@@ -82,8 +83,11 @@ func loginCmd(a *app) *cobra.Command {
 
 			a.printer.Info("Waiting for authorization in browser...")
 
-			token, err := pollDeviceToken(a.apiCli, deviceResp, a.sleep)
+			token, err := pollDeviceToken(cmd.Context(), a.apiCli, deviceResp, a.sleep)
 			if err != nil {
+				return err
+			}
+			if err := cmd.Context().Err(); err != nil {
 				return err
 			}
 			if err := saveToken(a, token); err != nil {
@@ -121,7 +125,7 @@ func whoamiCmd(a *app) *cobra.Command {
 				return errors.New("Not authenticated. Run 'bookbeam auth login' to authenticate.")
 			}
 
-			rawResp, err := a.apiCli.Get("/api/v1/user", nil)
+			rawResp, err := a.apiCli.GetWithContext(cmd.Context(), "/api/v1/user", nil)
 			if err != nil {
 				return fmt.Errorf("failed to get user details: %w", err)
 			}
@@ -185,7 +189,7 @@ func saveToken(a *app, token string) error {
 }
 
 // pollDeviceToken polls the token endpoint until the user approves the device code, it expires, or the server refuses it.
-func pollDeviceToken(apiCli *client.Client, deviceResp DeviceCodeResponse, sleep func(time.Duration)) (string, error) {
+func pollDeviceToken(ctx context.Context, apiCli *client.Client, deviceResp DeviceCodeResponse, sleep func(context.Context, time.Duration) error) (string, error) {
 	pollInterval := deviceResp.Interval
 	if pollInterval < 1 {
 		pollInterval = 5
@@ -199,9 +203,11 @@ func pollDeviceToken(apiCli *client.Client, deviceResp DeviceCodeResponse, sleep
 	}
 
 	for time.Now().Before(deadline) {
-		sleep(time.Duration(pollInterval) * time.Second)
+		if err := sleep(ctx, time.Duration(pollInterval)*time.Second); err != nil {
+			return "", err
+		}
 
-		tokenRaw, err := apiCli.Post("/api/v1/oauth/device/token", tokenPayload)
+		tokenRaw, err := apiCli.PostWithContext(ctx, "/api/v1/oauth/device/token", tokenPayload)
 		if err == nil {
 			return parseDeviceToken(tokenRaw)
 		}

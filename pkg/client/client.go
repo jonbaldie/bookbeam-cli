@@ -74,6 +74,9 @@ func (c *Client) Request(method, path string, body io.Reader, contentType string
 }
 
 func (c *Client) RequestWithContext(ctx context.Context, method, path string, body io.Reader, contentType string) (*http.Response, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	relPath := strings.TrimLeft(path, "/")
 	fullURL := fmt.Sprintf("%s/%s", c.BaseURL, relPath)
 
@@ -97,7 +100,10 @@ func (c *Client) RequestWithContext(ctx context.Context, method, path string, bo
 
 	if resp.StatusCode >= 400 {
 		defer resp.Body.Close()
-		respBytes, _ := io.ReadAll(resp.Body)
+		respBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
 
 		apiErr := &APIError{StatusCode: resp.StatusCode}
 		_ = json.Unmarshal(respBytes, apiErr)
@@ -108,10 +114,15 @@ func (c *Client) RequestWithContext(ctx context.Context, method, path string, bo
 }
 
 func (c *Client) Get(path string, query url.Values) ([]byte, error) {
+	return c.GetWithContext(context.Background(), path, query)
+}
+
+// GetWithContext applies the short-request timeout within ctx's lifetime.
+func (c *Client) GetWithContext(ctx context.Context, path string, query url.Values) ([]byte, error) {
 	if len(query) > 0 {
 		path = fmt.Sprintf("%s?%s", path, query.Encode())
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), c.timeout())
+	ctx, cancel := context.WithTimeout(ctx, c.timeout())
 	defer cancel()
 
 	resp, err := c.RequestWithContext(ctx, http.MethodGet, path, nil, "")
@@ -123,14 +134,24 @@ func (c *Client) Get(path string, query url.Values) ([]byte, error) {
 }
 
 func (c *Client) Post(path string, payload any) ([]byte, error) {
-	return c.sendJSON(http.MethodPost, path, payload)
+	return c.PostWithContext(context.Background(), path, payload)
 }
 
 func (c *Client) Put(path string, payload any) ([]byte, error) {
-	return c.sendJSON(http.MethodPut, path, payload)
+	return c.PutWithContext(context.Background(), path, payload)
 }
 
-func (c *Client) sendJSON(method, path string, payload any) ([]byte, error) {
+// PostWithContext sends JSON within ctx's lifetime and the short-request timeout.
+func (c *Client) PostWithContext(ctx context.Context, path string, payload any) ([]byte, error) {
+	return c.sendJSON(ctx, http.MethodPost, path, payload)
+}
+
+// PutWithContext sends JSON within ctx's lifetime and the short-request timeout.
+func (c *Client) PutWithContext(ctx context.Context, path string, payload any) ([]byte, error) {
+	return c.sendJSON(ctx, http.MethodPut, path, payload)
+}
+
+func (c *Client) sendJSON(ctx context.Context, method, path string, payload any) ([]byte, error) {
 	var bodyReader io.Reader
 	var contentType string
 
@@ -143,7 +164,7 @@ func (c *Client) sendJSON(method, path string, payload any) ([]byte, error) {
 		contentType = "application/json"
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), c.timeout())
+	ctx, cancel := context.WithTimeout(ctx, c.timeout())
 	defer cancel()
 
 	resp, err := c.RequestWithContext(ctx, method, path, bodyReader, contentType)
@@ -155,7 +176,12 @@ func (c *Client) sendJSON(method, path string, payload any) ([]byte, error) {
 }
 
 func (c *Client) Delete(path string) ([]byte, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), c.timeout())
+	return c.DeleteWithContext(context.Background(), path)
+}
+
+// DeleteWithContext applies the short-request timeout within ctx's lifetime.
+func (c *Client) DeleteWithContext(ctx context.Context, path string) ([]byte, error) {
+	ctx, cancel := context.WithTimeout(ctx, c.timeout())
 	defer cancel()
 
 	resp, err := c.RequestWithContext(ctx, http.MethodDelete, path, nil, "")
@@ -167,6 +193,14 @@ func (c *Client) Delete(path string) ([]byte, error) {
 }
 
 func (c *Client) PostMultipart(path string, fields map[string]string, fileFieldName, filePath string) ([]byte, error) {
+	return c.PostMultipartWithContext(context.Background(), path, fields, fileFieldName, filePath)
+}
+
+// PostMultipartWithContext streams a file with cancellation but no fixed transfer deadline.
+func (c *Client) PostMultipartWithContext(ctx context.Context, path string, fields map[string]string, fileFieldName, filePath string) ([]byte, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
@@ -207,7 +241,7 @@ func (c *Client) PostMultipart(path string, fields map[string]string, fileFieldN
 		writeErr = writer.Close()
 	}()
 
-	resp, err := c.Request(http.MethodPost, path, pr, writer.FormDataContentType())
+	resp, err := c.RequestWithContext(ctx, http.MethodPost, path, pr, writer.FormDataContentType())
 	if err != nil {
 		return nil, err
 	}

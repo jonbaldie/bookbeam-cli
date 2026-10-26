@@ -41,7 +41,7 @@ func newsletterStatusCmd(a *app) *cobra.Command {
 		Use:   "status",
 		Short: "Show current team newsletter provider settings",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			raw, err := a.apiCli.Get("/api/v1/settings/newsletter", nil)
+			raw, err := a.apiCli.GetWithContext(cmd.Context(), "/api/v1/settings/newsletter", nil)
 			if err != nil {
 				return err
 			}
@@ -105,7 +105,7 @@ func newsletterConfigureCmd(a *app) *cobra.Command {
 				payload["api_url"] = endpoint
 			}
 
-			raw, err := a.apiCli.Put("/api/v1/settings/newsletter/provider", payload)
+			raw, err := a.apiCli.PutWithContext(cmd.Context(), "/api/v1/settings/newsletter/provider", payload)
 			if err != nil {
 				return err
 			}
@@ -124,7 +124,7 @@ func newsletterDisconnectCmd(a *app) *cobra.Command {
 		Use:   "disconnect",
 		Short: "Disconnect active newsletter provider credentials",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			raw, err := a.apiCli.Delete("/api/v1/settings/newsletter/provider")
+			raw, err := a.apiCli.DeleteWithContext(cmd.Context(), "/api/v1/settings/newsletter/provider")
 			if err != nil {
 				return err
 			}
@@ -147,7 +147,7 @@ func newsletterWebhookCmd(a *app) *cobra.Command {
 				"webhook_url": webhookURL,
 			}
 
-			raw, err := a.apiCli.Put("/api/v1/settings/newsletter/webhook", payload)
+			raw, err := a.apiCli.PutWithContext(cmd.Context(), "/api/v1/settings/newsletter/webhook", payload)
 			if err != nil {
 				return err
 			}
@@ -168,7 +168,7 @@ func newsletterListsCmd(a *app) *cobra.Command {
 		Use:   "lists",
 		Short: "Fetch available lists from configured provider",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			raw, err := a.apiCli.Post("/api/v1/settings/newsletter/lists", map[string]string{})
+			raw, err := a.apiCli.PostWithContext(cmd.Context(), "/api/v1/settings/newsletter/lists", map[string]string{})
 			if err != nil {
 				return err
 			}
