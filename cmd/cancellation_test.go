@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"fmt"
@@ -10,6 +11,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -18,12 +20,26 @@ import (
 func TestCancelledDeviceWaitDoesNotPollOrSaveToken(t *testing.T) {
 	isolateHome(t)
 	t.Setenv("BOOKBEAM_TOKEN", "")
-	codeSent := make(chan struct{})
+	waiting := make(chan struct{})
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	stdout := os.Stdout
+	os.Stdout = writer
+	defer func() { os.Stdout = stdout; writer.Close(); reader.Close() }()
+	go func() {
+		scanner := bufio.NewScanner(reader)
+		for scanner.Scan() {
+			if strings.Contains(scanner.Text(), "Waiting for authorization in browser") {
+				close(waiting)
+			}
+		}
+	}()
 	var polls atomic.Int32
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/api/v1/oauth/device/code" {
 			fmt.Fprint(w, `{"device_code":"fixture","expires_in":120,"interval":60}`)
-			close(codeSent)
 			return
 		}
 		polls.Add(1)
@@ -33,16 +49,14 @@ func TestCancelledDeviceWaitDoesNotPollOrSaveToken(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	root := NewRootCmd()
-	root.SetArgs([]string{"--host", server.URL, "auth", "login", "--json"})
+	root.SetArgs([]string{"--host", server.URL, "auth", "login"})
 	result := make(chan error, 1)
 	go func() { result <- root.ExecuteContext(ctx) }()
 	select {
-	case <-codeSent:
+	case <-waiting:
 	case <-time.After(3 * time.Second):
-		t.Fatal("device code not requested")
+		t.Fatal("command did not reach its polling wait")
 	}
-	// Allow the code response to be consumed and the long polling wait to begin.
-	time.Sleep(100 * time.Millisecond)
 	cancel()
 	select {
 	case err := <-result:
@@ -58,6 +72,63 @@ func TestCancelledDeviceWaitDoesNotPollOrSaveToken(t *testing.T) {
 	}
 	if polls.Load() != 0 || settings.Token() != "" {
 		t.Fatalf("polls=%d saved token=%q", polls.Load(), settings.Token())
+	}
+}
+
+func TestCancelMultipartWhileSending(t *testing.T) {
+	isolateHome(t)
+	file, err := os.Create(filepath.Join(t.TempDir(), "large.pdf"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	const size = 64 << 20
+	if err := file.Truncate(size); err != nil {
+		t.Fatal(err)
+	}
+	file.Close()
+	started, drain, observed := make(chan struct{}), make(chan struct{}), make(chan int64, 1)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		first := make([]byte, 1024)
+		n, _ := io.ReadFull(r.Body, first)
+		close(started)
+		<-drain
+		rest, _ := io.Copy(io.Discard, r.Body)
+		if r.Context().Err() != nil {
+			observed <- int64(n) + rest
+		} else {
+			observed <- size
+		}
+	}))
+	defer server.Close()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	root := NewRootCmd()
+	root.SetArgs([]string{"--host", server.URL, "--token", "fixture", "files", "upload", "1", file.Name()})
+	result := make(chan error, 1)
+	go func() { result <- root.ExecuteContext(ctx) }()
+	select {
+	case <-started:
+	case <-time.After(3 * time.Second):
+		close(drain)
+		t.Fatal("upload did not start")
+	}
+	cancel()
+	close(drain)
+	select {
+	case err := <-result:
+		if !errors.Is(err, context.Canceled) {
+			t.Fatalf("want cancellation, got %v", err)
+		}
+	case <-time.After(3 * time.Second):
+		t.Fatal("upload did not stop")
+	}
+	select {
+	case received := <-observed:
+		if received >= size {
+			t.Fatalf("server received entire upload or saw no cancellation: %d bytes", received)
+		}
+	case <-time.After(3 * time.Second):
+		t.Fatal("server did not observe interrupted upload")
 	}
 }
 
