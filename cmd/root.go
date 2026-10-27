@@ -43,7 +43,10 @@ signup links, newsletters, downloaders, and telemetry directly from the terminal
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			overrides := config.Overrides{Host: host, Token: token}
-			return a.load(getenv, home, overrides, output.New(jsonOutput, quiet))
+			if err := a.load(getenv, home, overrides, output.New(jsonOutput, quiet)); err != nil {
+				return err
+			}
+			return a.requireAuthentication(cmd)
 		},
 	}
 
@@ -65,6 +68,7 @@ signup links, newsletters, downloaders, and telemetry directly from the terminal
 		logsCmd(a),
 		metricsCmd(a),
 	)
+	wrapAuthenticationErrors(root)
 	return root
 }
 

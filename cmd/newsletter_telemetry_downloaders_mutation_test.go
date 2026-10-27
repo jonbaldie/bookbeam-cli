@@ -736,13 +736,12 @@ func TestNtdLogsOutput(t *testing.T) {
 	}
 
 	ts, _ = ntdServer(t, 401, `{"message":"Unauthenticated."}`)
-	a, buf = ntdApp(ts.URL, false)
-	cmd = logsCmd(a)
-	if err := runCommand(cmd, nil); err == nil || err.Error() != "API error (401): Unauthenticated." {
-		t.Errorf("expected API error, got %v", err)
+	usage, err := ntdRoot(t, "--host", ts.URL, "--token", "tok", "logs")
+	if err == nil || err.Error() != "Not authenticated. Run 'bookbeam auth login' to authenticate." {
+		t.Errorf("expected login hint, got %v", err)
 	}
-	if buf.Len() != 0 {
-		t.Errorf("expected no output, got %q", buf.String())
+	if usage != "" {
+		t.Errorf("expected no usage, got %q", usage)
 	}
 }
 

@@ -656,7 +656,11 @@ func TestFlpProjectsList(t *testing.T) {
 		t.Fatalf("bad json %v %q", err, buf.String())
 	}
 	a, _ = flpServe(t, 401, `{}`, &reqs)
-	flpAPIStatus(t, flpRun(t, projectsListCmd(a), nil), 401)
+	usage, err := ntdRoot(t, "--host", a.apiCli.BaseURL, "--token", "tok", "projects", "list")
+	flpAPIStatus(t, err, 401)
+	if err.Error() != "Not authenticated. Run 'bookbeam auth login' to authenticate." || usage != "" {
+		t.Fatalf("expected only the login hint, got error=%v usage=%q", err, usage)
+	}
 }
 
 func TestFlpProjectsGet(t *testing.T) {

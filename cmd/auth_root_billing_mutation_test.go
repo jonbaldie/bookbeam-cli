@@ -783,15 +783,12 @@ func TestARBLogoutSaveFailure(t *testing.T) {
 }
 
 func TestARBWhoamiNotAuthenticated(t *testing.T) {
-	h := arbNewHarness(t, nil, false)
-	h.a.settings = testSettings(t, h.baseURL, "")
-	cmd := whoamiCmd(h.a)
-	err := arbRun(t, cmd)
+	out, err := ntdRoot(t, "whoami")
 	if err == nil || err.Error() != "Not authenticated. Run 'bookbeam auth login' to authenticate." {
 		t.Fatalf("got %v", err)
 	}
-	if !cmd.SilenceUsage {
-		t.Error("usage should be silenced for the unauthenticated error")
+	if out != "" {
+		t.Errorf("usage should be silenced, got %q", out)
 	}
 }
 
@@ -847,8 +844,11 @@ func TestARBWhoamiJSONAndErrors(t *testing.T) {
 	h = arbNewHarness(t, func(w http.ResponseWriter, r *http.Request) {
 		arbWriteJSON(w, 401, `{"message":"Unauthenticated."}`)
 	}, false)
-	err := arbRun(t, whoamiCmd(h.a))
-	if err == nil || err.Error() != "failed to get user details: API error (401): Unauthenticated." {
+	usage, err := ntdRoot(t, "--host", h.baseURL, "--token", "tok", "whoami")
+	if usage != "" {
+		t.Errorf("usage should be silenced, got %q", usage)
+	}
+	if err == nil || err.Error() != "Not authenticated. Run 'bookbeam auth login' to authenticate." {
 		t.Fatalf("got %v", err)
 	}
 	var api_err *client.APIError
