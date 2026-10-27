@@ -68,7 +68,7 @@ signup links, newsletters, downloaders, and telemetry directly from the terminal
 		logsCmd(a),
 		metricsCmd(a),
 	)
-	wrapAuthenticationErrors(root)
+	wrapAPIErrors(root)
 	return root
 }
 
