@@ -3,8 +3,8 @@ package cmd
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
+	"net/http"
 	"os/exec"
 	"runtime"
 	"time"
@@ -48,8 +48,9 @@ type authResult struct {
 
 func loginCmd(a *app) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "login",
-		Short: "Authenticate with BookBeam via browser or direct token",
+		Use:         "login",
+		Short:       "Authenticate with BookBeam via browser or direct token",
+		Annotations: map[string]string{publicCommand: "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			directToken, _ := cmd.Flags().GetString("token")
 			if directToken != "" {
@@ -104,8 +105,9 @@ func loginCmd(a *app) *cobra.Command {
 
 func logoutCmd(a *app) *cobra.Command {
 	return &cobra.Command{
-		Use:   "logout",
-		Short: "Log out of BookBeam and remove saved credentials",
+		Use:         "logout",
+		Short:       "Log out of BookBeam and remove saved credentials",
+		Annotations: map[string]string{publicCommand: "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := a.settings.StoreToken(""); err != nil {
 				return fmt.Errorf("failed to update config file: %w", err)
@@ -120,11 +122,6 @@ func whoamiCmd(a *app) *cobra.Command {
 		Use:   "whoami",
 		Short: "Display the currently authenticated user and team",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if a.settings.Token() == "" {
-				cmd.SilenceUsage = true
-				return errors.New("Not authenticated. Run 'bookbeam auth login' to authenticate.")
-			}
-
 			rawResp, err := a.apiCli.GetWithContext(cmd.Context(), "/api/v1/user", nil)
 			if err != nil {
 				return fmt.Errorf("failed to get user details: %w", err)
@@ -232,7 +229,7 @@ func parseDeviceToken(raw []byte) (string, error) {
 // pollBackoff returns the extra seconds to wait before polling again, or the error that ends polling.
 func pollBackoff(err error) (int, error) {
 	apiErr, ok := err.(*client.APIError)
-	if !ok {
+	if !ok || apiErr.StatusCode == http.StatusUnauthorized {
 		return 0, err
 	}
 	switch apiErr.ErrorType {

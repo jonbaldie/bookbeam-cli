@@ -38,6 +38,7 @@ func completionCmd() *cobra.Command {
 	  # To load completions for each session, execute once:
 	  $ bookbeam completion fish > ~/.config/fish/completions/bookbeam.fish
 	`,
+		Annotations:           map[string]string{publicCommand: "true"},
 		DisableFlagsInUseLine: true,
 		ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
 		Args:                  cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
