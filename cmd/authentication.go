@@ -37,19 +37,21 @@ func (a *app) requireAuthentication(cmd *cobra.Command) error {
 	return nil
 }
 
-func wrapAuthenticationErrors(cmd *cobra.Command) {
+func wrapAPIErrors(cmd *cobra.Command) {
 	if run := cmd.RunE; run != nil {
 		cmd.RunE = func(cmd *cobra.Command, args []string) error {
 			err := run(cmd, args)
 			var apiErr *client.APIError
-			if errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusUnauthorized {
+			if errors.As(err, &apiErr) {
 				cmd.SilenceUsage = true
-				return &authenticationError{cause: err}
+				if apiErr.StatusCode == http.StatusUnauthorized {
+					return &authenticationError{cause: err}
+				}
 			}
 			return err
 		}
 	}
 	for _, child := range cmd.Commands() {
-		wrapAuthenticationErrors(child)
+		wrapAPIErrors(child)
 	}
 }

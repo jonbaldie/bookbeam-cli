@@ -84,7 +84,7 @@ func TestDeviceLogin401IsNotAnOAuthRetry(t *testing.T) {
 			s.reply(http.StatusUnauthorized, fmt.Sprintf(`{"error":%q}`, errorType))
 			h := arbNewHarness(t, s.handler(t), false)
 			command := loginCmd(h.a)
-			wrapAuthenticationErrors(command)
+			wrapAPIErrors(command)
 			err := runCommand(command, nil)
 			if err == nil || err.Error() != "Not authenticated. Run 'bookbeam auth login' to authenticate." || !command.SilenceUsage {
 				t.Fatalf("expected a login hint instead of OAuth retries: %v", err)
@@ -97,11 +97,27 @@ func TestDeviceLogin401IsNotAnOAuthRetry(t *testing.T) {
 	}
 }
 
+func TestWrappedAPIErrorsSuppressUsageWithoutChangingCause(t *testing.T) {
+	for _, status := range []int{http.StatusForbidden, http.StatusNotFound, http.StatusUnprocessableEntity, http.StatusInternalServerError} {
+		t.Run(fmt.Sprint(status), func(t *testing.T) {
+			cause := &client.APIError{StatusCode: status, Message: "Request rejected."}
+			wrapped := fmt.Errorf("outer: %w", fmt.Errorf("inner: %w", cause))
+			command := &cobra.Command{Use: "probe", RunE: func(*cobra.Command, []string) error { return wrapped }}
+			wrapAPIErrors(command)
+			command.SetArgs([]string{})
+			err := command.Execute()
+			if err != wrapped || !command.SilenceUsage {
+				t.Fatalf("expected the original error without usage: err=%v silenceUsage=%v", err, command.SilenceUsage)
+			}
+		})
+	}
+}
+
 func TestAuthenticationErrorPreservesWrappedCause(t *testing.T) {
 	cause := &client.APIError{StatusCode: http.StatusUnauthorized, Message: "revoked"}
 	wrapped := fmt.Errorf("outer: %w", fmt.Errorf("inner: %w", cause))
 	command := &cobra.Command{Use: "probe", RunE: func(*cobra.Command, []string) error { return wrapped }}
-	wrapAuthenticationErrors(command)
+	wrapAPIErrors(command)
 	command.SetArgs([]string{})
 	err := command.Execute()
 	var apiErr *client.APIError
