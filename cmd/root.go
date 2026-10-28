@@ -14,6 +14,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var Version = "dev"
+
 // app holds the state every command shares once the root flags are parsed.
 type app struct {
 	settings *config.Settings
@@ -36,8 +38,9 @@ func newRootCmd(getenv func(string) string, home func() (string, error)) *cobra.
 	var jsonOutput, quiet bool
 
 	root := &cobra.Command{
-		Use:   "bookbeam",
-		Short: "Official command-line interface for BookBeam (bookbeam.app)",
+		Use:     "bookbeam",
+		Version: Version,
+		Short:   "Official command-line interface for BookBeam (bookbeam.app)",
 		Long: `BookBeam CLI lets authors and developers manage book projects, files,
 signup links, newsletters, downloaders, and telemetry directly from the terminal.`,
 		SilenceErrors: true,
