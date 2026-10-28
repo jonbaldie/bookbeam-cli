@@ -7,7 +7,7 @@ import (
 )
 
 func TestVersion(t *testing.T) {
-	stamped := filepath.Join(t.TempDir(), "bookbeam")
+	stamped := filepath.Join(t.TempDir(), "bookbeam.exe")
 	build := exec.Command("go", "build", "-ldflags=-X github.com/jonbaldie/bookbeam-cli/cmd.Version=1.2.3", "-o", stamped, "..")
 	if out, err := build.CombinedOutput(); err != nil {
 		t.Fatalf("build stamped binary: %v\n%s", err, out)
