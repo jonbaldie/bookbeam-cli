@@ -94,3 +94,20 @@ func TestDownloadersExportStdoutWriter(t *testing.T) {
 		})
 	}
 }
+
+func TestDownloadersExportConfirmationWriterError(t *testing.T) {
+	failure := errors.New("confirmation write failed")
+	api := client.New("http://example.com", "token")
+	api.HTTPClient = &http.Client{Transport: exportTransport{}}
+	var stdout bytes.Buffer
+	a := &app{apiCli: api, printer: &output.Printer{Out: &stdout}}
+	cmd := downloadersExportCmd(a)
+	cmd.SetErr(exportWriter{0, failure})
+	_ = cmd.Flags().Set("output", "-")
+	if err := runCommand(cmd, []string{"12"}); !errors.Is(err, failure) {
+		t.Fatalf("error = %v, want %v", err, failure)
+	}
+	if got := stdout.String(); got != "Email\nx@example.com\n" {
+		t.Errorf("stdout = %q", got)
+	}
+}

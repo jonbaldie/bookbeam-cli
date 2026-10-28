@@ -125,7 +125,9 @@ func downloadersExportCmd(a *app) *cobra.Command {
 					return fmt.Errorf("failed to write CSV to stdout: %w", io.ErrShortWrite)
 				}
 				if !a.printer.Quiet {
-					fmt.Fprintf(cmd.ErrOrStderr(), "✓ Exported %d bytes to stdout\n", len(raw))
+					if _, err := fmt.Fprintf(cmd.ErrOrStderr(), "✓ Exported %d bytes to stdout\n", len(raw)); err != nil {
+						return fmt.Errorf("failed to write export confirmation to stderr: %w", err)
+					}
 				}
 				return nil
 			}
