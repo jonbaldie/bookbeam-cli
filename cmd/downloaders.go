@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"net/url"
 	"os"
 	"strconv"
@@ -115,6 +116,19 @@ func downloadersExportCmd(a *app) *cobra.Command {
 			}
 
 			destPath, _ := cmd.Flags().GetString("output")
+			if destPath == "-" {
+				n, err := a.printer.Out.Write(raw)
+				if err != nil {
+					return fmt.Errorf("failed to write CSV to stdout: %w", err)
+				}
+				if n != len(raw) {
+					return fmt.Errorf("failed to write CSV to stdout: %w", io.ErrShortWrite)
+				}
+				if !a.printer.Quiet {
+					fmt.Fprintf(cmd.ErrOrStderr(), "✓ Exported %d bytes to stdout\n", len(raw))
+				}
+				return nil
+			}
 			if destPath == "" {
 				destPath = fmt.Sprintf("downloaders-project-%d.csv", projectID)
 			}
@@ -127,6 +141,6 @@ func downloadersExportCmd(a *app) *cobra.Command {
 			return a.printer.Success(result, fmt.Sprintf("✓ Exported %d bytes to %s", len(raw), destPath))
 		},
 	}
-	cmd.Flags().StringP("output", "o", "", "Destination CSV file path")
+	cmd.Flags().StringP("output", "o", "", "Destination CSV file path (use - for stdout)")
 	return cmd
 }
