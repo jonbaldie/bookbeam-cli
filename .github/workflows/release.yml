@@ -29,6 +29,8 @@ jobs:
           go vet ./...
 
       - name: Build and Package Binaries
+        env:
+          VERSION: ${{ github.ref_name }}
         run: |
           mkdir -p dist
           platforms=("darwin/amd64" "darwin/arm64" "linux/amd64" "linux/arm64" "windows/amd64")
@@ -40,7 +42,7 @@ jobs:
               output+=".exe"
             fi
             echo "Building for $os/$arch..."
-            CGO_ENABLED=0 GOOS=$os GOARCH=$arch go build -trimpath -ldflags="-s -w" -o "$output" .
+            CGO_ENABLED=0 GOOS=$os GOARCH=$arch go build -trimpath -ldflags="-s -w -X github.com/jonbaldie/bookbeam-cli/cmd.Version=$VERSION" -o "$output" .
             tar -czf "${output}.tar.gz" -C dist "$(basename "$output")"
           done
           cd dist
