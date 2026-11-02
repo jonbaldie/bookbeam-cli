@@ -10,7 +10,9 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/jonbaldie/bookbeam-cli/pkg/client"
 	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 	"github.com/spf13/cobra"
 )
@@ -112,7 +114,13 @@ func filesUploadCmd(a *app) *cobra.Command {
 
 			a.printer.Info(fmt.Sprintf("Uploading %s (%d bytes) to project #%d...", filepath.Base(filePath), stat.Size(), projectID))
 
-			raw, err := a.apiCli.PostMultipartWithContext(cmd.Context(), fmt.Sprintf("/api/v1/projects/%d/files", projectID), nil, "file", filePath)
+			lastUpdate := time.Now()
+			raw, err := client.PostMultipartWithProgress(a.apiCli, cmd.Context(), fmt.Sprintf("/api/v1/projects/%d/files", projectID), nil, "file", filePath, func(bytes int64) {
+				if time.Since(lastUpdate) >= time.Second {
+					a.printer.Info(fmt.Sprintf("Transferred %d file bytes to the transport...", bytes))
+					lastUpdate = time.Now()
+				}
+			})
 			if err != nil {
 				return err
 			}
