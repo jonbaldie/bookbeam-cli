@@ -198,6 +198,15 @@ func (c *Client) PostMultipart(path string, fields map[string]string, fileFieldN
 
 // PostMultipartWithContext streams a file with cancellation but no fixed transfer deadline.
 func (c *Client) PostMultipartWithContext(ctx context.Context, path string, fields map[string]string, fileFieldName, filePath string) ([]byte, error) {
+	return c.postMultipartWithProgress(ctx, path, fields, fileFieldName, filePath, nil)
+}
+
+// PostMultipartWithProgress reports cumulative file bytes handed to the transport.
+func PostMultipartWithProgress(c *Client, ctx context.Context, path string, fields map[string]string, fileFieldName, filePath string, progress func(int64)) ([]byte, error) {
+	return c.postMultipartWithProgress(ctx, path, fields, fileFieldName, filePath, progress)
+}
+
+func (c *Client) postMultipartWithProgress(ctx context.Context, path string, fields map[string]string, fileFieldName, filePath string, progress func(int64)) ([]byte, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -209,42 +218,83 @@ func (c *Client) PostMultipartWithContext(ctx context.Context, path string, fiel
 	pr, pw := io.Pipe()
 	defer pr.Close()
 	writer := multipart.NewWriter(pw)
+	updates := make(chan int64, 1)
 
 	go func() {
-		var writeErr error
-		defer func() {
-			file.Close()
-			if writeErr != nil {
-				pw.CloseWithError(writeErr)
-			} else {
-				pw.Close()
-			}
-		}()
-
-		part, err := writer.CreateFormFile(fileFieldName, filepath.Base(filePath))
-		if err != nil {
-			writeErr = err
-			return
-		}
-		if _, err = io.Copy(part, file); err != nil {
-			writeErr = err
-			return
-		}
-
-		for key, val := range fields {
-			if err = writer.WriteField(key, val); err != nil {
-				writeErr = err
-				return
-			}
-		}
-
-		writeErr = writer.Close()
+		defer file.Close()
+		pw.CloseWithError(writeMultipart(writer, file, fileFieldName, filePath, fields, progress != nil, updates))
 	}()
 
-	resp, err := c.RequestWithContext(ctx, http.MethodPost, path, pr, writer.FormDataContentType())
-	if err != nil {
-		return nil, err
+	send := func() ([]byte, error) {
+		resp, err := c.RequestWithContext(ctx, http.MethodPost, path, pr, writer.FormDataContentType())
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+		return io.ReadAll(resp.Body)
 	}
-	defer resp.Body.Close()
-	return io.ReadAll(resp.Body)
+	if progress == nil {
+		return send()
+	}
+	return reportMultipartProgress(ctx, send, updates, progress)
+}
+
+func writeMultipart(writer *multipart.Writer, file *os.File, fieldName, filePath string, fields map[string]string, report bool, updates chan<- int64) error {
+	part, err := writer.CreateFormFile(fieldName, filepath.Base(filePath))
+	if err != nil {
+		return err
+	}
+	var dst io.Writer = part
+	if report {
+		dst = &progressWriter{writer: part, updates: updates}
+	}
+	if _, err = io.Copy(dst, file); err != nil {
+		return err
+	}
+	for key, val := range fields {
+		if err = writer.WriteField(key, val); err != nil {
+			return err
+		}
+	}
+	return writer.Close()
+}
+
+func reportMultipartProgress(ctx context.Context, send func() ([]byte, error), updates <-chan int64, progress func(int64)) ([]byte, error) {
+	type result struct {
+		body []byte
+		err  error
+	}
+	finished := make(chan result, 1)
+	go func() {
+		body, err := send()
+		finished <- result{body, err}
+	}()
+	for {
+		select {
+		case n := <-updates:
+			progress(n)
+		case r := <-finished:
+			return r.body, r.err
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		}
+	}
+}
+
+type progressWriter struct {
+	writer  io.Writer
+	updates chan<- int64
+	bytes   int64
+}
+
+func (w *progressWriter) Write(p []byte) (int, error) {
+	n, err := w.writer.Write(p)
+	w.bytes += int64(n)
+	if n > 0 {
+		select {
+		case w.updates <- w.bytes:
+		default:
+		}
+	}
+	return n, err
 }
