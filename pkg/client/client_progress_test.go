@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,6 +14,30 @@ import (
 	"testing"
 	"time"
 )
+
+type failedWriter struct{}
+
+func (failedWriter) Write([]byte) (int, error) { return 0, io.ErrClosedPipe }
+
+func TestProgressWriterReportsOnlyWrittenBytes(t *testing.T) {
+	updates := make(chan int64, 2)
+	w := &progressWriter{writer: io.Discard, updates: updates}
+	if n, err := w.Write([]byte("book")); n != 4 || err != nil {
+		t.Fatalf("write = %d, %v", n, err)
+	}
+	if n := <-updates; n != 4 {
+		t.Fatalf("progress = %d, want 4", n)
+	}
+	w.writer = failedWriter{}
+	if n, err := w.Write([]byte("file")); n != 0 || !errors.Is(err, io.ErrClosedPipe) {
+		t.Fatalf("failed write = %d, %v", n, err)
+	}
+	select {
+	case n := <-updates:
+		t.Fatalf("reported %d bytes for a failed write", n)
+	default:
+	}
+}
 
 type pacedTransport struct{ final <-chan struct{} }
 
