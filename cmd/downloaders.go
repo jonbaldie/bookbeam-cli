@@ -117,19 +117,7 @@ func downloadersExportCmd(a *app) *cobra.Command {
 
 			destPath, _ := cmd.Flags().GetString("output")
 			if destPath == "-" {
-				n, err := a.printer.Out.Write(raw)
-				if err != nil {
-					return fmt.Errorf("failed to write CSV to stdout: %w", err)
-				}
-				if n != len(raw) {
-					return fmt.Errorf("failed to write CSV to stdout: %w", io.ErrShortWrite)
-				}
-				if !a.printer.Quiet {
-					if _, err := fmt.Fprintf(cmd.ErrOrStderr(), "✓ Exported %d bytes to stdout\n", len(raw)); err != nil {
-						return fmt.Errorf("failed to write export confirmation to stderr: %w", err)
-					}
-				}
-				return nil
+				return writeDownloaderCSVToStdout(a, cmd, raw)
 			}
 			if destPath == "" {
 				destPath = fmt.Sprintf("downloaders-project-%d.csv", projectID)
@@ -145,4 +133,20 @@ func downloadersExportCmd(a *app) *cobra.Command {
 	}
 	cmd.Flags().StringP("output", "o", "", "Destination CSV file path (use - for stdout)")
 	return cmd
+}
+
+func writeDownloaderCSVToStdout(a *app, cmd *cobra.Command, raw []byte) error {
+	n, err := a.printer.Out.Write(raw)
+	if err != nil {
+		return fmt.Errorf("failed to write CSV to stdout: %w", err)
+	}
+	if n != len(raw) {
+		return fmt.Errorf("failed to write CSV to stdout: %w", io.ErrShortWrite)
+	}
+	if !a.printer.Quiet {
+		if _, err := fmt.Fprintf(cmd.ErrOrStderr(), "✓ Exported %d bytes to stdout\n", len(raw)); err != nil {
+			return fmt.Errorf("failed to write export confirmation to stderr: %w", err)
+		}
+	}
+	return nil
 }
