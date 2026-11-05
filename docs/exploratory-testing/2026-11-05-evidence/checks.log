@@ -1,0 +1,123 @@
+?   	github.com/jonbaldie/bookbeam-cli	[no test files]
+Error: outer: inner: API error (403): Request rejected.
+Error: outer: inner: API error (404): Request rejected.
+Error: outer: inner: API error (422): Request rejected.
+Error: outer: inner: API error (500): Request rejected.
+Error: Not authenticated. Run 'bookbeam auth login' to authenticate.
+Usage:
+  bookbeam auth login [flags]
+
+Flags:
+  -h, --help           help for login
+      --token string   Authenticate directly with an API personal access token
+
+Global Flags:
+      --host string   BookBeam API host (default https://bookbeam.app)
+      --json          Output results as JSON
+  -q, --quiet         Suppress informational messages
+
+Uploading large.pdf (67108864 bytes) to project #1...
+Usage:
+  bookbeam files upload <project-id> <file-path> [flags]
+
+Flags:
+  -h, --help   help for upload
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Usage:
+  bookbeam projects list [flags]
+
+Flags:
+  -h, --help       help for list
+      --page int   Page number (default 1)
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Uploading book.pdf (4 bytes) to project #1...
+Usage:
+  bookbeam files upload <project-id> <file-path> [flags]
+
+Flags:
+  -h, --help   help for upload
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Downloading file to /home/ubuntu/Code/pstack/jonbaldie/bookbeam-cli-explore-20261105/.explore/tmp/TestActiveRemoteWorkCancellationdownload4036209632/003/download.pdf...
+Usage:
+  bookbeam files download <project-id> <file-id> [flags]
+
+Flags:
+  -h, --help            help for download
+  -o, --output string   Destination file path
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Usage:
+  bookbeam projects list [flags]
+
+Flags:
+  -h, --help       help for list
+      --page int   Page number (default 1)
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Usage:
+  bookbeam links update <project-id> <link-id> [flags]
+
+Flags:
+      --clear-consent    Clear newsletter consent text
+      --consent string   Updated newsletter consent text
+  -h, --help             help for update
+      --title string     Updated link title
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+Usage:
+  bookbeam projects list [flags]
+
+Flags:
+  -h, --help       help for list
+      --page int   Page number (default 1)
+
+Global Flags:
+      --host string    BookBeam API host (default https://bookbeam.app)
+      --json           Output results as JSON
+  -q, --quiet          Suppress informational messages
+      --token string   BookBeam API personal access token
+
+--- FAIL: TestNtdDownloadersExportWritesCSV (0.00s)
+    newsletter_telemetry_downloaders_mutation_test.go:240: file mode -rw-------, want 0644
+✓ Authentication token saved successfully.
+✓ Logged out successfully.
+FAIL
+FAIL	github.com/jonbaldie/bookbeam-cli/cmd	8.138s
+ok  	github.com/jonbaldie/bookbeam-cli/integration	34.597s
+ok  	github.com/jonbaldie/bookbeam-cli/pkg/client	0.445s
+ok  	github.com/jonbaldie/bookbeam-cli/pkg/config	0.051s
+ok  	github.com/jonbaldie/bookbeam-cli/pkg/output	0.009s
+FAIL
