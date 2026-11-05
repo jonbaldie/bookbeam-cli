@@ -1,0 +1,5 @@
+go version go1.26.8 linux/amd64
+all modules verified
+go.mod: OK
+go.sum: OK
+bookbeam version dev

@@ -1,0 +1,41 @@
+fixture= ('127.0.0.1', 40601) owner=main thread; teardown=shutdown/server_close/join
+
+AUTH
+$ bookbeam auth login --token fake-token --json
+exit= 0 stdout= '{\n  "host": "http://127.0.0.1:40601",\n  "logged_in": true\n}\n' stderr= ''
+config mode= 0o600 token saved= True
+$ bookbeam whoami --json
+exit= 0 stdout= '{\n  "api_host": "http://127.0.0.1:40601",\n  "current_team": {\n    "id": 1,\n    "name": "Fixture Team"\n  },\n  "email": "reader@example.test",\n  "id": 1,\n  "name": "Fixture Reader"\n}\n' stderr= ''
+$ bookbeam auth logout --json
+exit= 0 stdout= '{\n  "host": "http://127.0.0.1:40601",\n  "logged_in": false\n}\n' stderr= ''
+logout removed token= True
+$ bookbeam whoami
+exit= 1 stdout= '' stderr= "Error: Not authenticated. Run 'bookbeam auth login' to authenticate.\n"
+after logout requests sent= 0
+
+CSV EXPORT
+$ bookbeam downloaders export 7 --output subscribers.csv --json
+exit= 0 stdout= '{\n  "bytes_written": 348,\n  "path": "subscribers.csv",\n  "project_id": 7\n}\n' stderr= ''
+disk CSV matches fixture= True mode= 0o600
+$ bookbeam downloaders export 7 --output -
+exit= 0 stdout= 'email,signup_link_title\nreader@example.test,Sample\nreader@example.test,Sample\nreader@example.test,Sample\nreader@example.test,Sample\nreader@example.test,Sample\nreader@example.test,Sample\nreader@example.test,Sample\nreader@example.test,Sample\nreader@example.test,Sample\nreader@example.test,Sample\nreader@example.test,Sample\nreader@example.test,Sample\n' stderr= '✓ Exported 348 bytes to stdout\n'
+stdout CSV matches fixture= True
+$ bookbeam downloaders export 7 -o keep0.csv
+exit= 1 stdout= '' stderr= 'Usage:\n  bookbeam downloaders export <project-id> [flags]\n\nFlags:\n  -h, --help            help for export\n  -o, --output string   Destination CSV file path (use - for stdout)\n\nGlobal Flags:\n      --host string    BookBeam API host (default https://bookbeam.app)\n      --json           Output results as JSON\n  -q, --quiet          Suppress informational messages\n      --token string   BookBeam API personal access token\n\nError: failed to save CSV file: write keep0.csv: file too large\n'
+limited replay= 1 previous preserved= False length= 64 partial matches new= True
+$ bookbeam downloaders export 7 -o keep1.csv
+exit= 1 stdout= '' stderr= 'Usage:\n  bookbeam downloaders export <project-id> [flags]\n\nFlags:\n  -h, --help            help for export\n  -o, --output string   Destination CSV file path (use - for stdout)\n\nGlobal Flags:\n      --host string    BookBeam API host (default https://bookbeam.app)\n      --json           Output results as JSON\n  -q, --quiet          Suppress informational messages\n      --token string   BookBeam API personal access token\n\nError: failed to save CSV file: write keep1.csv: file too large\n'
+limited replay= 2 previous preserved= False length= 64 partial matches new= True
+
+FILE DOWNLOAD
+$ bookbeam files download 7 8 --json
+exit= 0 stdout= '{\n  "bytes_written": 19,\n  "file_id": 8,\n  "path": "fixture.epub",\n  "project_id": 7\n}\n' stderr= ''
+default download matches fixture= True
+$ bookbeam files download 7 9 -o keep.epub
+exit= 1 stdout= 'Downloading file to keep.epub...\n' stderr= 'Usage:\n  bookbeam files download <project-id> <file-id> [flags]\n\nFlags:\n  -h, --help            help for download\n  -o, --output string   Destination file path\n\nGlobal Flags:\n      --host string    BookBeam API host (default https://bookbeam.app)\n      --json           Output results as JSON\n  -q, --quiet          Suppress informational messages\n      --token string   BookBeam API personal access token\n\nError: failed to write file contents: unexpected EOF\n'
+short body replay= 1 old book preserved= True staged files= 0
+$ bookbeam files download 7 9 -o keep.epub
+exit= 1 stdout= 'Downloading file to keep.epub...\n' stderr= 'Usage:\n  bookbeam files download <project-id> <file-id> [flags]\n\nFlags:\n  -h, --help            help for download\n  -o, --output string   Destination file path\n\nGlobal Flags:\n      --host string    BookBeam API host (default https://bookbeam.app)\n      --json           Output results as JSON\n  -q, --quiet          Suppress informational messages\n      --token string   BookBeam API personal access token\n\nError: failed to write file contents: unexpected EOF\n'
+short body replay= 2 old book preserved= True staged files= 0
+requests= [('/api/v1/user', 'Bearer fake-token'), ('/api/v1/projects/7/export-downloaders', 'Bearer fake-token'), ('/api/v1/projects/7/export-downloaders', 'Bearer fake-token'), ('/api/v1/projects/7/export-downloaders', 'Bearer fake-token'), ('/api/v1/projects/7/export-downloaders', 'Bearer fake-token'), ('/api/v1/projects/7/files/8/download', 'Bearer fake-token'), ('/api/v1/projects/7/files/9/download', 'Bearer fake-token'), ('/api/v1/projects/7/files/9/download', 'Bearer fake-token')]
+fixture stopped= True

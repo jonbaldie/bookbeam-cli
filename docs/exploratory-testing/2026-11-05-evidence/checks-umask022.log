@@ -1,0 +1,8 @@
+umask 022
+?   	github.com/jonbaldie/bookbeam-cli	[no test files]
+ok  	github.com/jonbaldie/bookbeam-cli/cmd	8.036s
+ok  	github.com/jonbaldie/bookbeam-cli/integration	34.449s
+ok  	github.com/jonbaldie/bookbeam-cli/pkg/client	0.447s
+ok  	github.com/jonbaldie/bookbeam-cli/pkg/config	0.057s
+ok  	github.com/jonbaldie/bookbeam-cli/pkg/output	(cached)
+go vet passed
