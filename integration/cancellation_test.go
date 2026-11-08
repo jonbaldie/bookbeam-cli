@@ -20,7 +20,7 @@ func TestSignalsCancelRemoteWork(t *testing.T) {
 		t.Skip("Unix process signals")
 	}
 	for _, signal := range []os.Signal{os.Interrupt, syscall.SIGTERM} {
-		for _, operation := range []string{"short", "upload", "download"} {
+		for _, operation := range []string{"short", "upload", "download", "export"} {
 			t.Run(signal.String()+"/"+operation, func(t *testing.T) {
 				started, stopped, release := make(chan struct{}), make(chan struct{}), make(chan struct{})
 				server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +29,7 @@ func TestSignalsCancelRemoteWork(t *testing.T) {
 					if operation == "upload" {
 						_, _ = io.Copy(io.Discard, r.Body)
 					}
-					if operation == "download" {
+					if operation == "download" || operation == "export" {
 						fmt.Fprint(w, "partial")
 						w.(http.Flusher).Flush()
 					}
@@ -53,6 +53,13 @@ func TestSignalsCancelRemoteWork(t *testing.T) {
 				}
 				if operation == "download" {
 					args = []string{"files", "download", "1", "2", "-o", filepath.Join(dir, "download.pdf")}
+				}
+				exportPath := filepath.Join(dir, "export.csv")
+				if operation == "export" {
+					if err := os.WriteFile(exportPath, []byte("previous"), 0600); err != nil {
+						t.Fatal(err)
+					}
+					args = []string{"downloaders", "export", "1", "-o", exportPath}
 				}
 				child := exec.Command(binary, args...)
 				child.Env = append(os.Environ(), "BOOKBEAM_HOST="+server.URL, "BOOKBEAM_TOKEN=fixture", "BOOKBEAM_CONFIG_DIR="+dir)
@@ -85,6 +92,16 @@ func TestSignalsCancelRemoteWork(t *testing.T) {
 				case <-stopped:
 				case <-time.After(5 * time.Second):
 					t.Fatal("server did not observe cancellation")
+				}
+				if operation == "export" {
+					data, err := os.ReadFile(exportPath)
+					if err != nil || string(data) != "previous" {
+						t.Fatalf("destination after signal = %q, %v", data, err)
+					}
+					files, _ := filepath.Glob(filepath.Join(dir, ".bookbeam-csv-*"))
+					if len(files) != 0 {
+						t.Fatalf("temporary files: %v", files)
+					}
 				}
 			})
 		}

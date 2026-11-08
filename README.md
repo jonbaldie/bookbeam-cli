@@ -134,6 +134,8 @@ bookbeam downloaders list <project-id> [--page 1]
 bookbeam downloaders export <project-id> [--output ./subscribers.csv]
 ```
 
+Exports to a file replace it only after the transfer succeeds. File exports reject symbolic links and non-regular destinations. With `--output -`, the CSV streams to stdout and may be partial if the transfer fails. Check the exit status before using the output.
+
 ### Newsletter Settings
 
 ```bash
