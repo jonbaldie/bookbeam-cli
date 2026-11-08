@@ -16,12 +16,14 @@ import (
 )
 
 const DefaultRequestTimeout = 30 * time.Second
+const DefaultTransferTimeout = 24 * time.Hour
 
 type Client struct {
-	BaseURL    string
-	Token      string
-	HTTPClient *http.Client
-	Timeout    time.Duration
+	BaseURL         string
+	Token           string
+	HTTPClient      *http.Client
+	Timeout         time.Duration
+	TransferTimeout time.Duration
 }
 
 type APIError struct {
@@ -48,10 +50,11 @@ func (e *APIError) Error() string {
 // or https URL with no trailing slash, as config.Settings.Host returns.
 func New(baseURL, token string) *Client {
 	return &Client{
-		BaseURL:    baseURL,
-		Token:      token,
-		HTTPClient: &http.Client{},
-		Timeout:    DefaultRequestTimeout,
+		BaseURL:         baseURL,
+		Token:           token,
+		HTTPClient:      &http.Client{},
+		Timeout:         DefaultRequestTimeout,
+		TransferTimeout: DefaultTransferTimeout,
 	}
 }
 
@@ -131,6 +134,27 @@ func (c *Client) GetWithContext(ctx context.Context, path string, query url.Valu
 	}
 	defer resp.Body.Close()
 	return io.ReadAll(resp.Body)
+}
+
+type TransferResponse struct {
+	StatusCode int
+	Header     http.Header
+}
+
+func StreamGet(c *Client, ctx context.Context, path string, dst io.Writer) (TransferResponse, int64, error) {
+	if c.TransferTimeout > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, c.TransferTimeout)
+		defer cancel()
+	}
+	resp, err := c.RequestWithContext(ctx, http.MethodGet, path, nil, "")
+	if err != nil {
+		return TransferResponse{}, 0, err
+	}
+	defer resp.Body.Close()
+	metadata := TransferResponse{StatusCode: resp.StatusCode, Header: resp.Header.Clone()}
+	n, err := io.Copy(dst, resp.Body)
+	return metadata, n, err
 }
 
 func (c *Client) Post(path string, payload any) ([]byte, error) {

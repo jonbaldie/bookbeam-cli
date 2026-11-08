@@ -1,12 +1,16 @@
 package cmd
 
 import (
+	"context"
+	"crypto/rand"
 	"fmt"
 	"io"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strconv"
 
+	"github.com/jonbaldie/bookbeam-cli/pkg/client"
 	"github.com/jonbaldie/bookbeam-cli/pkg/output"
 	"github.com/spf13/cobra"
 )
@@ -96,7 +100,7 @@ func downloadersListCmd(a *app) *cobra.Command {
 type exportResult struct {
 	ProjectID    int    `json:"project_id"`
 	Path         string `json:"path"`
-	BytesWritten int    `json:"bytes_written"`
+	BytesWritten int64  `json:"bytes_written"`
 }
 
 func downloadersExportCmd(a *app) *cobra.Command {
@@ -110,43 +114,112 @@ func downloadersExportCmd(a *app) *cobra.Command {
 				return err
 			}
 
-			raw, err := a.apiCli.GetWithContext(cmd.Context(), fmt.Sprintf("/api/v1/projects/%d/export-downloaders", projectID), nil)
-			if err != nil {
-				return err
-			}
-
+			path := fmt.Sprintf("/api/v1/projects/%d/export-downloaders", projectID)
 			destPath, _ := cmd.Flags().GetString("output")
 			if destPath == "-" {
-				return writeDownloaderCSVToStdout(a, cmd, raw)
+				return writeDownloaderCSVToStdout(a, cmd, path)
 			}
 			if destPath == "" {
 				destPath = fmt.Sprintf("downloaders-project-%d.csv", projectID)
 			}
 
-			if err := os.WriteFile(destPath, raw, 0644); err != nil {
-				return fmt.Errorf("failed to save CSV file: %w", err)
+			n, err := saveDownloaderCSV(cmd.Context(), a.apiCli, path, destPath)
+			if err != nil {
+				return err
 			}
-
-			result := exportResult{ProjectID: projectID, Path: destPath, BytesWritten: len(raw)}
-			return a.printer.Success(result, fmt.Sprintf("✓ Exported %d bytes to %s", len(raw), destPath))
+			result := exportResult{ProjectID: projectID, Path: destPath, BytesWritten: n}
+			return a.printer.Success(result, fmt.Sprintf("✓ Exported %d bytes to %s", n, destPath))
 		},
 	}
 	cmd.Flags().StringP("output", "o", "", "Destination CSV file path (use - for stdout)")
 	return cmd
 }
 
-func writeDownloaderCSVToStdout(a *app, cmd *cobra.Command, raw []byte) error {
-	n, err := a.printer.Out.Write(raw)
-	if err != nil {
-		return fmt.Errorf("failed to write CSV to stdout: %w", err)
+type csvWriter struct {
+	io.Writer
+	message string
+}
+
+func (w *csvWriter) Write(p []byte) (int, error) {
+	n, err := w.Writer.Write(p)
+	if err == nil && n != len(p) {
+		err = io.ErrShortWrite
 	}
-	if n != len(raw) {
-		return fmt.Errorf("failed to write CSV to stdout: %w", io.ErrShortWrite)
+	if err != nil {
+		return n, fmt.Errorf("%s: %w", w.message, err)
+	}
+	return n, nil
+}
+
+func writeDownloaderCSVToStdout(a *app, cmd *cobra.Command, path string) error {
+	w := &csvWriter{Writer: a.printer.Out, message: "failed to write CSV to stdout"}
+	_, n, err := client.StreamGet(a.apiCli, cmd.Context(), path, w)
+	if err != nil {
+		return err
 	}
 	if !a.printer.Quiet {
-		if _, err := fmt.Fprintf(cmd.ErrOrStderr(), "✓ Exported %d bytes to stdout\n", len(raw)); err != nil {
+		if _, err := fmt.Fprintf(cmd.ErrOrStderr(), "✓ Exported %d bytes to stdout\n", n); err != nil {
 			return fmt.Errorf("failed to write export confirmation to stderr: %w", err)
 		}
 	}
 	return nil
+}
+
+func saveDownloaderCSV(ctx context.Context, api *client.Client, path, dest string) (int64, error) {
+	file, err := createCSVTemp(dest)
+	if err != nil {
+		return 0, fmt.Errorf("failed to save CSV file: %w", err)
+	}
+	defer os.Remove(file.Name())
+	defer file.Close()
+	_, n, err := client.StreamGet(api, ctx, path, &csvWriter{Writer: file, message: "failed to save CSV file"})
+	if err != nil {
+		return 0, err
+	}
+	if err := file.Close(); err != nil {
+		return 0, fmt.Errorf("failed to save CSV file: %w", err)
+	}
+	if err := ctx.Err(); err != nil {
+		return 0, err
+	}
+	if err := os.Rename(file.Name(), dest); err != nil {
+		return 0, fmt.Errorf("failed to save CSV file: %w", err)
+	}
+	return n, nil
+}
+
+func createCSVTemp(dest string) (*os.File, error) {
+	info, err := os.Lstat(dest)
+	if err != nil && !os.IsNotExist(err) {
+		return nil, err
+	}
+	if err == nil && !info.Mode().IsRegular() {
+		return nil, fmt.Errorf("destination is not a regular file")
+	}
+	mode := os.FileMode(0644)
+	if info != nil {
+		mode = info.Mode().Perm()
+	}
+	var nonce [16]byte
+	if _, err := rand.Read(nonce[:]); err != nil {
+		return nil, err
+	}
+	name := filepath.Join(filepath.Dir(dest), fmt.Sprintf(".bookbeam-csv-%x", nonce))
+	file, err := os.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_EXCL, mode)
+	if err != nil {
+		return nil, err
+	}
+	if info == nil {
+		return file, nil
+	}
+	return preserveCSVMode(file, mode)
+}
+
+func preserveCSVMode(file *os.File, mode os.FileMode) (*os.File, error) {
+	if err := file.Chmod(mode); err != nil {
+		file.Close()
+		os.Remove(file.Name())
+		return nil, err
+	}
+	return file, nil
 }
