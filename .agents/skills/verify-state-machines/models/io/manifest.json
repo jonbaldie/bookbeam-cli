@@ -1,0 +1,173 @@
+[
+  {
+    "model": "HTTP.tla",
+    "config": "HTTP.cfg",
+    "expectation": "pass",
+    "machine": "S8",
+    "kind": "baseline"
+  },
+  {
+    "model": "HTTP.tla",
+    "config": "HTTP.mutant-1.cfg",
+    "expectation": "fail",
+    "invariant": "ErrorOwnership",
+    "machine": "S8",
+    "kind": "mutant"
+  },
+  {
+    "model": "HTTP.tla",
+    "config": "HTTP.mutant-2.cfg",
+    "expectation": "fail",
+    "invariant": "ShortDeadline",
+    "machine": "S8",
+    "kind": "mutant"
+  },
+  {
+    "model": "HTTP.tla",
+    "config": "HTTP.finding.cfg",
+    "expectation": "fail",
+    "invariant": "AllRequestsHaveDeadline",
+    "machine": "S8",
+    "kind": "finding"
+  },
+  {
+    "model": "Multipart.tla",
+    "config": "Multipart.cfg",
+    "expectation": "pass",
+    "machine": "S9",
+    "kind": "baseline"
+  },
+  {
+    "model": "Multipart.tla",
+    "config": "Multipart.mutant-1.cfg",
+    "expectation": "fail",
+    "invariant": "ReaderClosedOnReturn",
+    "machine": "S9",
+    "kind": "mutant"
+  },
+  {
+    "model": "Multipart.tla",
+    "config": "Multipart.mutant-2.cfg",
+    "expectation": "fail",
+    "invariant": "ProducerOwnsCleanup",
+    "machine": "S9",
+    "kind": "mutant"
+  },
+  {
+    "model": "Multipart.tla",
+    "config": "Multipart.finding.cfg",
+    "expectation": "fail",
+    "invariant": "ReturnMeansFileClosed",
+    "machine": "S9",
+    "kind": "finding"
+  },
+  {
+    "model": "Download.tla",
+    "config": "Download.cfg",
+    "expectation": "pass",
+    "machine": "S10",
+    "kind": "baseline"
+  },
+  {
+    "model": "Download.tla",
+    "config": "Download.mutant-1.cfg",
+    "expectation": "fail",
+    "invariant": "SuccessNeedsComplete",
+    "machine": "S10",
+    "kind": "mutant"
+  },
+  {
+    "model": "Download.tla",
+    "config": "Download.mutant-2.cfg",
+    "expectation": "fail",
+    "invariant": "FailurePreservesDestination",
+    "machine": "S10",
+    "kind": "mutant"
+  },
+  {
+    "model": "Output.tla",
+    "config": "Output.cfg",
+    "expectation": "pass",
+    "machine": "S11",
+    "kind": "baseline"
+  },
+  {
+    "model": "Output.tla",
+    "config": "Output.mutant-1.cfg",
+    "expectation": "fail",
+    "invariant": "PreparationBeforePublication",
+    "machine": "S11",
+    "kind": "mutant"
+  },
+  {
+    "model": "Output.tla",
+    "config": "Output.mutant-2.cfg",
+    "expectation": "fail",
+    "invariant": "LaunchAfterSuccessfulText",
+    "machine": "S11",
+    "kind": "mutant"
+  },
+  {
+    "model": "Output.tla",
+    "config": "Output.mutant-3.cfg",
+    "expectation": "fail",
+    "invariant": "NoFooterAfterError",
+    "machine": "S11",
+    "kind": "mutant"
+  },
+  {
+    "model": "HTTP.tla",
+    "config": "HTTP.mutant-3.cfg",
+    "expectation": "fail",
+    "invariant": "TransferDeadline",
+    "machine": "S8",
+    "kind": "mutant"
+  },
+  {
+    "model": "HTTP.tla",
+    "config": "HTTP.mutant-4.cfg",
+    "expectation": "fail",
+    "invariant": "CancelledBeforeDispatch",
+    "machine": "S8",
+    "kind": "mutant"
+  },
+  {
+    "model": "Download.tla",
+    "config": "Download.mutant-3.cfg",
+    "expectation": "fail",
+    "invariant": "StdoutShortWriteFails",
+    "machine": "S10",
+    "kind": "mutant"
+  },
+  {
+    "model": "Download.tla",
+    "config": "Download.mutant-4.cfg",
+    "expectation": "fail",
+    "invariant": "PublicationAfterClose",
+    "machine": "S10",
+    "kind": "mutant"
+  },
+  {
+    "model": "Multipart.tla",
+    "config": "Multipart.mutant-3.cfg",
+    "expectation": "fail",
+    "invariant": "WriterBeforeFile",
+    "machine": "S9",
+    "kind": "mutant"
+  },
+  {
+    "model": "Progress.tla",
+    "config": "Progress.mutant-1.cfg",
+    "expectation": "fail",
+    "invariant": "ProgressNeverOverstatesTransport",
+    "machine": "S9",
+    "kind": "mutant"
+  },
+  {
+    "model": "Progress.tla",
+    "config": "Progress.cfg",
+    "expectation": "pass",
+    "machine": "S9",
+    "kind": "baseline"
+  }
+]

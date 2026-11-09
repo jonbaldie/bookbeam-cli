@@ -1,0 +1,26 @@
+{
+  "commit": "14b3363649eb5f7889310bfc52979fee6c015176",
+  "files": {
+    ".github/workflows/ci.yml": "1a34e17f80387a7fcfc7c30b46dd21869845a4568c86d2f99e7af4e836147027",
+    ".github/workflows/release.yml": "436862e632a3c31a7e4663de9396c9076d702abbe83230f59bcaeafacc6f7ae9",
+    "cmd/auth.go": "0afdefd083ba3e48a6e1b17a770fbbcf04b92de6670e8e21ee661d00b8a02994",
+    "cmd/authentication.go": "c0b4582c37cd379f3f2bb37f146db1fd282d4077e030d0d2b4b9e413b4c54158",
+    "cmd/billing.go": "1743e4d591135831197e936185a7d2cd8cd6af5cd72f87f4c4b8da834062db5f",
+    "cmd/completion.go": "daecfb65b15185c1c35a0ff71923fe0573ea7e039aecd01a5dbdaf2bb11e04a1",
+    "cmd/downloaders.go": "d5e5f58ebe0c892b313832ce4a92f34f2296f45717beb682c6fbe9969560f456",
+    "cmd/field_edit.go": "e40b6176e2f6d7f9ab97d43fbb9a7d0779f2e884fa511b5a296def2801e6367e",
+    "cmd/files.go": "c910f602b6badc385e9fe9e894e1e04d84ff61a45068b741c829e78618760d68",
+    "cmd/ids.go": "929068e0e004f0988923d33a074cc4a2ae042990b255cc68505e5ea2c4b2a8ae",
+    "cmd/links.go": "42a75a85428660f115329e3d703e26dbd48b07accdc82291ab469768760dacc2",
+    "cmd/newsletter.go": "0f26528876fab36a062d0ae8eba7aff47cc72840f67ea2caab581f46c0b177a4",
+    "cmd/projects.go": "1c4f2f986bbfefeb490ce80e6c73d0cacc267cf5b7c694c305148774938a2be2",
+    "cmd/response.go": "bdda8e0381ad28ed4f02b32b6e7d73c299b66c4fb7be3e9cbeeff43829eda237",
+    "cmd/root.go": "57a255707ba9d61927637c413a28aa15d8ddd3034133c32158158cb41ce33d6c",
+    "cmd/telemetry.go": "e735cc7c95c8ca6261a6240af853f66239a040aacbfc7ab0ddd90aab15fa6d24",
+    "main.go": "a4ddb92e8e29cb2a35855ef82ec95aa84bdcdcaa96a16083c3ad7ec5464eafa1",
+    "pkg/client/client.go": "11f9c77fe5734d282afc67e95d027d272eb26026556005cafb6e1c75eef1f3a7",
+    "pkg/config/config.go": "d88c85b67828e27df64a7557e0c00259e8ad958dc7f709ff4df142815e8af1af",
+    "pkg/output/printer.go": "05c89cf71b0d348d65d470a82314bff4e2e7b0785836a3e00436b6e6b716521d",
+    "pkg/output/sanitize.go": "b077b4cdba011c408993590d76eb1a195dcf2fa79a2e6d3dfcff289844a8df95"
+  }
+}

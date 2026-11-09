@@ -1,0 +1,6 @@
+{
+  "formal_client_test.go": "pkg/client/formal_io_test.go",
+  "formal_output_test.go": "pkg/output/formal_io_test.go",
+  "formal_download_test.go": "cmd/formal_io_download_test.go",
+  "formal_cleanup_unix_test.go": "pkg/client/formal_io_cleanup_unix_test.go"
+}
