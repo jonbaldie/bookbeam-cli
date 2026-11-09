@@ -1,0 +1,151 @@
+[
+  {
+    "model": "AuthPoll.tla",
+    "config": "AuthPoll.cfg",
+    "expectation": "pass",
+    "invariant": [
+      "BackoffOnlyOnSlowDown",
+      "ReportRequiresSave",
+      "WaitCancellationStopsPolling",
+      "SaveRequiresCancellationCheck",
+      "UnauthorizedIsTerminal"
+    ],
+    "kind": "baseline",
+    "machine": "S1"
+  },
+  {
+    "model": "AuthPoll.tla",
+    "config": "AuthPoll.mutant-1.cfg",
+    "expectation": "fail",
+    "invariant": "BackoffOnlyOnSlowDown",
+    "kind": "mutant",
+    "machine": "S1"
+  },
+  {
+    "model": "AuthPoll.tla",
+    "config": "AuthPoll.mutant-2.cfg",
+    "expectation": "fail",
+    "invariant": "ReportRequiresSave",
+    "kind": "mutant",
+    "machine": "S1"
+  },
+  {
+    "model": "AuthPoll.tla",
+    "config": "AuthPoll.finding-expiry.cfg",
+    "expectation": "fail",
+    "invariant": "NoRequestAfterExpiry",
+    "kind": "finding",
+    "machine": "S1"
+  },
+  {
+    "model": "AuthPoll.tla",
+    "config": "AuthPoll.finding-empty-token.cfg",
+    "expectation": "fail",
+    "invariant": "LoginHasToken",
+    "kind": "finding",
+    "machine": "S1"
+  },
+  {
+    "model": "Credentials.tla",
+    "config": "Credentials.cfg",
+    "expectation": "pass",
+    "invariant": [
+      "OverridesNeverPersisted",
+      "PermissionsBeforeWrite",
+      "FailedSaveIsAtomic"
+    ],
+    "kind": "baseline",
+    "machine": "S2/S3"
+  },
+  {
+    "model": "Credentials.tla",
+    "config": "Credentials.mutant-1.cfg",
+    "expectation": "fail",
+    "invariant": "OverridesNeverPersisted",
+    "kind": "mutant",
+    "machine": "S2/S3"
+  },
+  {
+    "model": "Credentials.tla",
+    "config": "Credentials.mutant-2.cfg",
+    "expectation": "fail",
+    "invariant": "PermissionsBeforeWrite",
+    "kind": "mutant",
+    "machine": "S2/S3"
+  },
+  {
+    "model": "Credentials.tla",
+    "config": "Credentials.mutant-3.cfg",
+    "expectation": "fail",
+    "invariant": "FailedSaveIsAtomic",
+    "kind": "mutant",
+    "machine": "S2/S3"
+  },
+  {
+    "model": "Credentials.tla",
+    "config": "Credentials.finding-logout.cfg",
+    "expectation": "fail",
+    "invariant": "LogoutClearsEffectiveToken",
+    "kind": "finding",
+    "machine": "S2/S3"
+  },
+  {
+    "model": "Credentials.tla",
+    "config": "Credentials.finding-client.cfg",
+    "expectation": "fail",
+    "invariant": "ClientMatchesSettings",
+    "kind": "finding",
+    "machine": "S2/S3"
+  },
+  {
+    "model": "Readiness.tla",
+    "config": "Readiness.cfg",
+    "expectation": "pass",
+    "invariant": [
+      "CommandRequiresReady",
+      "CommandRequiresAuthentication"
+    ],
+    "kind": "baseline",
+    "machine": "S4"
+  },
+  {
+    "model": "Readiness.tla",
+    "config": "Readiness.mutant-1.cfg",
+    "expectation": "fail",
+    "invariant": "CommandRequiresReady",
+    "kind": "mutant",
+    "machine": "S4"
+  },
+  {
+    "model": "AuthPoll.tla",
+    "config": "AuthPoll.mutant-3.cfg",
+    "expectation": "fail",
+    "invariant": "WaitCancellationStopsPolling",
+    "kind": "mutant",
+    "machine": "S1"
+  },
+  {
+    "model": "AuthPoll.tla",
+    "config": "AuthPoll.mutant-4.cfg",
+    "expectation": "fail",
+    "invariant": "SaveRequiresCancellationCheck",
+    "kind": "mutant",
+    "machine": "S1"
+  },
+  {
+    "model": "Readiness.tla",
+    "config": "Readiness.mutant-2.cfg",
+    "expectation": "fail",
+    "invariant": "CommandRequiresAuthentication",
+    "kind": "mutant",
+    "machine": "S4"
+  },
+  {
+    "model": "AuthPoll.tla",
+    "config": "AuthPoll.mutant-5.cfg",
+    "expectation": "fail",
+    "invariant": "UnauthorizedIsTerminal",
+    "kind": "mutant",
+    "machine": "S1"
+  }
+]

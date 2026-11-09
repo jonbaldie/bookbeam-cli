@@ -1,0 +1,120 @@
+[
+  {
+    "model": "FieldEdits.tla",
+    "config": "FieldEdits.cfg",
+    "expectation": "pass",
+    "invariant": "EditSemantics",
+    "machine": "F1",
+    "kind": "baseline"
+  },
+  {
+    "model": "FieldEdits.tla",
+    "config": "FieldEdits.mutant.cfg",
+    "expectation": "fail",
+    "invariant": "EditSemantics",
+    "machine": "F1",
+    "kind": "mutant"
+  },
+  {
+    "model": "ReadMergeWrite.tla",
+    "config": "ReadMergeWrite.cfg",
+    "expectation": "pass",
+    "invariant": "ReadFailurePreventsWrite",
+    "machine": "S5,S6",
+    "kind": "baseline"
+  },
+  {
+    "model": "ReadMergeWrite.tla",
+    "config": "ReadMergeWrite.mutant.cfg",
+    "expectation": "fail",
+    "invariant": "ReadFailurePreventsWrite",
+    "machine": "S5,S6",
+    "kind": "mutant"
+  },
+  {
+    "model": "DeleteGate.tla",
+    "config": "DeleteGate.cfg",
+    "expectation": "pass",
+    "invariant": "AuthorizedDelete",
+    "machine": "S7",
+    "kind": "baseline"
+  },
+  {
+    "model": "DeleteGate.tla",
+    "config": "DeleteGate.mutant.cfg",
+    "expectation": "fail",
+    "invariant": "AuthorizedDelete",
+    "machine": "S7",
+    "kind": "mutant"
+  },
+  {
+    "model": "RemoteRequests.tla",
+    "config": "RemoteRequests.cfg",
+    "expectation": "pass",
+    "invariant": [
+      "ReportAfterRequest",
+      "ExplicitWebhookURL"
+    ],
+    "machine": "Remote projections",
+    "kind": "baseline"
+  },
+  {
+    "model": "RemoteRequests.tla",
+    "config": "RemoteRequests.mutant.cfg",
+    "expectation": "fail",
+    "invariant": "ReportAfterRequest",
+    "machine": "Remote projections",
+    "kind": "mutant"
+  },
+  {
+    "model": "Workflow.tla",
+    "config": "Workflow.cfg",
+    "expectation": "pass",
+    "invariant": [
+      "ReleaseGate",
+      "CIBuildGate"
+    ],
+    "machine": "Repository automation",
+    "kind": "baseline"
+  },
+  {
+    "model": "Workflow.tla",
+    "config": "Workflow.mutant.cfg",
+    "expectation": "fail",
+    "invariant": "ReleaseGate",
+    "machine": "Repository automation",
+    "kind": "mutant"
+  },
+  {
+    "model": "ReadMergeWrite.tla",
+    "config": "ReadMergeWrite.finding.cfg",
+    "expectation": "fail",
+    "invariant": "PreserveConcurrentEdit",
+    "machine": "S5,S6",
+    "kind": "finding"
+  },
+  {
+    "model": "RemoteRequests.tla",
+    "config": "RemoteRequests.finding.cfg",
+    "expectation": "fail",
+    "invariant": "ErrorMeansNoMutationRequest",
+    "machine": "Remote projections",
+    "kind": "finding"
+  },
+  {
+    "model": "Workflow.tla",
+    "config": "Workflow.mutant-ci.cfg",
+    "expectation": "fail",
+    "invariant": "CIBuildGate",
+    "machine": "Repository automation",
+    "kind": "mutant"
+  },
+  {
+    "model": "RemoteRequests.tla",
+    "config": "RemoteRequests.mutant-webhook.cfg",
+    "expectation": "fail",
+    "invariant": "ExplicitWebhookURL",
+    "machine": "Remote projections",
+    "kind": "mutant"
+  }
+]

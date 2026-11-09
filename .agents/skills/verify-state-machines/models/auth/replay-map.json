@@ -1,0 +1,4 @@
+{
+  "formal_auth_replay_test.go": "cmd/formal_auth_replay_test.go",
+  "formal_credentials_replay_test.go": "pkg/config/formal_credentials_replay_test.go"
+}
