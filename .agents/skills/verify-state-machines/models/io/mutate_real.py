@@ -16,7 +16,7 @@ for name,file,old,new,pkg,test in cases:
   caught=run.returncode!=0 and '--- FAIL: '+test in run.stdout
   results.append(dict(name=name,caught=caught,exit=run.returncode))
   assert caught,(name,run.stdout)
-  
+
  finally:p.write_text(s)
 
 run=subprocess.run(['go','test','./cmd','./pkg/client','./pkg/output','-run','^TestFormal','-count=1'],cwd=r,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
