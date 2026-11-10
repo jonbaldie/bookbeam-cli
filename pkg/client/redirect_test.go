@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync/atomic"
 	"testing"
 )
 
@@ -100,7 +101,9 @@ func TestClientRedirectCredentialsStayOnOrigin(t *testing.T) {
 }
 
 func TestClientStopsRedirectLoops(t *testing.T) {
+	var requests atomic.Int32
 	api := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests.Add(1)
 		http.Redirect(w, r, "/download", http.StatusFound)
 	}))
 	defer api.Close()
@@ -109,5 +112,8 @@ func TestClientStopsRedirectLoops(t *testing.T) {
 	_, err := c.Get("/download", nil)
 	if err == nil || !strings.Contains(err.Error(), "stopped after 10 redirects") {
 		t.Fatalf("redirect loop error = %v", err)
+	}
+	if got := requests.Load(); got != 10 {
+		t.Fatalf("redirect loop made %d requests, want 10", got)
 	}
 }
