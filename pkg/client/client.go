@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -50,9 +51,17 @@ func (e *APIError) Error() string {
 // or https URL with no trailing slash, as config.Settings.Host returns.
 func New(baseURL, token string) *Client {
 	return &Client{
-		BaseURL:         baseURL,
-		Token:           token,
-		HTTPClient:      &http.Client{},
+		BaseURL: baseURL,
+		Token:   token,
+		HTTPClient: &http.Client{CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			if len(via) >= 10 {
+				return errors.New("stopped after 10 redirects")
+			}
+			if req.URL.Scheme != via[0].URL.Scheme || req.URL.Host != via[0].URL.Host {
+				req.Header.Del("Authorization")
+			}
+			return nil
+		}},
 		Timeout:         DefaultRequestTimeout,
 		TransferTimeout: DefaultTransferTimeout,
 	}
